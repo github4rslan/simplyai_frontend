@@ -11,6 +11,8 @@ export type UserReport = {
 };
 
 export type ReportData = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  pdf_url: any;
   title?: string;
   date?: string;
   sections?: {

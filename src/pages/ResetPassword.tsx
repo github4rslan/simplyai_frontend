@@ -105,7 +105,7 @@ const ResetPassword = () => {
   return (
     <div className="flex flex-col min-h-screen">
       <Navbar />
-      <div className="flex-grow flex items-center justify-center p-4 bg-gradient-to-b from-white to-[var(--color-primary-50)]">
+      <div className="flex-grow flex items-center justify-center p-4 bg-[var(--color-secondary)]">
         <Card className="w-full max-w-md">
           <CardHeader>
             <CardTitle className="text-2xl">Reset Password</CardTitle>

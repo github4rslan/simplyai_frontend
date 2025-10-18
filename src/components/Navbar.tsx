@@ -83,13 +83,12 @@ const Navbar = () => {
         {user ? (
           <div className="flex space-x-2">
             <Link to="/dashboard">
-              <Button variant="outline">Dashboard</Button>
+              <Button>Dashboard</Button>
             </Link>
             <Link to="/profile">
               <Button>Account</Button>
             </Link>
             <Button
-              variant="outline"
               onClick={() => {
                 if (window.confirm("Sei sicuro di voler uscire?")) signOut();
               }}
@@ -102,7 +101,7 @@ const Navbar = () => {
         ) : (
           <div className="flex space-x-2">
             <Link to="/login">
-              <Button variant="outline">Accedi</Button>
+              <Button>Accedi</Button>
             </Link>
             <Link to="/register">
               <Button>Registrati</Button>

@@ -236,19 +236,15 @@ const PricingTable = ({
             <Card
               key={plan.id}
               className={`border-2 rounded-3xl card-hover transition-opacity ${
-                plan.is_popular
-                  ? "border-[var(--color-primary-500)] shadow-md"
-                  : "border-border"
-              } ${plan.is_free ? "border-[var(--color-primary-500)]" : ""} ${
                 isPreSelected
                   ? "border-[var(--color-primary-500)] bg-[var(--color-primary-50)] shadow-lg"
-                  : ""
+                  : "border-[var(--color-primary-500)]"
               } ${
                 (isRegistering && processingPlan !== plan.id) ||
                 (navigatingPlan && navigatingPlan !== plan.id)
                   ? "opacity-50 pointer-events-none"
                   : ""
-              }`}
+              } ${plan.is_popular || plan.is_free ? "shadow-md" : ""}`}
             >
               {isPreSelected && (
                 <div className="bg-[var(--color-primary)] text-white text-center py-2 rounded-t-[1.4rem] text-sm font-medium">
@@ -307,16 +303,8 @@ const PricingTable = ({
                 {tempUserData ? (
                   // For temporary user data, use direct button click handler
                   <Button
-                    variant={plan.button_variant as "outline" | "default"}
-                    className={`w-full rounded-full ${
-                      plan.is_popular
-                        ? "bg-[var(--color-primary)] hover:bg-[var(--color-primary-700)]"
-                        : ""
-                    } ${
-                      plan.is_free
-                        ? "bg-[var(--color-primary)] hover:bg-[var(--color-primary-700)]"
-                        : ""
-                    }`}
+                    variant="default"
+                    className="w-full rounded-full bg-[var(--color-primary)] hover:bg-[var(--color-primary-700)]"
                     onClick={() => handlePlanClick(plan)}
                     disabled={
                       isRegistering ||
@@ -337,16 +325,8 @@ const PricingTable = ({
                 ) : (
                   // For all other cases, use button navigation with loading
                   <Button
-                    variant={plan.button_variant as "outline" | "default"}
-                    className={`w-full rounded-full ${
-                      plan.is_popular
-                        ? "bg-[var(--color-primary)] hover:bg-[var(--color-primary-700)]"
-                        : ""
-                    } ${
-                      plan.is_free
-                        ? "bg-[var(--color-primary)] hover:bg-[var(--color-primary-700)]"
-                        : ""
-                    }`}
+                    variant="default"
+                    className="w-full rounded-full bg-[var(--color-primary)] hover:bg-[var(--color-primary-700)]"
                     onClick={() => handlePlanNavigation(plan)}
                     disabled={
                       navigatingPlan !== null ||

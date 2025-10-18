@@ -34,6 +34,12 @@ CREATE TABLE IF NOT EXISTS questionnaires (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
+ALTER TABLE `app_settings`
+  ADD COLUMN `border_color` VARCHAR(7) NOT NULL DEFAULT '#e5e7eb' AFTER `accent_color`,
+  ADD COLUMN `primary_button_color` VARCHAR(7) NOT NULL DEFAULT '#9b87f5' AFTER `border_color`,
+  ADD COLUMN `secondary_button_color` VARCHAR(7) NOT NULL DEFAULT '#7E69AB' AFTER `primary_button_color`,
+  ADD COLUMN `box_background_color` VARCHAR(7) NOT NULL DEFAULT '#ffffff' AFTER `secondary_button_color`,
+  ADD COLUMN `text_color` VARCHAR(7) NOT NULL DEFAULT '#000000' AFTER `box_background_color`;
 
 -- Insert sample questionnaires if they don't exist
 INSERT INTO questionnaires (id, title, description, questions, sort_order) VALUES

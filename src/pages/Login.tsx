@@ -90,17 +90,14 @@ const Login = () => {
       setIsLoading(false);
     }
   };
-
+  // Your existing code is fine!
   const handleGoogleLogin = () => {
-    console.log("🔵 Google login clicked");
-    setOauthError(null);
     window.location.href = `${API_BASE_URL}/auth/google`;
+    // New users will now be auto-registered and redirected to dashboard
+    // Existing users will just log in normally
   };
-
   const handleFacebookLogin = () => {
-    const baseUrl = API_BASE_URL.replace("/api", "");
-    setOauthError(null);
-    window.location.href = `${baseUrl}/auth/facebook`;
+    window.location.href = `${API_BASE_URL}/auth/facebook`;
   };
 
   return (

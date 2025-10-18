@@ -6,6 +6,8 @@ import { fetchReportById, ReportData } from "@/services/report";
 import Chart from "react-apexcharts";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
+import { API_BASE_URL } from "@/config/api";
+import { FileText } from "lucide-react";
 
 const Report = () => {
   const { id } = useParams();
@@ -471,8 +473,6 @@ const Report = () => {
   // Function to fetch and store the report template
   const ReportRender = async (questionnaireId: string, ai_response: string) => {
     try {
-      const API_BASE_URL =
-        import.meta.env.VITE_API_BASE_URL || "https://simplyai.it/api";
       const response = await fetch(
         `${API_BASE_URL}/prompt-templates/template/${questionnaireId}`
       );
@@ -884,6 +884,41 @@ const Report = () => {
           <p className="text-center text-gray-500 mb-8">
             Generato il {new Date(report.date).toLocaleDateString("it-IT")}
           </p>
+        )}
+        {report.pdf_url && (
+          <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <FileText className="h-5 w-5 text-blue-600" />
+                <span className="text-sm font-medium text-blue-900">
+                  PDF Report disponibile
+                </span>
+              </div>
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() =>
+                    window.open(
+                      `http://localhost:4000${report.pdf_url}`,
+                      "_blank"
+                    )
+                  }
+                >
+                  Visualizza PDF
+                </Button>
+
+                <a
+                  href={`http://localhost:4000${report.pdf_url}`}
+                  download={`${report.title || "Report"}.pdf`}
+                >
+                  <Button variant="default" size="sm">
+                    Scarica PDF
+                  </Button>
+                </a>
+              </div>
+            </div>
+          </div>
         )}
 
         <div className="divider my-8"></div>

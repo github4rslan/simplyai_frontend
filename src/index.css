@@ -16,7 +16,27 @@
     --color-indigo: color-mix(in srgb, var(--color-primary) 60%, blue);
 
     --color-primary-300: color-mix(in srgb, var(--color-primary) 70%, white);
-
+    --color-secondary-700: color-mix(
+      in srgb,
+      var(--color-secondary) 80%,
+      black
+    );
+    --color-secondary-500: color-mix(
+      in srgb,
+      var(--color-secondary) 60%,
+      white
+    );
+    --color-secondary-200: color-mix(
+      in srgb,
+      var(--color-secondary) 30%,
+      white
+    );
+    --color-secondary-100: color-mix(
+      in srgb,
+      var(--color-secondary) 15%,
+      white
+    );
+    --color-secondary-50: color-mix(in srgb, var(--color-secondary) 8%, white);
     --background: 260 33% 98%;
     --foreground: 260 10% 10%;
 
@@ -57,7 +77,8 @@
     --sidebar-ring: 260 80% 75%;
 
     /* Dynamic font family variable - can be updated from settings */
-    --font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --font-family: "Poppins", -apple-system, BlinkMacSystemFont, "Segoe UI",
+      sans-serif;
     --base-font-size: 16px;
   }
 

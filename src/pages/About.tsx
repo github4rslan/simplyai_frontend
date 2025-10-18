@@ -10,7 +10,7 @@ const data = (
   <div className="min-h-screen flex flex-col" id="aboutJSX">
     <Navbar />
 
-    <div className="flex-grow py-16 px-4 bg-gradient-to-b from-white to-[var(--color-primary-50)]">
+    <div className="flex-grow py-16 px-4 bg-[var(--color-secondary)]">
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-16">
           <h1 className="text-4xl font-bold mb-4">Chi Siamo</h1>

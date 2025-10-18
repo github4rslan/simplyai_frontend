@@ -29,8 +29,8 @@ interface AuthContextType {
   user: User | null;
   token: string | null;
   loading: boolean;
-  isLoading: boolean; // Alias for loading for backward compatibility
-  session: any; // For backward compatibility with Supabase
+  isLoading: boolean;
+  session: any;
   login: (email: string, password: string) => Promise<void>;
   register: (userData: {
     email: string;
@@ -41,7 +41,9 @@ interface AuthContextType {
     subscription_plan?: string;
   }) => Promise<void>;
   logout: () => void;
-  signOut: () => void; // Alias for backward compatibility
+  signOut: () => void;
+  setUser: (user: User | null) => void; // ✅ Add this
+  setToken: (token: string | null) => void; // ✅ Add this
   isAuthenticated: boolean;
 }
 
@@ -52,38 +54,77 @@ interface AuthProviderProps {
 }
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [token, setToken] = useState<string | null>(null);
+  const [user, setUserState] = useState<User | null>(null);
+  const [token, setTokenState] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
-
+  const setUser = (newUser: User | null) => {
+    setUserState(newUser);
+    if (newUser) {
+      localStorage.setItem("user", JSON.stringify(newUser));
+    } else {
+      localStorage.removeItem("user");
+    }
+  };
+  const setToken = (newToken: string | null) => {
+    setTokenState(newToken);
+    if (newToken) {
+      localStorage.setItem("auth_token", newToken);
+    } else {
+      localStorage.removeItem("auth_token");
+    }
+  };
   // Initialize auth state from localStorage
   useEffect(() => {
     const initializeAuth = async () => {
       try {
         const savedToken = localStorage.getItem("auth_token");
+        const savedUser = localStorage.getItem("user");
 
         if (savedToken) {
-          setToken(savedToken);
+          setTokenState(savedToken);
 
-          // Verify token and get user data
-          const response = await getCurrentUser(savedToken);
-          if (response.success) {
-            // Ensure isAdmin is computed from role for backward compatibility
-            const userWithRole = {
-              ...response.data.user,
-              isAdmin: response.data.user.role === "administrator",
-            };
-            setUser(userWithRole);
-          } else {
-            // Token is invalid, remove it
-            localStorage.removeItem("auth_token");
-            setToken(null);
+          // If we have saved user data, use it immediately
+          if (savedUser) {
+            try {
+              const parsedUser = JSON.parse(savedUser);
+              setUserState({
+                ...parsedUser,
+                isAdmin: parsedUser.role === "administrator",
+              });
+            } catch (e) {
+              console.error("Error parsing saved user:", e);
+            }
+          }
+
+          // Verify token and get fresh user data
+          try {
+            const response = await getCurrentUser(savedToken);
+            if (response.success && response.data) {
+              const userWithRole = {
+                ...response.data,
+                isAdmin: response.data.role === "administrator",
+              };
+              setUserState(userWithRole);
+              localStorage.setItem("user", JSON.stringify(userWithRole));
+            } else {
+              // Token is invalid, remove it
+              localStorage.removeItem("auth_token");
+              localStorage.removeItem("user");
+              setTokenState(null);
+              setUserState(null);
+            }
+          } catch (error) {
+            console.error("Error verifying token:", error);
+            // Keep the saved user data even if verification fails
+            // (offline support)
           }
         }
       } catch (error) {
         console.error("Error initializing auth:", error);
         localStorage.removeItem("auth_token");
-        setToken(null);
+        localStorage.removeItem("user");
+        setTokenState(null);
+        setUserState(null);
       } finally {
         setLoading(false);
       }
@@ -99,7 +140,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       if (response.success) {
         const { user: userData, token: userToken } = response.data;
 
-        // Ensure isAdmin is computed from role for backward compatibility
         const userWithRole = {
           ...userData,
           isAdmin: userData.role === "administrator",
@@ -107,7 +147,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
         setUser(userWithRole);
         setToken(userToken);
-        localStorage.setItem("auth_token", userToken);
       } else {
         throw new Error(response.message);
       }
@@ -129,17 +168,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const response = await registerUser(userData);
 
       if (response.success) {
-        // Check if this requires payment (temporary registration)
         if (response.data?.requiresPayment) {
-          // Don't set auth token yet - user needs to complete payment
           return response;
         } else {
-          // Free plan or direct registration - set auth immediately
           const { user: userInfo, token: userToken } = response.data;
-
-          setUser(userInfo);
+          const userWithRole = {
+            ...userInfo,
+            isAdmin: userInfo.role === "administrator",
+          };
+          setUser(userWithRole);
           setToken(userToken);
-          localStorage.setItem("auth_token", userToken);
         }
       } else {
         throw new Error(response.message);
@@ -162,7 +200,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     } finally {
       setUser(null);
       setToken(null);
-      localStorage.removeItem("auth_token");
     }
   };
 
@@ -170,12 +207,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     user,
     token,
     loading,
-    isLoading: loading, // Alias for backward compatibility
-    session: user ? { user } : null, // Mock session for backward compatibility
+    isLoading: loading,
+    session: user ? { user } : null,
     login,
     register,
     logout,
-    signOut: logout, // Alias for backward compatibility
+    signOut: logout,
+    setUser, // ✅ Expose setUser
+    setToken, // ✅ Expose setToken
     isAuthenticated: !!user && !!token,
   };
 

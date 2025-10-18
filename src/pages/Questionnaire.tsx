@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import MainNavigation from "@/components/MainNavigation";
@@ -44,7 +45,11 @@ const Questionnaire = () => {
   const [totalPages, setTotalPages] = useState(0);
   const [progress, setProgress] = useState(0);
   const [survey, setSurvey] = useState<Model | null>(null);
+  const [showSaveDraftModal, setShowSaveDraftModal] = useState(false);
+  const [showSubmitModal, setShowSubmitModal] = useState(false);
 
+  // Check if on final page
+  const isOnFinalPage = currentPage === totalPages - 1;
   // Register custom properties immediately when component loads
   useEffect(() => {
     console.log("Registering custom properties...");
@@ -514,7 +519,161 @@ const Questionnaire = () => {
       });
     }
   };
+  const handleSaveDraft = () => {
+    setShowSaveDraftModal(true);
+  };
+  const handleConfirmSaveDraft = async () => {
+    if (!user || !id) {
+      toast({
+        title: "Errore",
+        description: "Informazioni utente o questionario mancanti",
+        variant: "destructive",
+      });
+      return;
+    }
 
+    try {
+      const currentResponses = survey.data;
+
+      // Call the unified API with status='draft'
+      const response = await fetch(
+        `${API_BASE_URL}/save-questionnaire-completion`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            user_id: user.id,
+            questionnaire_id: id,
+            questionnaire_title: title || "Questionario",
+            responses: currentResponses,
+            status: "draft", // This is the key difference
+            created_at: new Date().toISOString(),
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to save draft");
+      }
+
+      const result = await response.json();
+
+      setShowSaveDraftModal(false);
+      toast({
+        title: "Salvato in Bozza",
+        description: "Il questionario è stato salvato in bozza con successo",
+      });
+
+      // Optional: Navigate to dashboard after saving draft
+      setTimeout(() => {
+        navigate("/dashboard");
+      }, 1500);
+    } catch (error) {
+      console.error("Error saving draft:", error);
+      setShowSaveDraftModal(false);
+      toast({
+        title: "Errore",
+        description: "Impossibile salvare il questionario in bozza",
+        variant: "destructive",
+      });
+    }
+  };
+  const handleSubmitQuestionnaire = () => {
+    setShowSubmitModal(true);
+  };
+  // Load existing draft if available
+  useEffect(() => {
+    const loadDraftIfExists = async () => {
+      if (!user || !id || !survey) return;
+
+      try {
+        const response = await fetch(
+          `${API_BASE_URL}/get-questionnaire-draft/${user.id}/${id}` // ✅ FIXED
+        );
+
+        if (!response.ok) return;
+
+        const result = await response.json();
+
+        if (result.success && result.draft && result.draft.answers) {
+          // Load draft answers into survey
+          survey.data = result.draft.answers;
+
+          toast({
+            title: "Bozza Caricata",
+            description: `Hai una bozza salvata il ${new Date(
+              result.draft.updated_at
+            ).toLocaleDateString("it-IT")}`,
+          });
+
+          console.log("✅ Draft loaded successfully:", result.draft);
+        }
+      } catch (error) {
+        console.error("Error loading draft:", error);
+        // Fail silently - not critical
+      }
+    };
+
+    // Only load draft after survey is created
+    if (survey) {
+      loadDraftIfExists();
+    }
+  }, [user, id, survey]);
+  const handleConfirmSubmit = async () => {
+    if (!user || !id) {
+      toast({
+        title: "Errore",
+        description: "Informazioni utente o questionario mancanti",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const currentResponses = survey.data;
+
+      // Call the unified API with status='completed' (default)
+      const response = await fetch(
+        `${API_BASE_URL}/save-questionnaire-completion`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            user_id: user.id,
+            questionnaire_id: id,
+            questionnaire_title: title || "Questionario",
+            responses: currentResponses,
+            status: "completed", // Or omit this since it's the default
+            created_at: new Date().toISOString(),
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to submit questionnaire");
+      }
+
+      const result = await response.json();
+
+      setShowSubmitModal(false);
+
+      // Now trigger the report generation using your existing handleSurveyComplete
+      await handleSurveyComplete(survey);
+    } catch (error) {
+      console.error("Error submitting questionnaire:", error);
+      setShowSubmitModal(false);
+      toast({
+        title: "Errore",
+        description:
+          "Si è verificato un errore durante l'invio del questionario",
+        variant: "destructive",
+      });
+    }
+  };
   // SurveyJS onComplete handler
   const handleSurveyComplete = async (sender: Model) => {
     if (!user || !id) {
@@ -1279,6 +1438,29 @@ const Questionnaire = () => {
                   </p>
                 </div>
               </div>
+
+              {/* Show buttons only on final page */}
+              <div className="mt-6">
+                <h3 className="font-medium mb-3">Azioni</h3>
+
+                <div className="flex items-center gap-3">
+                  {/* Salva in Bozza Button */}
+                  <button
+                    onClick={handleSaveDraft}
+                    className="flex-1 px-4 py-2 border-2 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm"
+                  >
+                    Salva in Bozza
+                  </button>
+
+                  {/* Invia Button */}
+                  <button
+                    onClick={handleSubmitQuestionnaire}
+                    className="flex-1 px-4 py-3 bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-lg hover:from-purple-600 hover:to-purple-700 transition-colors font-medium shadow-md"
+                  >
+                    Invia
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -1313,6 +1495,88 @@ const Questionnaire = () => {
               </div>
             </div>
           )}
+        </div>
+      </ReactModal>
+
+      {/* Salva in Bozza Modal */}
+      <ReactModal
+        isOpen={showSaveDraftModal}
+        onRequestClose={() => setShowSaveDraftModal(false)}
+        ariaHideApp={false}
+        className="fixed inset-0 flex items-center justify-center z-50 outline-none"
+        overlayClassName="fixed inset-0 bg-black bg-opacity-40 z-40"
+      >
+        <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6 relative">
+          <button
+            className="absolute top-3 right-3 text-gray-400 hover:text-gray-700 text-2xl font-bold"
+            onClick={() => setShowSaveDraftModal(false)}
+            aria-label="Chiudi"
+          >
+            &times;
+          </button>
+
+          <h2 className="text-xl font-bold mb-4">Salvataggio in Bozza</h2>
+          <p className="text-gray-600 mb-6">
+            Salvando in Draft non perdite le domande già risposte, puoi
+            sospendere il questionario, riprenderlo e cambiare alcune risposte.
+          </p>
+
+          <div className="flex gap-3 justify-end">
+            <button
+              onClick={() => setShowSaveDraftModal(false)}
+              className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+            >
+              Annulla
+            </button>
+            <button
+              onClick={handleConfirmSaveDraft}
+              className="px-6 py-2 bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-lg hover:from-purple-600 hover:to-purple-700 transition-colors"
+            >
+              Conferma salvataggio in draft
+            </button>
+          </div>
+        </div>
+      </ReactModal>
+
+      {/* Invia Questionario Modal */}
+      <ReactModal
+        isOpen={showSubmitModal}
+        onRequestClose={() => setShowSubmitModal(false)}
+        ariaHideApp={false}
+        className="fixed inset-0 flex items-center justify-center z-50 outline-none"
+        overlayClassName="fixed inset-0 bg-black bg-opacity-40 z-40"
+      >
+        <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6 relative">
+          <button
+            className="absolute top-3 right-3 text-gray-400 hover:text-gray-700 text-2xl font-bold"
+            onClick={() => setShowSubmitModal(false)}
+            aria-label="Chiudi"
+          >
+            &times;
+          </button>
+
+          <h2 className="text-xl font-bold mb-4">Invio Questionario</h2>
+          <p className="text-gray-600 mb-6">
+            ATTENZIONE: Il pulsante Invia salva definitivamente il questionario
+            e attiva l'elaborazione del report definitivo. Quindi Conferma solo
+            se le tue risposte sono corrette perché non potrai rifarlo.
+          </p>
+
+          <div className="flex gap-3 justify-end">
+            <button
+              onClick={() => setShowSubmitModal(false)}
+              className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+            >
+              Annulla
+            </button>
+            <button
+              onClick={handleConfirmSubmit}
+              className="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium"
+            >
+              Conferma definitivamente l'invio definitivo del questionario e
+              ricevi il report
+            </button>
+          </div>
         </div>
       </ReactModal>
     </div>

@@ -3,10 +3,9 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Eye, EyeOff, CreditCard, Loader2 } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
-import { fetchPlan, checkEmailExists } from "@/services/ApiService";
+import { checkEmailExists } from "@/services/ApiService";
 import { API_BASE_URL } from "@/config/api";
 
 import Navbar from "@/components/Navbar";
@@ -44,7 +43,9 @@ const formSchema = z
     password: z
       .string()
       .min(6, { message: "La password deve contenere almeno 6 caratteri" }),
-    confirmPassword: z.string(),
+    confirmPassword: z
+      .string()
+      .min(6, { message: "La password deve contenere almeno 6 caratteri" }),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Le password non corrispondono",
@@ -55,124 +56,11 @@ const Register = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const location = useLocation();
-  const { register: registerUser } = useAuth();
+  const { login } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [isPlanFree, setIsPlanFree] = useState(false);
   const [emailError, setEmailError] = useState("");
-  const [isOAuthUser, setIsOAuthUser] = useState(false);
-
-  const searchParams = new URLSearchParams(location.search);
-  const selectedPlanId = searchParams.get("plan") || "";
-  const selectedPlanPrice = searchParams.get("price") || "0";
-  const planType = searchParams.get("type") || ""; // Check if it's a free plan from button
-  const [planDetails, setPlanDetails] = useState({
-    name: "Piano",
-    price: parseInt(selectedPlanPrice || "0"),
-  });
-  // Add this useEffect to handle OAuth callback
-  useEffect(() => {
-    const handleOAuthCallback = () => {
-      const provider = searchParams.get("provider");
-      const data = searchParams.get("data");
-
-      if (provider && data) {
-        try {
-          setIsOAuthUser(true); // Hide password fields
-
-          const oauthData = JSON.parse(decodeURIComponent(data));
-          console.log("🔵 OAuth data received:", oauthData);
-
-          if (provider === "google" && oauthData.googleId) {
-            // Pre-fill the form with Google data
-            form.setValue("firstName", oauthData.firstName || "");
-            form.setValue("lastName", oauthData.lastName || "");
-            form.setValue("email", oauthData.email || "");
-
-            // Store OAuth data for later use
-            localStorage.setItem(
-              "oauth_temp_data",
-              JSON.stringify({
-                provider: "google",
-                googleId: oauthData.googleId,
-                email: oauthData.email,
-                firstName: oauthData.firstName,
-                lastName: oauthData.lastName,
-              })
-            );
-
-            toast({
-              title: "Account Google rilevato",
-              description: "Completa la registrazione selezionando un piano.",
-            });
-          } else if (provider === "facebook" && oauthData.facebookId) {
-            // Similar for Facebook
-            form.setValue("firstName", oauthData.firstName || "");
-            form.setValue("lastName", oauthData.lastName || "");
-            form.setValue("email", oauthData.email || "");
-
-            localStorage.setItem(
-              "oauth_temp_data",
-              JSON.stringify({
-                provider: "facebook",
-                facebookId: oauthData.facebookId,
-                email: oauthData.email,
-                firstName: oauthData.firstName,
-                lastName: oauthData.lastName,
-              })
-            );
-
-            toast({
-              title: "Account Facebook rilevato",
-              description: "Completa la registrazione selezionando un piano.",
-            });
-          }
-        } catch (error) {
-          console.error("Error parsing OAuth data:", error);
-        }
-      }
-    };
-
-    handleOAuthCallback();
-  }, [searchParams, form, toast]);
-  useEffect(() => {
-    const loadPlanDetails = async () => {
-      if (selectedPlanId) {
-        try {
-          const plan = await fetchPlan(selectedPlanId);
-          if (plan.success) {
-            setPlanDetails({
-              name: plan.data.name,
-              price: plan.data.price || 0,
-            });
-            setIsPlanFree(
-              plan.data.is_free || plan.data.price === 0 || planType === "free"
-            );
-          }
-        } catch (error) {
-          console.error("Error fetching plan details:", error);
-          // Set as free plan if coming from free test button
-          if (planType === "free") {
-            setIsPlanFree(true);
-            setPlanDetails({
-              name: "Piano Gratuito",
-              price: 0,
-            });
-          }
-        }
-      } else if (planType === "free") {
-        // Default free plan setup
-        setIsPlanFree(true);
-        setPlanDetails({
-          name: "Piano Gratuito",
-          price: 0,
-        });
-      }
-    };
-
-    loadPlanDetails();
-  }, [selectedPlanId, planType]);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -191,171 +79,143 @@ const Register = () => {
       setIsLoading(true);
       setEmailError("");
 
-      // Check for OAuth temp data
-      const oauthTempData = localStorage.getItem("oauth_temp_data");
-      let tempUserData;
-
-      if (oauthTempData) {
-        // OAuth registration flow
-        const oauthData = JSON.parse(oauthTempData);
-        tempUserData = {
-          email: values.email,
-          firstName: values.firstName,
-          lastName: values.lastName,
-          phone: values.phone || undefined,
-          // Include OAuth IDs (no password needed)
-          googleId:
-            oauthData.provider === "google" ? oauthData.googleId : undefined,
-          facebookId:
-            oauthData.provider === "facebook"
-              ? oauthData.facebookId
-              : undefined,
-          authProvider: oauthData.provider,
-        };
-
-        // Remove password requirement for OAuth users
-        console.log("🔵 OAuth user detected, skipping password");
-      } else {
-        // Regular email registration
-        console.log("🔄 Starting registration process...");
-
-        // Check if email exists (existing code)
-        try {
-          const emailCheck = await checkEmailExists(values.email);
-          if (emailCheck.exists) {
-            setEmailError(
-              "Questa email è già registrata. Prova ad accedere o usa un'altra email."
-            );
-            setIsLoading(false);
-            return;
-          }
-        } catch (error) {
-          console.error("❌ Error checking email:", error);
+      // Check if email exists
+      try {
+        const emailCheck = await checkEmailExists(values.email);
+        if (emailCheck.exists) {
+          setEmailError(
+            "Questa email è già registrata. Prova ad accedere o usa un'altra email."
+          );
+          setIsLoading(false);
+          return;
         }
-
-        tempUserData = {
-          email: values.email,
-          password: values.password,
-          firstName: values.firstName,
-          lastName: values.lastName,
-          phone: values.phone || undefined,
-        };
+      } catch (error) {
+        console.error("❌ Error checking email:", error);
       }
 
-      // Check if free flow (support both ?free=true and ?type=free)
-      const params = new URLSearchParams(location.search);
-      const isFreeFlow =
-        params.get("free") === "true" || params.get("type") === "free";
+      // Prepare user data for registration
+      const tempUserData = {
+        email: values.email,
+        password: values.password,
+        firstName: values.firstName,
+        lastName: values.lastName,
+        phone: values.phone || undefined,
+      };
 
-      if (isFreeFlow) {
-        // Fetch all plans and find the first free plan
-        const allPlans = await fetch(`${API_BASE_URL}/plans`).then((res) =>
-          res.json()
+      // ✅ Fetch all plans and find the first free plan
+      console.log("🔄 Fetching free plan...");
+      const allPlans = await fetch(`${API_BASE_URL}/plans`).then((res) =>
+        res.json()
+      );
+      let freePlan = null;
+
+      if (allPlans.success && Array.isArray(allPlans.data)) {
+        freePlan = allPlans.data.find(
+          (plan) =>
+            plan.is_free ||
+            plan.price === 0 ||
+            (plan.name && plan.name.toLowerCase().includes("free")) ||
+            (plan.name && plan.name.toLowerCase().includes("gratuito"))
         );
-        let freePlan = null;
-        if (allPlans.success && Array.isArray(allPlans.data)) {
-          freePlan = allPlans.data.find(
-            (plan) =>
-              plan.is_free ||
-              plan.price === 0 ||
-              (plan.name && plan.name.toLowerCase().includes("free plan")) ||
-              (plan.name && plan.name.toLowerCase().includes("gratuito"))
-          );
-        }
-        if (!freePlan) {
-          toast({
-            variant: "destructive",
-            title: "Errore",
-            description: "Nessun piano gratuito trovato. Contatta il supporto.",
-          });
-          setIsLoading(false);
-          return;
-        }
-        // Register user with free plan
-        const registerRes = await fetch(
-          `${API_BASE_URL}/auth/register-with-plan`,
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ ...tempUserData, planId: freePlan.id }),
-          }
-        ).then((res) => res.json());
-        if (!registerRes.success) {
-          toast({
-            variant: "destructive",
-            title: "Errore di registrazione",
-            description:
-              registerRes.message ||
-              "Errore durante la registrazione. Riprova.",
-          });
-          setIsLoading(false);
-          return;
-        }
-        // Optionally: Save user/plan info to localStorage for settings page
-        localStorage.setItem(
-          "registered_user",
-          JSON.stringify(registerRes.user)
-        );
-        localStorage.setItem("registered_plan", JSON.stringify(freePlan));
-        // Registration successful, redirect to login for email confirmation
+      }
+
+      if (!freePlan) {
         toast({
-          title: "Registrazione completata!",
-          description:
-            "Controlla la tua email per confermare il tuo account e poi accedi.",
+          variant: "destructive",
+          title: "Errore",
+          description: "Nessun piano gratuito trovato. Contatta il supporto.",
         });
-        navigate("/login");
+        setIsLoading(false);
         return;
       }
 
-      // Default: Store user data temporarily in localStorage for plan selection
-      localStorage.setItem("temp_user_data", JSON.stringify(tempUserData));
-      if (oauthTempData) {
-        localStorage.removeItem("oauth_temp_data");
+      console.log("✅ Free plan found:", freePlan);
+
+      // ✅ Register user with free plan immediately
+      const registerRes = await fetch(
+        `${API_BASE_URL}/auth/register-with-plan`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            ...tempUserData,
+            planId: freePlan.id,
+          }),
+        }
+      ).then((res) => res.json());
+
+      if (!registerRes.success) {
+        toast({
+          variant: "destructive",
+          title: "Errore di registrazione",
+          description:
+            registerRes.message || "Errore durante la registrazione. Riprova.",
+        });
+        setIsLoading(false);
+        return;
       }
+
+      console.log("✅ User registered successfully:", registerRes);
+
+      // Save user info
+      localStorage.setItem("registered_user", JSON.stringify(registerRes.user));
+      localStorage.setItem("registered_plan", JSON.stringify(freePlan));
+
       toast({
-        title: "Dati validati!",
+        title: "Registrazione completata!",
         description:
-          "I tuoi dati sono stati salvati. Ora seleziona un piano per completare la registrazione.",
+          "Il tuo account gratuito è stato creato. Ora puoi selezionare un piano premium.",
       });
-      navigate("/pricing");
+
+      // ✅ Auto-login the user
+      try {
+        await login(values.email, values.password);
+
+        // ✅ Redirect to pricing page so they can upgrade if they want
+        navigate("/pricing");
+      } catch (loginError) {
+        console.error("❌ Auto-login failed:", loginError);
+
+        toast({
+          title: "Account creato!",
+          description: "Accedi con le tue credenziali per continuare.",
+        });
+
+        navigate("/login");
+      }
     } catch (error) {
-      console.error("Errore durante la validazione:", error);
+      console.error("Errore durante la registrazione:", error);
       toast({
         variant: "destructive",
-        title: "Errore di validazione",
+        title: "Errore di registrazione",
         description:
           error.message ||
-          "Si è verificato un errore durante la validazione. Riprova.",
+          "Si è verificato un errore durante la registrazione. Riprova.",
       });
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Social login handler
-  const handleSocialLogin = (provider: "google" | "facebook") => {
-    // Remove /api from API_BASE_URL since auth routes are at root level
-    const baseUrl = API_BASE_URL.replace("/api", "");
-    if (provider === "google") {
-      // Redirect to Google OAuth
-      window.location.href = `${baseUrl}/auth/google`;
-    } else if (provider === "facebook") {
-      // Redirect to Facebook OAuth
-      window.location.href = `${baseUrl}/auth/facebook`;
-    }
+  // Social login handler - redirects to OAuth
+  const handleGoogleLogin = () => {
+    window.location.href = `${API_BASE_URL}/auth/google`;
   };
 
+  const handleFacebookLogin = () => {
+    window.location.href = `${API_BASE_URL}/auth/facebook`;
+  };
   return (
     <div className="flex flex-col min-h-screen">
       <Navbar />
 
-      <div className="flex-grow flex items-center justify-center p-4 bg-gradient-to-b from-white to-[var(--color-primary-50)]">
+      <div className="flex-grow flex items-center justify-center p-4 bg-[var(--color-secondary)]">
         <Card className="w-full max-w-md">
           <CardHeader>
             <CardTitle className="text-2xl">Crea il tuo account</CardTitle>
             <CardDescription>
-              Inserisci i tuoi dati per continuare. La registrazione avverrà
-              dopo la selezione del piano.
+              Crea il tuo account gratuito. Potrai scegliere un piano premium in
+              seguito.
             </CardDescription>
           </CardHeader>
 
@@ -365,7 +225,7 @@ const Register = () => {
               <Button
                 variant="outline"
                 className="w-full"
-                onClick={() => handleSocialLogin("google")}
+                onClick={handleGoogleLogin}
                 type="button"
                 disabled={isLoading}
               >
@@ -393,7 +253,7 @@ const Register = () => {
               <Button
                 variant="outline"
                 className="w-full"
-                onClick={() => handleSocialLogin("facebook")}
+                onClick={handleFacebookLogin}
                 type="button"
                 disabled={isLoading}
               >
@@ -502,77 +362,74 @@ const Register = () => {
                     </FormItem>
                   )}
                 />
-                {!isOAuthUser && (
-                  <>
-                    <FormField
-                      control={form.control}
-                      name="password"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Password</FormLabel>
-                          <FormControl>
-                            <div className="relative">
-                              <Input
-                                type={showPassword ? "text" : "password"}
-                                placeholder="••••••••"
-                                {...field}
-                              />
-                              <Button
-                                type="button"
-                                variant="ghost"
-                                size="sm"
-                                className="absolute top-0 right-0 h-full px-3"
-                                onClick={() => setShowPassword(!showPassword)}
-                              >
-                                {showPassword ? (
-                                  <EyeOff className="h-4 w-4" />
-                                ) : (
-                                  <Eye className="h-4 w-4" />
-                                )}
-                              </Button>
-                            </div>
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
 
-                    <FormField
-                      control={form.control}
-                      name="confirmPassword"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Conferma password</FormLabel>
-                          <FormControl>
-                            <div className="relative">
-                              <Input
-                                type={showConfirmPassword ? "text" : "password"}
-                                placeholder="••••••••"
-                                {...field}
-                              />
-                              <Button
-                                type="button"
-                                variant="ghost"
-                                size="sm"
-                                className="absolute top-0 right-0 h-full px-3"
-                                onClick={() =>
-                                  setShowConfirmPassword(!showConfirmPassword)
-                                }
-                              >
-                                {showConfirmPassword ? (
-                                  <EyeOff className="h-4 w-4" />
-                                ) : (
-                                  <Eye className="h-4 w-4" />
-                                )}
-                              </Button>
-                            </div>
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </>
-                )}
+                <FormField
+                  control={form.control}
+                  name="password"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Password</FormLabel>
+                      <FormControl>
+                        <div className="relative">
+                          <Input
+                            type={showPassword ? "text" : "password"}
+                            placeholder="••••••••"
+                            {...field}
+                          />
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            className="absolute top-0 right-0 h-full px-3"
+                            onClick={() => setShowPassword(!showPassword)}
+                          >
+                            {showPassword ? (
+                              <EyeOff className="h-4 w-4" />
+                            ) : (
+                              <Eye className="h-4 w-4" />
+                            )}
+                          </Button>
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="confirmPassword"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Conferma password</FormLabel>
+                      <FormControl>
+                        <div className="relative">
+                          <Input
+                            type={showConfirmPassword ? "text" : "password"}
+                            placeholder="••••••••"
+                            {...field}
+                          />
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            className="absolute top-0 right-0 h-full px-3"
+                            onClick={() =>
+                              setShowConfirmPassword(!showConfirmPassword)
+                            }
+                          >
+                            {showConfirmPassword ? (
+                              <EyeOff className="h-4 w-4" />
+                            ) : (
+                              <Eye className="h-4 w-4" />
+                            )}
+                          </Button>
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
                 <Button
                   type="submit"
@@ -582,10 +439,10 @@ const Register = () => {
                   {isLoading ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Validazione in corso...
+                      Registrazione in corso...
                     </>
                   ) : (
-                    <span>Continua alla selezione del piano</span>
+                    <span>Crea account gratuito</span>
                   )}
                 </Button>
               </form>

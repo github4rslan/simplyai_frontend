@@ -1,5 +1,5 @@
 // MySQL-based prompt templates service that calls the backend API instead of Supabase
-import { API_BASE_URL } from '@/config/api';
+import { API_BASE_URL } from "@/config/api";
 
 export interface PromptTemplate {
   id: string;
@@ -32,7 +32,7 @@ export interface ChartConfig {
   colors?: string[];
   title?: {
     text?: string;
-    align?: 'left' | 'center' | 'right';
+    align?: "left" | "center" | "right";
     style?: {
       fontSize?: string;
       fontWeight?: string | number;
@@ -41,7 +41,7 @@ export interface ChartConfig {
   };
   subtitle?: {
     text?: string;
-    align?: 'left' | 'center' | 'right';
+    align?: "left" | "center" | "right";
     style?: {
       fontSize?: string;
       fontWeight?: string | number;
@@ -70,8 +70,8 @@ export interface ChartConfig {
   };
   legend?: {
     show?: boolean;
-    position?: 'top' | 'right' | 'bottom' | 'left';
-    horizontalAlign?: 'left' | 'center' | 'right';
+    position?: "top" | "right" | "bottom" | "left";
+    horizontalAlign?: "left" | "center" | "right";
     floating?: boolean;
     fontSize?: string;
   };
@@ -90,7 +90,7 @@ export interface ChartConfig {
   };
   stroke?: {
     width?: number;
-    curve?: 'smooth' | 'straight' | 'stepline';
+    curve?: "smooth" | "straight" | "stepline";
   };
   grid?: {
     show?: boolean;
@@ -104,7 +104,7 @@ export interface ChartConfig {
     speed?: number;
   };
   theme?: {
-    mode?: 'light' | 'dark';
+    mode?: "light" | "dark";
     palette?: string;
   };
   series?: any[];
@@ -119,7 +119,7 @@ export interface ReportSectionWithPrompt {
   type?: string;
   chartType?: string;
   tableType?: string;
-  config?: ChartConfig | { headers?: string[]; sortable?: boolean; } | any;
+  config?: ChartConfig | { headers?: string[]; sortable?: boolean } | any;
 }
 
 // Struttura per i dati delle sezioni
@@ -134,87 +134,141 @@ export interface PromptTemplateWithSections extends PromptTemplate {
   reportTemplate?: string;
   sections?: SectionsData;
 }
-
-// Fetch all prompt templates for a specific plan
-export const fetchPlanPromptTemplates = async (planId: string): Promise<PromptTemplate[]> => {
-  try {
-    const response = await fetch(`${API_BASE_URL}/prompt-templates/plan/${planId}`);
-    if (!response.ok) {
-      throw new Error('Failed to fetch prompt templates');
+const parseJSONField = (field: any, defaultValue: any = null) => {
+  if (!field) return defaultValue;
+  if (typeof field === "object") return field;
+  if (typeof field === "string") {
+    try {
+      return JSON.parse(field);
+    } catch (e) {
+      console.error("Error parsing JSON field:", e);
+      return defaultValue;
     }
-    
+  }
+  return defaultValue;
+};
+
+// Helper to parse variables specifically
+const parseVariables = (variables: any) => {
+  if (!variables) return [];
+  if (Array.isArray(variables)) return variables;
+  if (typeof variables === "string") {
+    try {
+      const parsed = JSON.parse(variables);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch (e) {
+      console.error("Error parsing variables:", e);
+      return [];
+    }
+  }
+  return [];
+};
+// Fetch all prompt templates for a specific plan
+export const fetchPlanPromptTemplates = async (
+  planId: string
+): Promise<PromptTemplate[]> => {
+  try {
+    const response = await fetch(
+      `${API_BASE_URL}/prompt-templates/plan/${planId}`
+    );
+    if (!response.ok) {
+      throw new Error("Failed to fetch prompt templates");
+    }
+
     const result = await response.json();
     if (!result.success) {
-      throw new Error(result.message || 'Failed to fetch prompt templates');
+      throw new Error(result.message || "Failed to fetch prompt templates");
     }
-    
-    return result.data as PromptTemplate[] || [];
+
+    return (result.data as PromptTemplate[]) || [];
   } catch (error) {
-    console.error('Error fetching prompt templates:', error);
+    console.error("Error fetching prompt templates:", error);
     return [];
   }
 };
 
 // Fetch specific prompt template
-export const fetchPromptTemplate = async (promptId: string): Promise<PromptTemplateWithSections | null> => {
+export const fetchPromptTemplate = async (
+  promptId: string
+): Promise<PromptTemplateWithSections | null> => {
   try {
-    const response = await fetch(`${API_BASE_URL}/prompt-templates/${promptId}`);
+    const response = await fetch(
+      `${API_BASE_URL}/prompt-templates/${promptId}`
+    );
     if (!response.ok) {
-      throw new Error('Failed to fetch prompt template');
+      throw new Error("Failed to fetch prompt template");
     }
-    
+
     const result = await response.json();
+    console.log("Fetched prompt template:", result);
     if (!result.success) {
-      throw new Error(result.message || 'Failed to fetch prompt template');
+      throw new Error(result.message || "Failed to fetch prompt template");
     }
-    
+
     const template = result.data as PromptTemplate;
-    
-    // Convert to PromptTemplateWithSections format
-    const sectionsData = template.sections_data ? {
-      text: template.sections_data.text || [],
-      charts: template.sections_data.charts || [],
-      tables: template.sections_data.tables || []
-    } : {
+
+    // Parse sections_data from JSON string to object
+    const sectionsData = parseJSONField(template.sections_data, {
       text: [],
       charts: [],
-      tables: []
+      tables: [],
+    });
+
+    const sections = {
+      text: sectionsData.text || [],
+      charts: sectionsData.charts || [],
+      tables: sectionsData.tables || [],
     };
+
+    // Parse variables from JSON string to array
+    const variables = parseVariables(template.variables);
+
+    // Parse reference_questionnaires from JSON string to object
+    const referenceQuestionnaires = parseJSONField(
+      template.reference_questionnaires,
+      {}
+    );
 
     return {
       ...template,
-      reportTemplate: template.report_template || '',
-      sections: sectionsData
+      reportTemplate: template.report_template || "",
+      sections: sections,
+      variables: variables,
+      reference_questionnaires: referenceQuestionnaires,
     } as PromptTemplateWithSections;
   } catch (error) {
-    console.error('Error fetching prompt template:', error);
+    console.error("Error fetching prompt template:", error);
     return null;
   }
 };
 
 // Fetch prompt template for a specific plan and questionnaire
 export const fetchPromptForQuestionnaire = async (
-  planId: string, 
+  planId: string,
   questionnaireId: string,
   sequenceIndex: number = 0
 ): Promise<PromptTemplate | null> => {
   try {
-    const response = await fetch(`${API_BASE_URL}/prompt-templates/plan/${planId}/questionnaire/${questionnaireId}`);
+    const response = await fetch(
+      `${API_BASE_URL}/prompt-templates/plan/${planId}/questionnaire/${questionnaireId}`
+    );
     if (!response.ok) {
-      throw new Error('Failed to fetch prompt template');
+      throw new Error("Failed to fetch prompt template");
     }
-    
+
     const result = await response.json();
+    console.log("Fetched prompt templates:", result);
     if (!result.success) {
-      throw new Error(result.message || 'Failed to fetch prompt template');
+      throw new Error(result.message || "Failed to fetch prompt template");
     }
-    
+
     const templates = result.data as PromptTemplate[];
-    const template = templates.find(t => t.sequence_index === sequenceIndex) || templates[0];
-    
+    const template =
+      templates.find((t) => t.sequence_index === sequenceIndex) || templates[0];
+
     return template || null;
   } catch (error) {
-    console.error('Error fetching prompt template:', error);
+    console.error("Error fetching prompt template:", error);
     return null;
   }
 };
@@ -226,10 +280,12 @@ export const fetchPromptsForQuestionnaire = async (
   try {
     // This would need a new endpoint in the backend
     // For now, we'll return empty array
-    console.warn('fetchPromptsForQuestionnaire not yet implemented for MySQL backend');
+    console.warn(
+      "fetchPromptsForQuestionnaire not yet implemented for MySQL backend"
+    );
     return [];
   } catch (error) {
-    console.error('Error fetching questionnaire prompts:', error);
+    console.error("Error fetching questionnaire prompts:", error);
     return [];
   }
 };
@@ -241,12 +297,12 @@ export const fetchPromptsForPlanQuestionnaires = async (
 ): Promise<Record<string, PromptTemplate[]>> => {
   try {
     const promptsByQuestionnaire: Record<string, PromptTemplate[]> = {};
-    
+
     // Fetch all prompts for the plan (now includes both prompt_templates and report_generation_settings)
     const allPrompts = await fetchPlanPromptTemplates(planId);
-    
+
     // Group prompts by questionnaire_id
-    allPrompts.forEach(prompt => {
+    allPrompts.forEach((prompt) => {
       if (questionnaireIds.includes(prompt.questionnaire_id)) {
         if (!promptsByQuestionnaire[prompt.questionnaire_id]) {
           promptsByQuestionnaire[prompt.questionnaire_id] = [];
@@ -254,17 +310,17 @@ export const fetchPromptsForPlanQuestionnaires = async (
         promptsByQuestionnaire[prompt.questionnaire_id].push(prompt);
       }
     });
-    
+
     // Ensure all questionnaire IDs are represented (even if empty)
-    questionnaireIds.forEach(questionnaireId => {
+    questionnaireIds.forEach((questionnaireId) => {
       if (!promptsByQuestionnaire[questionnaireId]) {
         promptsByQuestionnaire[questionnaireId] = [];
       }
     });
-    
+
     return promptsByQuestionnaire;
   } catch (error) {
-    console.error('Error fetching plan questionnaire prompts:', error);
+    console.error("Error fetching plan questionnaire prompts:", error);
     return {};
   }
 };
@@ -275,81 +331,90 @@ export const savePromptTemplate = async (
 ): Promise<PromptTemplate | null> => {
   try {
     const isUpdate = !!template.id;
-    const url = isUpdate ? `${API_BASE_URL}/prompt-templates/${template.id}` : `${API_BASE_URL}/prompt-templates`;
-    const method = isUpdate ? 'PUT' : 'POST';
-    
+    const url = isUpdate
+      ? `${API_BASE_URL}/prompt-templates/${template.id}`
+      : `${API_BASE_URL}/prompt-templates`;
+    const method = isUpdate ? "PUT" : "POST";
+
     // Convert PromptTemplateWithSections to the backend format for report_generation_settings
-    const { sections, reportTemplate, system_prompt, content, reference_questionnaires, ...baseTemplate } = template;
-    
+    const {
+      sections,
+      reportTemplate,
+      system_prompt,
+      content,
+      reference_questionnaires,
+      ...baseTemplate
+    } = template;
+
     const templateToSave = {
       ...baseTemplate,
       sections_data: sections,
-      template_structure: reportTemplate, // Map to template_structure column
-      system_prompt: system_prompt, // Map to system_prompt column
-      prompt_principale: content, // Map to prompt_principale column
-      reference_questionnaires: reference_questionnaires // Map to reference_questionnaires column
+      template_structure: reportTemplate,
+      system_prompt: system_prompt,
+      prompt_principale: content,
+      reference_questionnaires: reference_questionnaires,
     };
-    
+
     const response = await fetch(url, {
       method,
       headers: {
-        'Content-Type': 'application/json'
+        "Content-Type": "application/json",
       },
-      body: JSON.stringify(templateToSave)
+      body: JSON.stringify(templateToSave),
     });
-    
+
     if (!response.ok) {
-      throw new Error('Failed to save prompt template');
+      throw new Error("Failed to save prompt template");
     }
-    
+
     const result = await response.json();
     if (!result.success) {
-      throw new Error(result.message || 'Failed to save prompt template');
+      throw new Error(result.message || "Failed to save prompt template");
     }
-    
+
+    // ✅ Return the ai_response from backend
     if (isUpdate) {
-      // For updates, return the template with updated data
-      return { 
-        ...templateToSave, 
+      return {
+        ...templateToSave,
         updated_at: new Date().toISOString(),
         sections_data: sections,
         template_structure: reportTemplate,
-        content: content || '',
-        reference_questionnaires: reference_questionnaires
+        content: content || "",
+        reference_questionnaires: reference_questionnaires,
+        ai_response: result.data.ai_response, // ✅ ADD THIS
       } as PromptTemplate;
     } else {
-      // For creates, return the template with the new ID
-      return { 
-        ...templateToSave, 
-        id: result.data.id, 
-        created_at: new Date().toISOString(), 
+      return {
+        ...templateToSave,
+        id: result.data.id,
+        created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
         sections_data: sections,
         template_structure: reportTemplate,
-        content: content || '',
-        reference_questionnaires: reference_questionnaires
+        content: content || "",
+        reference_questionnaires: reference_questionnaires,
+        ai_response: result.data.ai_response, // ✅ ADD THIS
       } as PromptTemplate;
     }
   } catch (error) {
-    console.error('Error saving prompt template:', error);
+    console.error("Error saving prompt template:", error);
     return null;
   }
 };
-
 export const deletePromptTemplate = async (id: string): Promise<boolean> => {
   try {
     const response = await fetch(`${API_BASE_URL}/prompt-templates/${id}`, {
-      method: 'DELETE'
+      method: "DELETE",
     });
-    
+
     if (!response.ok) {
-      throw new Error('Failed to delete prompt template');
+      throw new Error("Failed to delete prompt template");
     }
-    
+
     const result = await response.json();
     return result.success;
   } catch (error) {
-    console.error('Error deleting prompt template:', error);
+    console.error("Error deleting prompt template:", error);
     return false;
   }
 };

@@ -889,8 +889,8 @@ const ReportsPage = () => {
                             key={question.questionId}
                             value={question.questionId}
                           >
-                            {question.questionText.substring(0, 60)}
-                            {question.questionText.length > 60 ? "..." : ""}
+                            {question.title.substring(0, 60)}
+                            {question.title.length > 60 ? "..." : ""}
                           </SelectItem>
                         ))}
                       </SelectGroup>
@@ -906,9 +906,7 @@ const ReportsPage = () => {
                   </div>
                 ) : questionData ? (
                   <div>
-                    <h3 className="font-semibold mb-4">
-                      {questionData.questionText}
-                    </h3>
+                    <h3 className="font-semibold mb-4">{questionData.title}</h3>
                     <p className="text-sm text-muted-foreground mb-4">
                       Risposte totali: {questionData.totalResponses}
                     </p>

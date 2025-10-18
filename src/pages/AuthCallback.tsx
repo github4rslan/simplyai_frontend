@@ -1,60 +1,85 @@
-import React, { useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
-import { useAuth } from '@/hooks/useAuth';
-import { useToast } from '@/components/ui/use-toast';
-import { getCurrentUser } from '@/services/ApiService';
+import React, { useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/components/ui/use-toast";
+import { getCurrentUser } from "@/services/ApiService";
 
 const AuthCallback = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { login } = useAuth();
+  const { setUser, setToken } = useAuth(); // ✅ Now these exist!
   const { toast } = useToast();
 
   useEffect(() => {
     const handleCallback = async () => {
-      const token = searchParams.get('token');
-      const error = searchParams.get('error');
+      const token = searchParams.get("token");
+      const error = searchParams.get("error");
 
       if (error) {
+        console.error("OAuth error:", error);
         toast({
-          variant: 'destructive',
-          title: 'Errore di autenticazione',
-          description: 'Si è verificato un errore durante l\'accesso con il provider sociale.',
+          variant: "destructive",
+          title: "Errore di autenticazione",
+          description:
+            "Si è verificato un errore durante l'accesso con il provider sociale.",
         });
-        navigate('/login');
+        navigate("/login");
         return;
       }
 
-      if (token) {
-        try {
-          // Store token and fetch user data
-          localStorage.setItem('auth_token', token);
+      if (!token) {
+        console.error("No token provided");
+        navigate("/login");
+        return;
+      }
 
-          // Fetch user data using the token
-          const userData = await getCurrentUser(token);
-          
-          toast({
-            title: 'Accesso effettuato',
-            description: 'Benvenuto nella piattaforma',
+      try {
+        console.log("🔵 Processing OAuth callback with token");
+
+        // ✅ Set token first (this also stores in localStorage)
+        setToken(token);
+
+        // Fetch user data using the token
+        const response = await getCurrentUser(token);
+
+        console.log("🔵 User data received:", response);
+
+        if (response.success && response.data) {
+          // ✅ Set user (this also stores in localStorage)
+          setUser({
+            ...response.data,
+            isAdmin: response.data.role === "administrator",
           });
-          
-          navigate('/dashboard');
-        } catch (error) {
-          console.error('Error during OAuth callback:', error);
+
           toast({
-            variant: 'destructive',
-            title: 'Errore',
-            description: 'Si è verificato un errore durante l\'accesso.',
+            title: "Accesso effettuato",
+            description: `Benvenuto ${response.data.firstName}!`,
           });
-          navigate('/login');
+
+          console.log("✅ OAuth login successful, redirecting to dashboard");
+
+          // Small delay to ensure state is updated
+          setTimeout(() => {
+            navigate("/dashboard");
+          }, 100);
+        } else {
+          throw new Error("Invalid response from server");
         }
-      } else {
-        navigate('/login');
+      } catch (error) {
+        console.error("❌ Error during OAuth callback:", error);
+        setToken(null);
+        setUser(null);
+        toast({
+          variant: "destructive",
+          title: "Errore",
+          description: "Si è verificato un errore durante l'accesso.",
+        });
+        navigate("/login");
       }
     };
 
     handleCallback();
-  }, [searchParams, navigate, toast]);
+  }, [searchParams, navigate, toast, setUser, setToken]);
 
   return (
     <div className="flex items-center justify-center min-h-screen">

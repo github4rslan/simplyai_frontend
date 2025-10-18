@@ -26,7 +26,7 @@ const Home = () => {
     <div className="min-h-screen flex flex-col">
       <Navbar />
       {/* Hero Section */}
-      <section className="flex-grow flex flex-col justify-center items-center text-center px-4 py-16 bg-gradient-to-b from-white to-[var(--color-primary-50)]">
+      <section className="flex-grow flex flex-col justify-center items-center text-center px-4 py-16 bg-[var(--color-secondary)]">
         <div className="max-w-3xl mx-auto">
           <h1 className="text-4xl md:text-6xl font-bold mb-6 bg-clip-text bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-indigo)]">
             Ottimizza il tuo business con l'intelligenza artificiale
