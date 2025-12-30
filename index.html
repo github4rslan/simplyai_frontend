@@ -364,6 +364,47 @@
         return null;
       }
 
+      function buildVersionedUrl(assetUrl, cacheKey) {
+        if (!assetUrl) return null;
+        const timestamp =
+          typeof cacheKey === "number"
+            ? cacheKey
+            : typeof cacheKey === "string"
+            ? Date.parse(cacheKey)
+            : Date.now();
+
+        if (!assetUrl) return null;
+
+        try {
+          const parsed = new URL(assetUrl, window.location.origin);
+          parsed.searchParams.set("v", timestamp);
+          return parsed.toString();
+        } catch {
+          const separator = assetUrl.includes("?") ? "&" : "?";
+          return `${assetUrl}${separator}v=${timestamp}`;
+        }
+      }
+
+      function preloadAsset(url) {
+        if (!url) return;
+        const img = new Image();
+        img.src = url;
+      }
+
+      function updateLogoPreload(url) {
+        if (!url) return;
+        const head = document.head;
+        let preloadLink = document.getElementById("dynamic-logo-preload");
+        if (!preloadLink) {
+          preloadLink = document.createElement("link");
+          preloadLink.id = "dynamic-logo-preload";
+          preloadLink.rel = "preload";
+          preloadLink.as = "image";
+          head.appendChild(preloadLink);
+        }
+        preloadLink.href = url;
+      }
+
       // Function to update favicon
       function updateFavicon() {
         const API_BASE_URL = getApiBaseUrl();
@@ -395,12 +436,17 @@
             if (data.success && data.data && data.data.favicon) {
               const faviconLink = document.getElementById("favicon-link");
               if (faviconLink) {
-                // Add timestamp to force browser refresh
-                const timestamp = Date.now();
-                const newFaviconUrl = `${data.data.favicon}?v=${timestamp}`;
+                const versionKey =
+                  data.data.favicon_version ||
+                  data.data.updated_at ||
+                  Date.now();
+                const newFaviconUrl = buildVersionedUrl(
+                  data.data.favicon,
+                  versionKey
+                );
 
                 // Determine the correct MIME type based on file extension
-                const fileExtension = data.data.favicon
+                const fileExtension = (newFaviconUrl || data.data.favicon)
                   .split(".")
                   .pop()
                   .toLowerCase();
@@ -444,6 +490,15 @@
             } else {
               console.log("No custom favicon found in settings, using default");
             }
+
+            if (data.success && data.data && data.data.logo) {
+              const logoVersionedUrl = buildVersionedUrl(
+                data.data.logo,
+                data.data.logo_version || data.data.updated_at
+              );
+              preloadAsset(logoVersionedUrl);
+              updateLogoPreload(logoVersionedUrl);
+            }
           })
           .catch((error) => {
             console.error("Error fetching favicon from settings:", error);
@@ -461,11 +516,13 @@
         console.log("Favicon update event received:", event.detail);
         const faviconLink = document.getElementById("favicon-link");
         if (faviconLink && event.detail && event.detail.faviconUrl) {
-          const timestamp = Date.now();
-          const newFaviconUrl = `${event.detail.faviconUrl}?v=${timestamp}`;
+          const newFaviconUrl = buildVersionedUrl(
+            event.detail.faviconUrl,
+            event.detail.cacheKey || Date.now()
+          );
 
           // Determine the correct MIME type based on file extension
-          const fileExtension = event.detail.faviconUrl
+          const fileExtension = (newFaviconUrl || event.detail.faviconUrl)
             .split(".")
             .pop()
             .toLowerCase();

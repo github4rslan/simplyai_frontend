@@ -7,7 +7,7 @@
 @layer base {
   :root {
     --color-primary: #0ea5e9;
-    --color-secondary: #7e69ab;
+    --color-secondary: #7c6cc4;
     --color-accent: #403e43;
     --color-primary-700: color-mix(in srgb, var(--color-primary) 80%, black);
     --color-primary-500: color-mix(in srgb, var(--color-primary) 60%, white);

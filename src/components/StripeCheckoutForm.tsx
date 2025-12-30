@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useStripe, useElements, CardElement } from "@stripe/react-stripe-js";
 import { Button } from "@/components/ui/button";
 import { formatCurrency } from "@/services/paymentService";
+import { API_BASE_URL } from "@/config/api";
 import axios from "axios";
 
 const CARD_ELEMENT_OPTIONS = {
@@ -71,8 +72,6 @@ const StripeCheckoutForm = ({
     }
 
     // Create PaymentIntent
-    const API_BASE_URL =
-      import.meta.env.VITE_API_BASE_URL || "https://simplyai.it/api";
     const { clientSecret } = await (
       await fetch(`${API_BASE_URL}/stripe/create-payment-intent`, {
         method: "POST",

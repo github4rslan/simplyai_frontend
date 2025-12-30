@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { API_BASE_URL } from "@/config/api";
 import {
   Card,
   CardContent,
@@ -46,8 +47,6 @@ const ForgotPassword = () => {
   const handleSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       setIsLoading(true);
-      const API_BASE_URL =
-        import.meta.env.VITE_API_BASE_URL || "https://simplyai.it/api";
       const res = await fetch(`${API_BASE_URL}/auth/forgot-password`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },

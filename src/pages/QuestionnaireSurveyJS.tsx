@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import "survey-core/survey-core.css";
 import { registerCustomProperties } from "@/lib/surveyjs-properties";
+import { API_BASE_URL } from "@/config/api";
 
 // Custom styles for guide button
 const guideButtonStyles = `
@@ -115,8 +116,6 @@ export default function QuestionnaireSurveyJS() {
       registerCustomProperties();
 
       try {
-        const API_BASE_URL =
-          import.meta.env.VITE_API_BASE_URL || "https://simplyai.it/api";
         const response = await fetch(`${API_BASE_URL}/forms/${id}`);
         if (!response.ok) {
           throw new Error("Form not found");

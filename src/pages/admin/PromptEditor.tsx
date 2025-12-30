@@ -2637,7 +2637,6 @@ Esempi:
                             {section.content}
                           </p>
                         )}
-                        // CHART COMPONENT FIX
                         {section.section_type === "chart" && (
                           <div className="bg-slate-50 p-4 rounded border">
                             <p className="text-sm font-medium mb-2">
@@ -2693,7 +2692,6 @@ Esempi:
                             </div>
                           </div>
                         )}
-                        // TABLE COMPONENT FIX
                         {section.section_type === "table" && (
                           <div className="overflow-x-auto border rounded">
                             <table className="w-full text-sm">

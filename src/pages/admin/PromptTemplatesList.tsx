@@ -276,13 +276,30 @@ const PromptTemplatesList = () => {
   };
 
   // Parse AI response helper
+  const safeArray = (value: any): any[] => {
+    return Array.isArray(value) ? value : [];
+  };
+
+  // Safe object check helper
+  const safeObject = (value: any): any => {
+    return value && typeof value === "object" && !Array.isArray(value)
+      ? value
+      : {};
+  };
   const parseAiResponse = (aiResponse: any) => {
     if (!aiResponse) return null;
 
     try {
-      return typeof aiResponse === "string"
-        ? JSON.parse(aiResponse)
-        : aiResponse;
+      const parsed =
+        typeof aiResponse === "string" ? JSON.parse(aiResponse) : aiResponse;
+
+      // Validate the structure
+      if (!parsed || typeof parsed !== "object") {
+        console.warn("Invalid AI response structure");
+        return null;
+      }
+
+      return parsed;
     } catch (error) {
       console.error("Error parsing AI response:", error);
       return null;
@@ -296,126 +313,155 @@ const PromptTemplatesList = () => {
   ) => {
     let preview = `=== COMPLETE PROMPT STRUCTURE ===\n\n`;
 
-    // System Prompt
-    preview += `📋 SYSTEM PROMPT:\n`;
-    preview += `${
-      aiResponseData?.prompt_structure?.system_prompt ||
-      template.system_prompt ||
-      "No system prompt"
-    }\n\n`;
-    preview += `---\n\n`;
+    try {
+      // System Prompt
+      preview += `📋 SYSTEM PROMPT:\n`;
+      preview += `${
+        aiResponseData?.prompt_structure?.system_prompt ||
+        template?.system_prompt ||
+        "No system prompt"
+      }\n\n`;
+      preview += `---\n\n`;
 
-    // Main Prompt
-    preview += `💬 MAIN PROMPT:\n`;
-    preview += `${
-      aiResponseData?.prompt_structure?.main_prompt ||
-      template.content ||
-      "No main prompt"
-    }\n\n`;
-    preview += `---\n\n`;
+      // Main Prompt
+      preview += `💬 MAIN PROMPT:\n`;
+      preview += `${
+        aiResponseData?.prompt_structure?.main_prompt ||
+        template?.content ||
+        "No main prompt"
+      }\n\n`;
+      preview += `---\n\n`;
 
-    // Main Questionnaire
-    if (aiResponseData?.main_questionnaire) {
-      preview += `❓ QUESTIONNAIRE: ${aiResponseData.main_questionnaire.title}\n\n`;
+      // Main Questionnaire
+      if (aiResponseData?.main_questionnaire) {
+        preview += `❓ QUESTIONNAIRE: ${
+          aiResponseData.main_questionnaire.title || "Untitled"
+        }\n\n`;
 
-      if (aiResponseData.main_questionnaire.questions?.pages) {
-        let qNum = 1;
-        aiResponseData.main_questionnaire.questions.pages.forEach(
-          (page: any) => {
-            if (page.title) preview += `  📄 ${page.title}\n`;
+        const pages = safeArray(
+          aiResponseData.main_questionnaire.questions?.pages
+        );
+        if (pages.length > 0) {
+          let qNum = 1;
+          pages.forEach((page: any) => {
+            if (page?.title) preview += `  📄 ${page.title}\n`;
 
-            if (page.elements) {
-              page.elements.forEach((element: any) => {
-                preview += `\n  ${qNum}. ${element.title || element.name}\n`;
-                preview += `     Type: ${element.type}\n`;
-                if (element.description)
-                  preview += `     Description: ${element.description}\n`;
-                preview += `     Required: ${
-                  element.isRequired ? "Yes" : "No"
-                }\n`;
+            const elements = safeArray(page?.elements);
+            elements.forEach((element: any) => {
+              if (!element) return;
 
-                if (element.choices) {
-                  preview += `     Options:\n`;
-                  element.choices.forEach((choice: any) => {
-                    const text =
-                      typeof choice === "string" ? choice : choice.text;
-                    preview += `        - ${text}\n`;
-                  });
-                }
-                qNum++;
+              preview += `\n  ${qNum}. ${
+                element.title || element.name || "Untitled Question"
+              }\n`;
+              preview += `     Type: ${element.type || "unknown"}\n`;
+              if (element.description)
+                preview += `     Description: ${element.description}\n`;
+              preview += `     Required: ${
+                element.isRequired ? "Yes" : "No"
+              }\n`;
+
+              const choices = safeArray(element.choices);
+              if (choices.length > 0) {
+                preview += `     Options:\n`;
+                choices.forEach((choice: any) => {
+                  const text =
+                    typeof choice === "string"
+                      ? choice
+                      : choice?.text || "Unknown option";
+                  preview += `        - ${text}\n`;
+                });
+              }
+              qNum++;
+            });
+            preview += `\n`;
+          });
+        }
+        preview += `---\n\n`;
+      }
+
+      // Reference Questionnaires
+      const refQuestionnaires = safeObject(
+        aiResponseData?.reference_questionnaires_data
+      );
+      if (Object.keys(refQuestionnaires).length > 0) {
+        preview += `📎 REFERENCE QUESTIONNAIRES:\n\n`;
+
+        Object.entries(refQuestionnaires).forEach(
+          ([qId, qData]: [string, any]) => {
+            if (!qData) return;
+
+            preview += `  📋 ${qData.title || "Untitled Questionnaire"}\n`;
+            const pages = safeArray(qData.questions?.pages);
+            if (pages.length > 0) {
+              let qNum = 1;
+              pages.forEach((page: any) => {
+                const elements = safeArray(page?.elements);
+                elements.forEach((element: any) => {
+                  if (!element) return;
+                  preview += `    ${qNum}. ${
+                    element.title || element.name || "Untitled"
+                  } (${element.type || "unknown"})\n`;
+                  qNum++;
+                });
               });
             }
             preview += `\n`;
           }
         );
+        preview += `---\n\n`;
       }
-      preview += `---\n\n`;
-    }
 
-    // Reference Questionnaires
-    if (
-      aiResponseData?.reference_questionnaires_data &&
-      Object.keys(aiResponseData.reference_questionnaires_data).length > 0
-    ) {
-      preview += `📎 REFERENCE QUESTIONNAIRES:\n\n`;
+      // Sections
+      const sectionsData = safeObject(
+        aiResponseData?.prompt_structure?.sections_data
+      );
+      if (Object.keys(sectionsData).length > 0) {
+        preview += `📊 SECTIONS:\n\n`;
 
-      Object.entries(aiResponseData.reference_questionnaires_data).forEach(
-        ([qId, qData]: [string, any]) => {
-          preview += `  📋 ${qData.title}\n`;
-          if (qData.questions?.pages) {
-            let qNum = 1;
-            qData.questions.pages.forEach((page: any) => {
-              if (page.elements) {
-                page.elements.forEach((element: any) => {
-                  preview += `    ${qNum}. ${element.title || element.name} (${
-                    element.type
-                  })\n`;
-                  qNum++;
-                });
-              }
-            });
-          }
+        const textSections = safeArray(sectionsData.text);
+        if (textSections.length > 0) {
+          preview += `TEXT SECTIONS:\n`;
+          textSections.forEach((s: any, i: number) => {
+            if (!s) return;
+            preview += `  ${i + 1}. ${s.title || "Untitled"} (${
+              s.shortcode || "N/A"
+            })\n`;
+            if (s.prompt) preview += `     Instructions: ${s.prompt}\n`;
+          });
           preview += `\n`;
         }
-      );
-      preview += `---\n\n`;
+
+        const chartSections = safeArray(sectionsData.charts);
+        if (chartSections.length > 0) {
+          preview += `CHART SECTIONS:\n`;
+          chartSections.forEach((s: any, i: number) => {
+            if (!s) return;
+            preview += `  ${i + 1}. ${s.title || "Untitled"} (${
+              s.shortcode || "N/A"
+            }) - Type: ${s.type || "unknown"}\n`;
+            if (s.prompt) preview += `     Instructions: ${s.prompt}\n`;
+          });
+          preview += `\n`;
+        }
+
+        const tableSections = safeArray(sectionsData.tables);
+        if (tableSections.length > 0) {
+          preview += `TABLE SECTIONS:\n`;
+          tableSections.forEach((s: any, i: number) => {
+            if (!s) return;
+            preview += `  ${i + 1}. ${s.title || "Untitled"} (${
+              s.shortcode || "N/A"
+            })\n`;
+            if (s.prompt) preview += `     Instructions: ${s.prompt}\n`;
+          });
+        }
+      }
+
+      return preview;
+    } catch (error) {
+      console.error("Error generating prompt preview:", error);
+      return "Error generating preview. Please check the console for details.";
     }
-
-    // Sections
-    const sectionsData = aiResponseData?.prompt_structure?.sections_data;
-    if (sectionsData) {
-      preview += `📊 SECTIONS:\n\n`;
-
-      if (sectionsData.text?.length > 0) {
-        preview += `TEXT SECTIONS:\n`;
-        sectionsData.text.forEach((s: any, i: number) => {
-          preview += `  ${i + 1}. ${s.title} (${s.shortcode})\n`;
-          if (s.prompt) preview += `     Instructions: ${s.prompt}\n`;
-        });
-        preview += `\n`;
-      }
-
-      if (sectionsData.charts?.length > 0) {
-        preview += `CHART SECTIONS:\n`;
-        sectionsData.charts.forEach((s: any, i: number) => {
-          preview += `  ${i + 1}. ${s.title} (${s.shortcode}) - Type: ${
-            s.type
-          }\n`;
-          if (s.prompt) preview += `     Instructions: ${s.prompt}\n`;
-        });
-        preview += `\n`;
-      }
-
-      if (sectionsData.tables?.length > 0) {
-        preview += `TABLE SECTIONS:\n`;
-        sectionsData.tables.forEach((s: any, i: number) => {
-          preview += `  ${i + 1}. ${s.title} (${s.shortcode})\n`;
-          if (s.prompt) preview += `     Instructions: ${s.prompt}\n`;
-        });
-      }
-    }
-
-    return preview;
   };
 
   return (
@@ -637,196 +683,287 @@ const PromptTemplatesList = () => {
 
           <div className="flex-1 overflow-y-auto space-y-6 p-4">
             {(() => {
-              const aiResponseData = parseAiResponse(
-                selectedTemplateForPreview?.ai_response
-              );
-              const promptPreview = selectedTemplateForPreview
-                ? generatePromptPreviewFromTemplate(
-                    selectedTemplateForPreview,
-                    aiResponseData
-                  )
-                : "";
+              try {
+                const aiResponseData = parseAiResponse(
+                  selectedTemplateForPreview?.ai_response
+                );
+                const promptPreview = selectedTemplateForPreview
+                  ? generatePromptPreviewFromTemplate(
+                      selectedTemplateForPreview,
+                      aiResponseData
+                    )
+                  : "";
 
-              return (
-                <>
-                  {/* PROMPT PREVIEW */}
-                  <div>
-                    <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
-                      📝 Prompt Completo
-                    </h3>
-                    <div className="bg-slate-50 border rounded-lg p-4">
-                      <pre className="whitespace-pre-wrap text-sm font-mono leading-relaxed">
-                        {promptPreview}
-                      </pre>
-                    </div>
-                  </div>
-
-                  {/* AI RESPONSE */}
-                  {aiResponseData?.ai_generated_response?.sections &&
-                  aiResponseData.ai_generated_response.sections.length > 0 ? (
+                return (
+                  <>
+                    {/* PROMPT PREVIEW */}
                     <div>
                       <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
-                        🤖 Risposta AI Generata
+                        📝 Prompt Completo
                       </h3>
-                      <div className="space-y-4">
-                        {aiResponseData.ai_generated_response.sections.map(
-                          (section: any, index: number) => (
-                            <div
-                              key={index}
-                              className="border rounded-lg p-4 bg-white"
-                            >
-                              <div className="flex items-center gap-2 mb-3">
-                                <Badge variant="outline">
-                                  {section.section_type}
-                                </Badge>
-                                <h4 className="font-semibold">
-                                  {section.title}
-                                </h4>
-                                <span className="text-sm text-muted-foreground">
-                                  ({section.shortcode})
-                                </span>
-                              </div>
-
-                              {section.section_type === "text" && (
-                                <p className="text-sm whitespace-pre-wrap leading-relaxed text-slate-700">
-                                  {section.content}
-                                </p>
-                              )}
-
-                              {section.section_type === "chart" && (
-                                <div className="bg-slate-50 p-4 rounded border">
-                                  <p className="text-sm font-medium mb-2">
-                                    📊 Tipo: <Badge>{section.type}</Badge>
-                                  </p>
-                                  <div className="space-y-2 text-sm">
-                                    <div>
-                                      <span className="font-medium">
-                                        Labels:
-                                      </span>
-                                      <span className="text-slate-600 ml-2">
-                                        {/* Check if data is array of objects (first format) */}
-                                        {Array.isArray(section.data)
-                                          ? section.data
-                                              .map((item) => item.label)
-                                              .join(", ")
-                                          : /* Check if data has labels array (second format) */
-                                          Array.isArray(section.data?.labels)
-                                          ? section.data.labels.join(", ")
-                                          : "N/A"}
-                                      </span>
-                                    </div>
-                                    <div>
-                                      <span className="font-medium">
-                                        Values:
-                                      </span>
-                                      <span className="text-slate-600 ml-2">
-                                        {/* Handle both data formats */}
-                                        {Array.isArray(section.data)
-                                          ? section.data
-                                              .map((item) => item.value)
-                                              .join(", ")
-                                          : Array.isArray(section.data?.values)
-                                          ? section.data.values.join(", ")
-                                          : "N/A"}
-                                      </span>
-                                    </div>
-                                  </div>
-                                </div>
-                              )}
-
-                              {section.section_type === "table" && (
-                                <div className="overflow-x-auto border rounded">
-                                  <table className="w-full text-sm">
-                                    <thead>
-                                      <tr className="bg-slate-50">
-                                        {/* Handle multiple table header formats */}
-                                        {section.headers
-                                          ? section.headers.map(
-                                              (header: string, i: number) => (
-                                                <th
-                                                  key={i}
-                                                  className="border-b p-2 text-left font-medium"
-                                                >
-                                                  {header}
-                                                </th>
-                                              )
-                                            )
-                                          : Array.isArray(section.data) &&
-                                            section.data.length > 0
-                                          ? Object.keys(section.data[0]).map(
-                                              (header: string, i: number) => (
-                                                <th
-                                                  key={i}
-                                                  className="border-b p-2 text-left font-medium"
-                                                >
-                                                  {header}
-                                                </th>
-                                              )
-                                            )
-                                          : null}
-                                      </tr>
-                                    </thead>
-                                    <tbody>
-                                      {/* Handle multiple table body formats */}
-                                      {section.rows
-                                        ? section.rows.map(
-                                            (row: any[], i: number) => (
-                                              <tr
-                                                key={i}
-                                                className="border-b last:border-b-0"
-                                              >
-                                                {row.map(
-                                                  (cell: any, j: number) => (
-                                                    <td
-                                                      key={j}
-                                                      className="p-2 text-slate-700"
-                                                    >
-                                                      {cell}
-                                                    </td>
-                                                  )
-                                                )}
-                                              </tr>
-                                            )
-                                          )
-                                        : Array.isArray(section.data)
-                                        ? section.data.map(
-                                            (row: any, i: number) => (
-                                              <tr
-                                                key={i}
-                                                className="border-b last:border-b-0"
-                                              >
-                                                {Object.values(row).map(
-                                                  (cell: any, j: number) => (
-                                                    <td
-                                                      key={j}
-                                                      className="p-2 text-slate-700"
-                                                    >
-                                                      {cell}
-                                                    </td>
-                                                  )
-                                                )}
-                                              </tr>
-                                            )
-                                          )
-                                        : null}
-                                    </tbody>
-                                  </table>
-                                </div>
-                              )}
-                            </div>
-                          )
-                        )}
+                      <div className="bg-slate-50 border rounded-lg p-4">
+                        <pre className="whitespace-pre-wrap text-sm font-mono leading-relaxed">
+                          {promptPreview}
+                        </pre>
                       </div>
                     </div>
-                  ) : (
-                    <div className="text-center p-8 bg-amber-50 border border-amber-200 rounded-lg">
-                      <p className="text-amber-800">
-                        ⚠️ Nessuna risposta AI disponibile per questo template
-                      </p>
-                    </div>
-                  )}
-                </>
-              );
+
+                    {/* AI RESPONSE */}
+                    {(() => {
+                      const sections = safeArray(
+                        aiResponseData?.ai_generated_response?.sections
+                      );
+
+                      if (sections.length === 0) {
+                        return (
+                          <div className="text-center p-8 bg-amber-50 border border-amber-200 rounded-lg">
+                            <p className="text-amber-800">
+                              ⚠️ Nessuna risposta AI disponibile per questo
+                              template
+                            </p>
+                          </div>
+                        );
+                      }
+
+                      return (
+                        <div>
+                          <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
+                            🤖 Risposta AI Generata
+                          </h3>
+                          <div className="space-y-4">
+                            {sections.map((section: any, index: number) => {
+                              if (!section) return null;
+
+                              return (
+                                <div
+                                  key={index}
+                                  className="border rounded-lg p-4 bg-white"
+                                >
+                                  <div className="flex items-center gap-2 mb-3">
+                                    <Badge variant="outline">
+                                      {section.section_type || "unknown"}
+                                    </Badge>
+                                    <h4 className="font-semibold">
+                                      {section.title || "Untitled Section"}
+                                    </h4>
+                                    <span className="text-sm text-muted-foreground">
+                                      ({section.shortcode || "N/A"})
+                                    </span>
+                                  </div>
+
+                                  {section.section_type === "text" && (
+                                    <p className="text-sm whitespace-pre-wrap leading-relaxed text-slate-700">
+                                      {section.content || "No content"}
+                                    </p>
+                                  )}
+
+                                  {section.section_type === "chart" && (
+                                    <div className="bg-slate-50 p-4 rounded border">
+                                      <p className="text-sm font-medium mb-2">
+                                        📊 Tipo:{" "}
+                                        <Badge>
+                                          {section.type || "unknown"}
+                                        </Badge>
+                                      </p>
+                                      <div className="space-y-2 text-sm">
+                                        <div>
+                                          <span className="font-medium">
+                                            Labels:
+                                          </span>
+                                          <span className="text-slate-600 ml-2">
+                                            {(() => {
+                                              const data = section.data;
+                                              if (Array.isArray(data)) {
+                                                return data
+                                                  .map(
+                                                    (item) =>
+                                                      item?.label || "N/A"
+                                                  )
+                                                  .join(", ");
+                                              } else if (
+                                                Array.isArray(data?.labels)
+                                              ) {
+                                                return data.labels.join(", ");
+                                              }
+                                              return "N/A";
+                                            })()}
+                                          </span>
+                                        </div>
+                                        <div>
+                                          <span className="font-medium">
+                                            Values:
+                                          </span>
+                                          <span className="text-slate-600 ml-2">
+                                            {(() => {
+                                              const data = section.data;
+                                              if (Array.isArray(data)) {
+                                                return data
+                                                  .map(
+                                                    (item) =>
+                                                      item?.value ?? "N/A"
+                                                  )
+                                                  .join(", ");
+                                              } else if (
+                                                Array.isArray(data?.values)
+                                              ) {
+                                                return data.values.join(", ");
+                                              }
+                                              return "N/A";
+                                            })()}
+                                          </span>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  )}
+
+                                  {section.section_type === "table" && (
+                                    <div className="overflow-x-auto border rounded">
+                                      <table className="w-full text-sm">
+                                        <thead>
+                                          <tr className="bg-slate-50">
+                                            {(() => {
+                                              const headers = safeArray(
+                                                section.headers
+                                              );
+                                              const data = safeArray(
+                                                section.data
+                                              );
+
+                                              if (headers.length > 0) {
+                                                return headers.map(
+                                                  (
+                                                    header: string,
+                                                    i: number
+                                                  ) => (
+                                                    <th
+                                                      key={i}
+                                                      className="border-b p-2 text-left font-medium"
+                                                    >
+                                                      {header}
+                                                    </th>
+                                                  )
+                                                );
+                                              } else if (
+                                                data.length > 0 &&
+                                                data[0]
+                                              ) {
+                                                return Object.keys(data[0]).map(
+                                                  (
+                                                    header: string,
+                                                    i: number
+                                                  ) => (
+                                                    <th
+                                                      key={i}
+                                                      className="border-b p-2 text-left font-medium"
+                                                    >
+                                                      {header}
+                                                    </th>
+                                                  )
+                                                );
+                                              }
+                                              return (
+                                                <th className="border-b p-2 text-left font-medium">
+                                                  No headers
+                                                </th>
+                                              );
+                                            })()}
+                                          </tr>
+                                        </thead>
+                                        <tbody>
+                                          {(() => {
+                                            const rows = safeArray(
+                                              section.rows
+                                            );
+                                            const data = safeArray(
+                                              section.data
+                                            );
+
+                                            if (rows.length > 0) {
+                                              return rows.map(
+                                                (row: any, i: number) => {
+                                                  const rowArray =
+                                                    safeArray(row);
+                                                  return (
+                                                    <tr
+                                                      key={i}
+                                                      className="border-b last:border-b-0"
+                                                    >
+                                                      {rowArray.map(
+                                                        (
+                                                          cell: any,
+                                                          j: number
+                                                        ) => (
+                                                          <td
+                                                            key={j}
+                                                            className="p-2 text-slate-700"
+                                                          >
+                                                            {cell ?? "N/A"}
+                                                          </td>
+                                                        )
+                                                      )}
+                                                    </tr>
+                                                  );
+                                                }
+                                              );
+                                            } else if (data.length > 0) {
+                                              return data.map(
+                                                (row: any, i: number) => {
+                                                  if (!row) return null;
+                                                  return (
+                                                    <tr
+                                                      key={i}
+                                                      className="border-b last:border-b-0"
+                                                    >
+                                                      {Object.values(row).map(
+                                                        (
+                                                          cell: any,
+                                                          j: number
+                                                        ) => (
+                                                          <td
+                                                            key={j}
+                                                            className="p-2 text-slate-700"
+                                                          >
+                                                            {cell ?? "N/A"}
+                                                          </td>
+                                                        )
+                                                      )}
+                                                    </tr>
+                                                  );
+                                                }
+                                              );
+                                            }
+                                            return (
+                                              <tr>
+                                                <td className="p-2 text-slate-500 italic">
+                                                  No data
+                                                </td>
+                                              </tr>
+                                            );
+                                          })()}
+                                        </tbody>
+                                      </table>
+                                    </div>
+                                  )}
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      );
+                    })()}
+                  </>
+                );
+              } catch (error) {
+                console.error("Error rendering AI preview:", error);
+                return (
+                  <div className="text-center p-8 bg-red-50 border border-red-200 rounded-lg">
+                    <p className="text-red-800">
+                      ❌ Errore nella visualizzazione del preview. Controlla la
+                      console per i dettagli.
+                    </p>
+                  </div>
+                );
+              }
             })()}
           </div>
 

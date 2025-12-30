@@ -1,4 +1,5 @@
 import React, { useEffect } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
 import Navbar from "@/components/Navbar";
 import { fetchPageData, savePageData } from "@/services/pagesService";
 
@@ -7,10 +8,7 @@ type Page = { id: string; title: string; content: string };
 
 // Static JSX content for the About page
 const data = (
-  <div className="min-h-screen flex flex-col" id="aboutJSX">
-    <Navbar />
-
-    <div className="flex-grow py-16 px-4 bg-[var(--color-secondary)]">
+  <div className="flex-grow py-16 px-4 bg-[#7c6cc4]" id="aboutJSX">
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-16">
           <h1 className="text-4xl font-bold mb-4">Chi Siamo</h1>
@@ -21,7 +19,7 @@ const data = (
         </div>
 
         <div className="max-w-4xl mx-auto">
-          <div className="bg-[var(--color-secondary)] p-8 rounded-xl shadow-sm mb-12">
+          <div className="bg-[#7c6cc4] p-8 rounded-xl shadow-sm mb-12">
             <h2 className="text-2xl font-semibold mb-4">La nostra missione</h2>
             <p className="text-gray-700 mb-6">
               SimolyAI nasce con l'obiettivo di rendere l'intelligenza
@@ -38,7 +36,7 @@ const data = (
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
-            <div className="bg-[var(--color-secondary)] p-6 rounded-xl shadow-sm">
+            <div className="bg-[#7c6cc4] p-6 rounded-xl shadow-sm">
               <h3 className="font-medium text-lg mb-2">La nostra visione</h3>
               <p className="text-gray-600">
                 Immaginiamo un futuro in cui ogni decisione aziendale è
@@ -47,7 +45,7 @@ const data = (
                 mercato globale.
               </p>
             </div>
-            <div className="bg-[var(--color-secondary)] p-6 rounded-xl shadow-sm">
+            <div className="bg-[#7c6cc4] p-6 rounded-xl shadow-sm">
               <h3 className="font-medium text-lg mb-2">I nostri valori</h3>
               <p className="text-gray-600">
                 Innovazione, accessibilità e trasparenza sono i valori
@@ -57,7 +55,7 @@ const data = (
             </div>
           </div>
 
-          <div className="bg-[var(--color-secondary)] p-8 rounded-xl shadow-sm mb-12">
+          <div className="bg-[#7c6cc4] p-8 rounded-xl shadow-sm mb-12">
             <h2 className="text-2xl font-semibold mb-6">Il nostro team</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {[
@@ -109,20 +107,27 @@ const data = (
         </div>
       </div>
     </div>
-  </div>
 );
+
+const fallbackContent = renderToStaticMarkup(data);
 
 const About = () => {
   const [pageData, setPageData] = React.useState<Page>({
-    id: "home",
-    title: "Home",
-    content: { __html: data }.toString(),
+    id: "about",
+    title: "Chi Siamo",
+    content: fallbackContent,
   });
 
   useEffect(() => {
     const loadData = async () => {
-      const data = await fetchPageData("about");
-      setPageData(data);
+      try {
+        const data = await fetchPageData("about");
+        if (data?.content) {
+          setPageData(data);
+        }
+      } catch (error) {
+        console.error("Failed to load about page content", error);
+      }
     };
     loadData();
   }, []);

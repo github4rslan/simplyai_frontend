@@ -32,20 +32,33 @@ const UserDashboard = () => {
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
   const [activeTab, setActiveTab] = useState("questionnaires");
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const [isMobile, setIsMobile] = useState<boolean>(() => {
+    if (typeof window === "undefined") {
+      return false;
+    }
+    return window.innerWidth < 768;
+  });
   const [siteName, setSiteName] = useState("SimplyAI");
-  const [logoUrl, setLogoUrl] = useState("");
+  const DEFAULT_LOGO = "/logo.png";
+  const [logoUrl, setLogoUrl] = useState(DEFAULT_LOGO);
 
   useEffect(() => {
     // Verifica se l'utente è autenticato
-    if (!user) {
-      toast({
-        variant: "destructive",
-        title: "Accesso richiesto",
-        description: "Effettua il login per accedere alla dashboard",
-      });
-      navigate("/login");
+    // if (!user) {
+    //   toast({
+    //     variant: "destructive",
+    //     title: "Accesso richiesto",
+    //     description: "Effettua il login per accedere alla dashboard",
+    //   });
+    //   navigate("/login");
+    // }
+
+    // useEffect(() => {
+    const savedToken = localStorage.getItem("auth_token");
+    if (!savedToken) {
+      return navigate("/login");
     }
+    // }, []);
 
     // Carica le impostazioni dell'applicazione
     const loadSettings = async () => {
@@ -56,16 +69,39 @@ const UserDashboard = () => {
         if (result.success && result.data) {
           setSiteName(result.data.site_name || "SimolyAI");
           if (result.data.logo) {
-            setLogoUrl(result.data.logo);
+            // Normalize logo URL - convert absolute URLs to relative if needed
+            let processedLogo = result.data.logo;
+            try {
+              const url = new URL(result.data.logo, window.location.origin);
+              if (url.origin !== window.location.origin && result.data.logo.startsWith('http')) {
+                processedLogo = url.pathname;
+              }
+            } catch {
+              // If URL parsing fails, use as-is
+              processedLogo = result.data.logo;
+            }
+            setLogoUrl(processedLogo);
+          } else {
+            // Use default logo if no logo in settings
+            setLogoUrl(DEFAULT_LOGO);
           }
+        } else {
+          // Use default logo if settings fetch fails
+          setLogoUrl(DEFAULT_LOGO);
         }
       } catch (error) {
         console.error("Errore nel caricamento delle impostazioni:", error);
+        // Fallback to default logo on error
+        setLogoUrl(DEFAULT_LOGO);
       }
     };
 
     if (user) {
       loadSettings();
+    }
+
+    if (typeof window === "undefined") {
+      return;
     }
 
     // Gestione responsive
@@ -97,18 +133,22 @@ const UserDashboard = () => {
 
   const SidebarContent = () => (
     <div className="flex flex-col h-full">
-      <div className="flex items-center space-x-3 p-4 border-b">
-        {logoUrl && (
-          <Link to="/" className="flex items-center">
-            <img
-              src={logoUrl}
-              alt={siteName}
-              className="h-10 w-auto cursor-pointer rounded-lg object-contain hover:scale-105 transition-transform duration-200"
-            />
-          </Link>
-        )}
+      <div className="flex items-center justify-center p-4 border-b">
+        <Link
+          to="/"
+          className="flex items-center justify-center hover:opacity-90 transition-opacity"
+        >
+          <img
+            src={logoUrl}
+            alt={siteName || "Logo"}
+            onError={(e) => {
+              console.error("Logo failed to load, using default:", logoUrl);
+              setLogoUrl(DEFAULT_LOGO);
+            }}
+            className="h-16 w-16 cursor-pointer rounded-lg object-contain hover:scale-105 transition-transform duration-200"
+          />
+        </Link>
       </div>
-
       {/* <div className="flex flex-col space-y-1 p-2 mt-4">
         <Link to="/">
           <Button variant="ghost" className="w-full justify-start">
@@ -222,15 +262,19 @@ const UserDashboard = () => {
               </Sheet>
             )}
 
-            <div className="flex items-center">
-              {logoUrl && (
+            {!isMobile && (
+              <Link to="/" className="flex items-center">
                 <img
                   src={logoUrl}
-                  alt={siteName}
-                  className="h-10 w-auto cursor-pointer rounded-lg object-contain hover:scale-105 transition-transform duration-200"
+                  alt={siteName || "Logo"}
+                  onError={(e) => {
+                    console.error("Logo failed to load, using default:", logoUrl);
+                    setLogoUrl(DEFAULT_LOGO);
+                  }}
+                  className="h-10 w-10 cursor-pointer rounded-lg object-contain hover:scale-105 transition-transform duration-200"
                 />
-              )}
-            </div>
+              </Link>
+            )}
           </div>
 
           <div className="flex items-center">

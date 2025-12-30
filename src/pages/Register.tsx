@@ -120,27 +120,28 @@ const Register = () => {
       }
 
       if (!freePlan) {
-        toast({
-          variant: "destructive",
-          title: "Errore",
-          description: "Nessun piano gratuito trovato. Contatta il supporto.",
-        });
-        setIsLoading(false);
-        return;
+        console.warn(
+          "⚠️ Nessun piano gratuito trovato. Verrà utilizzato il piano predefinito dal backend."
+        );
+      } else {
+        console.log("✅ Free plan found:", freePlan);
       }
 
-      console.log("✅ Free plan found:", freePlan);
+      const registrationPayload: Record<string, any> = {
+        ...tempUserData,
+      };
 
-      // ✅ Register user with free plan immediately
+      if (freePlan?.id) {
+        registrationPayload.planId = freePlan.id;
+      }
+
+      // ✅ Register user with free plan immediately (or fallback on backend default)
       const registerRes = await fetch(
         `${API_BASE_URL}/auth/register-with-plan`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            ...tempUserData,
-            planId: freePlan.id,
-          }),
+          body: JSON.stringify(registrationPayload),
         }
       ).then((res) => res.json());
 
@@ -159,7 +160,15 @@ const Register = () => {
 
       // Save user info
       localStorage.setItem("registered_user", JSON.stringify(registerRes.user));
-      localStorage.setItem("registered_plan", JSON.stringify(freePlan));
+      const storedPlan =
+        freePlan ||
+        ({
+          id: null,
+          name: "Piano Gratuito",
+          price: 0,
+          is_free: true,
+        } as const);
+      localStorage.setItem("registered_plan", JSON.stringify(storedPlan));
 
       toast({
         title: "Registrazione completata!",
@@ -171,8 +180,8 @@ const Register = () => {
       try {
         await login(values.email, values.password);
 
-        // ✅ Redirect to pricing page so they can upgrade if they want
-        navigate("/pricing");
+        // ✅ Redirect to dashboard so they can start using the app
+        navigate("/dashboard");
       } catch (loginError) {
         console.error("❌ Auto-login failed:", loginError);
 
@@ -209,7 +218,7 @@ const Register = () => {
     <div className="flex flex-col min-h-screen">
       <Navbar />
 
-      <div className="flex-grow flex items-center justify-center p-4 bg-[var(--color-secondary)]">
+      <div className="flex-grow flex items-center justify-center p-4 bg-[#7c6cc4]">
         <Card className="w-full max-w-md">
           <CardHeader>
             <CardTitle className="text-2xl">Crea il tuo account</CardTitle>

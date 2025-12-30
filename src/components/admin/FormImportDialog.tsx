@@ -27,6 +27,7 @@ import {
   CheckCircle,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { API_BASE_URL } from "@/config/api";
 
 interface FormImportDialogProps {
   open: boolean;
@@ -508,9 +509,6 @@ export default function FormImportDialog({
         surveyJSON: surveyJSON,
         status: "draft",
       });
-
-      const API_BASE_URL =
-        import.meta.env.VITE_API_BASE_URL || "https://simplyai.it/api";
 
       console.log("Making API call to:", `${API_BASE_URL}/forms`);
       console.log(

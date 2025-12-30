@@ -4,8 +4,12 @@ import { Upload, Loader2 } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { API_BASE_URL } from "@/config/api";
 
+interface UploadMeta {
+  cacheKey?: number;
+}
+
 interface LocalImageUploaderProps {
-  onImageUpload: (imageUrl: string) => void;
+  onImageUpload: (imageUrl: string, meta?: UploadMeta) => void;
   label?: string;
   buttonText?: string;
   accept?: string;
@@ -51,7 +55,9 @@ const LocalImageUploader = ({
       }
 
       // Call the callback with the uploaded file URL
-      onImageUpload(result.data.url);
+      onImageUpload(result.data.url, {
+        cacheKey: result.data.cacheKey,
+      });
 
       toast({
         title: `${uploadType === "logo" ? "Logo" : "Favicon"} caricato`,

@@ -23,7 +23,8 @@ export const fetchPaymentSettings = async (): Promise<PaymentSettings | null> =>
 };
 
 // Currency display utilities
-export const getCurrencySymbol = (currency: string): string => {
+export const getCurrencySymbol = (currency?: string): string => {
+  if (!currency) return "";
   switch (currency.toUpperCase()) {
     case 'EUR': return '€';
     case 'USD': return '$';
@@ -34,18 +35,19 @@ export const getCurrencySymbol = (currency: string): string => {
   }
 };
 
-export const formatCurrency = (amount: number, currency: string): string => {
-  const symbol = getCurrencySymbol(currency);
+export const formatCurrency = (amount: number, currency?: string): string => {
+  const safeCurrency = currency || 'EUR';
+  const symbol = getCurrencySymbol(safeCurrency);
   const value = (amount / 100).toFixed(2); // Convert from cents to main unit
   
   // For currencies that use symbol after amount
-  if (currency.toUpperCase() === 'CHF') {
-    return `${value} ${currency}`;
+  if (safeCurrency.toUpperCase() === 'CHF') {
+    return `${value} ${safeCurrency}`;
   }
   
   return `${symbol}${value}`;
 };
 
-export const getCurrencyForStripe = (currency: string): string => {
-  return currency.toLowerCase();
+export const getCurrencyForStripe = (currency?: string): string => {
+  return (currency || 'EUR').toLowerCase();
 };

@@ -200,7 +200,10 @@ const Settings = () => {
     loadSettings();
   }, [form]);
 
-  const handleLogoUpload = async (imageUrl: string) => {
+  const handleLogoUpload = async (
+    imageUrl: string,
+    meta?: { cacheKey?: number }
+  ) => {
     try {
       // Update form and local state first
       form.setValue("logo", imageUrl, { shouldDirty: true });
@@ -215,10 +218,12 @@ const Settings = () => {
             logo: imageUrl,
           });
 
-          if (result.success) {
+        if (result.success) {
             // Dispatch custom event to notify Navbar about logo update
             window.dispatchEvent(
-              new CustomEvent("logoUpdated", { detail: { logoUrl: imageUrl } })
+              new CustomEvent("logoUpdated", {
+                detail: { logoUrl: imageUrl, cacheKey: meta?.cacheKey },
+              })
             );
             console.log("Logo updated, dispatched logoUpdated event");
 
@@ -243,7 +248,10 @@ const Settings = () => {
     }
   };
 
-  const handleFaviconUpload = async (imageUrl: string) => {
+  const handleFaviconUpload = async (
+    imageUrl: string,
+    meta?: { cacheKey?: number }
+  ) => {
     try {
       // Update form and local state first
       form.setValue("favicon", imageUrl, { shouldDirty: true });
@@ -263,6 +271,12 @@ const Settings = () => {
               title: "Favicon aggiornato",
               description: "Il favicon è stato aggiornato con successo",
             });
+
+            window.dispatchEvent(
+              new CustomEvent("faviconUpdated", {
+                detail: { faviconUrl: imageUrl, cacheKey: meta?.cacheKey },
+              })
+            );
           } else {
             throw new Error("Failed to save favicon");
           }
@@ -1392,16 +1406,16 @@ const Settings = () => {
 
           <TabsContent value="notifications">
             <Card>
-              <CardHeader>
-                <CardTitle>Impostazioni Notifiche</CardTitle>
-                <CardDescription>
-                  Configura le notifiche email per utenti e amministratori
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="space-y-4">
-                  <FormField
-                    control={form.control}
+                  <CardHeader>
+                    <CardTitle>Impostazioni Notifiche</CardTitle>
+                    <CardDescription>
+                      Configura le notifiche email per utenti e amministratori
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-6">
+                    <div className="space-y-4">
+                      <FormField
+                        control={form.control}
                     name="sendWelcomeEmail"
                     render={({ field }) => (
                       <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
@@ -1419,15 +1433,39 @@ const Settings = () => {
                             onCheckedChange={field.onChange}
                           />
                         </FormControl>
-                      </FormItem>
-                    )}
-                  />
+                        </FormItem>
+                      )}
+                    />
 
-                  <FormField
-                    control={form.control}
-                    name="sendCompletionEmail"
-                    render={({ field }) => (
-                      <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                      <FormField
+                        control={form.control}
+                        name="adminNotifyNewUser"
+                        render={({ field }) => (
+                          <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                            <div className="space-y-0.5">
+                              <FormLabel htmlFor="admin-notify">
+                                Notifiche Admin
+                              </FormLabel>
+                              <FormDescription>
+                                Notifica gli amministratori quando si registra un
+                                nuovo utente
+                              </FormDescription>
+                            </div>
+                            <FormControl>
+                              <Switch
+                                checked={field.value}
+                                onCheckedChange={field.onChange}
+                              />
+                            </FormControl>
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={form.control}
+                        name="sendCompletionEmail"
+                        render={({ field }) => (
+                          <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                         <div className="space-y-0.5">
                           <FormLabel htmlFor="completion-email">
                             Email di Completamento
@@ -1466,35 +1504,11 @@ const Settings = () => {
                             onCheckedChange={field.onChange}
                           />
                         </FormControl>
-                      </FormItem>
-                    )}
-                  />
+                        </FormItem>
+                      )}
+                    />
 
                   <Separator />
-
-                  <FormField
-                    control={form.control}
-                    name="adminNotifyNewUser"
-                    render={({ field }) => (
-                      <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                        <div className="space-y-0.5">
-                          <FormLabel htmlFor="admin-notify">
-                            Notifiche Admin
-                          </FormLabel>
-                          <FormDescription>
-                            Notifica gli amministratori quando si registra un
-                            nuovo utente
-                          </FormDescription>
-                        </div>
-                        <FormControl>
-                          <Switch
-                            checked={field.value}
-                            onCheckedChange={field.onChange}
-                          />
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
                 </div>
               </CardContent>
               <CardFooter>

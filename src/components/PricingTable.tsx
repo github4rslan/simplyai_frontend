@@ -12,7 +12,7 @@ import {
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { fetchAllPlans, SubscriptionPlan } from "@/services/plansService";
-import { completeRegistrationWithPlan } from "@/services/ApiService";
+import { completeRegistrationWithPlan, subscribeFreePlan } from "@/services/ApiService";
 import { useToast } from "@/components/ui/use-toast";
 
 interface PricingTableProps {
@@ -102,10 +102,9 @@ const PricingTable = ({
     // If the user is logged in, navigate to dashboard for free plans or payment for paid plans
     if (user) {
       if (plan.is_free) {
-        return `/dashboard?plan=${plan.id}`;
-      } else {
-        return `/payment?plan=${plan.id}&price=${plan.price}`;
+        return "FREE_PLAN";
       }
+      return `/payment?plan=${plan.id}&price=${plan.price}`;
     }
 
     // If the user is not logged in, navigate to registration with plan parameters
@@ -119,11 +118,48 @@ const PricingTable = ({
     }
 
     setNavigatingPlan(plan.id);
-    const targetUrl = handlePlanSelection(plan);
+    const target = handlePlanSelection(plan);
+
+    // Logged-in free plan: activate immediately via API
+    if (target === "FREE_PLAN" && user) {
+      const token = localStorage.getItem("auth_token");
+      if (!token) {
+        toast({
+          variant: "destructive",
+          title: "Errore",
+          description: "Token non trovato. Effettua di nuovo il login.",
+        });
+        setNavigatingPlan(null);
+        return;
+      }
+
+      subscribeFreePlan(plan.id, token)
+        .then(() => {
+          toast({
+            title: "Piano attivato",
+            description: "Il piano gratuito è stato attivato sul tuo account.",
+          });
+          navigate("/dashboard");
+        })
+        .catch((error) => {
+          console.error("Error activating free plan:", error);
+          toast({
+            variant: "destructive",
+            title: "Errore",
+            description:
+              error.message ||
+              "Non è stato possibile attivare il piano gratuito. Riprova.",
+          });
+        })
+        .finally(() => {
+          setNavigatingPlan(null);
+        });
+      return;
+    }
 
     // Small delay to show loading state, then navigate
     setTimeout(() => {
-      navigate(targetUrl);
+      navigate(target);
     }, 100);
   };
 
@@ -187,7 +223,53 @@ const PricingTable = ({
     }
 
     // For all other cases, navigate using the URL
-    navigate(handlePlanSelection(plan));
+    const target = handlePlanSelection(plan);
+
+    // Logged-in free plan: call API to activate subscription, then go to dashboard
+    if (target === "FREE_PLAN" && user) {
+      const token = localStorage.getItem("auth_token");
+      if (!token) {
+        toast({
+          variant: "destructive",
+          title: "Errore",
+          description: "Token non trovato. Effettua di nuovo il login.",
+        });
+        return;
+      }
+      try {
+        setProcessingPlan(plan.id);
+        subscribeFreePlan(plan.id, token).then(() => {
+          toast({
+            title: "Piano attivato",
+            description: "Il piano gratuito è stato attivato sul tuo account.",
+          });
+          navigate("/dashboard");
+        }).catch((error) => {
+          console.error("Error activating free plan:", error);
+          toast({
+            variant: "destructive",
+            title: "Errore",
+            description:
+              error.message ||
+              "Non è stato possibile attivare il piano gratuito. Riprova.",
+          });
+        }).finally(() => {
+          setProcessingPlan(null);
+        });
+      } catch (error) {
+        console.error("Error activating free plan:", error);
+        toast({
+          variant: "destructive",
+          title: "Errore",
+          description:
+            error.message ||
+            "Non è stato possibile attivare il piano gratuito. Riprova.",
+        });
+      }
+      return;
+    }
+
+    navigate(target);
   };
 
   if (loading) {

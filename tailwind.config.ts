@@ -67,7 +67,7 @@ export default {
 				simoly: {
 					purple: {
 						DEFAULT: '#9b87f5',
-						dark: '#7E69AB',
+						dark: '#7c6cc4',
 					},
 					gray: {
 						light: '#F1F0FB',

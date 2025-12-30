@@ -5,6 +5,7 @@ import QuestionSettingsPanel from "./form-builder/QuestionSettingsPanel";
 import FormImportExport from "./form-builder/FormImportExport";
 import FormPreview from "./form-builder/FormPreview";
 import { Button } from "@/components/ui/button";
+import { API_BASE_URL } from "@/config/api";
 
 // Initial empty form structure
 const initialForm = {
@@ -34,9 +35,6 @@ const FormEditorPage = () => {
   };
 
   const handleSaveForm = async () => {
-    const API_BASE_URL =
-      import.meta.env.VITE_API_BASE_URL || "https://simplyai.it/api";
-
     // Save to backend API_BASE_URL/forms (MySQL, no auth)
     const res = await fetch(`${API_BASE_URL}/forms`, {
       method: "POST",

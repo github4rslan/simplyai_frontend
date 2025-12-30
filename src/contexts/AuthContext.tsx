@@ -22,7 +22,7 @@ interface User {
   role: "user" | "premium_user" | "administrator";
   subscriptionPlan?: string;
   subscriptionStatus?: string;
-  isAdmin?: boolean; // Computed property for backward compatibility
+  isAdmin?: boolean;
 }
 
 interface AuthContextType {
@@ -42,8 +42,8 @@ interface AuthContextType {
   }) => Promise<void>;
   logout: () => void;
   signOut: () => void;
-  setUser: (user: User | null) => void; // ✅ Add this
-  setToken: (token: string | null) => void; // ✅ Add this
+  setUser: (user: User | null) => void;
+  setToken: (token: string | null) => void;
   isAuthenticated: boolean;
 }
 
@@ -57,84 +57,143 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUserState] = useState<User | null>(null);
   const [token, setTokenState] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+
   const setUser = (newUser: User | null) => {
+    console.log("📝 setUser called:", newUser ? newUser.email : "null");
     setUserState(newUser);
     if (newUser) {
       localStorage.setItem("user", JSON.stringify(newUser));
+      console.log("💾 User saved to localStorage");
     } else {
       localStorage.removeItem("user");
+      console.log("🗑️ User removed from localStorage");
     }
   };
+
   const setToken = (newToken: string | null) => {
+    console.log("🔑 setToken called:", newToken ? "token exists" : "null");
     setTokenState(newToken);
     if (newToken) {
       localStorage.setItem("auth_token", newToken);
+      console.log("💾 Token saved to localStorage");
     } else {
       localStorage.removeItem("auth_token");
+      console.log("🗑️ Token removed from localStorage");
     }
   };
+
   // Initialize auth state from localStorage
   useEffect(() => {
     const initializeAuth = async () => {
+      console.log("🚀 Starting auth initialization...");
+
       try {
         const savedToken = localStorage.getItem("auth_token");
         const savedUser = localStorage.getItem("user");
 
-        if (savedToken) {
-          setTokenState(savedToken);
+        console.log("📦 LocalStorage check:", {
+          hasToken: !!savedToken,
+          tokenLength: savedToken?.length,
+          hasUser: !!savedUser,
+          userLength: savedUser?.length,
+        });
 
-          // If we have saved user data, use it immediately
-          if (savedUser) {
-            try {
-              const parsedUser = JSON.parse(savedUser);
-              setUserState({
-                ...parsedUser,
-                isAdmin: parsedUser.role === "administrator",
-              });
-            } catch (e) {
-              console.error("Error parsing saved user:", e);
-            }
-          }
+        if (!savedToken) {
+          console.log("⚠️ No token found in localStorage");
+          setLoading(false);
+          return;
+        }
 
-          // Verify token and get fresh user data
+        // Set token immediately
+        setTokenState(savedToken);
+        console.log("✅ Token set in state");
+
+        // Parse and set user immediately
+        if (savedUser) {
           try {
-            const response = await getCurrentUser(savedToken);
-            if (response.success && response.data) {
-              const userWithRole = {
-                ...response.data,
-                isAdmin: response.data.role === "administrator",
-              };
-              setUserState(userWithRole);
-              localStorage.setItem("user", JSON.stringify(userWithRole));
-            } else {
-              // Token is invalid, remove it
+            const parsedUser = JSON.parse(savedUser);
+            console.log("📄 Parsed user from localStorage:", parsedUser.email);
+
+            const userWithRole = {
+              ...parsedUser,
+              isAdmin: parsedUser.role === "administrator",
+            };
+
+            setUserState(userWithRole);
+            console.log("✅ User set in state:", {
+              email: userWithRole.email,
+              role: userWithRole.role,
+              isAdmin: userWithRole.isAdmin,
+            });
+          } catch (e) {
+            console.error("❌ Error parsing saved user:", e);
+            localStorage.removeItem("user");
+          }
+        } else {
+          console.warn("⚠️ No user found in localStorage despite having token");
+        }
+
+        // Verify token in background (don't clear on failure)
+        try {
+          console.log("🔄 Verifying token with backend...");
+          const response = await getCurrentUser(savedToken);
+
+          console.log("📡 Backend response:", {
+            success: response.success,
+            hasData: !!response.data,
+          });
+
+          if (response.success && response.data) {
+            const userWithRole = {
+              ...response.data,
+              isAdmin: response.data.role === "administrator",
+            };
+            setUserState(userWithRole);
+            localStorage.setItem("user", JSON.stringify(userWithRole));
+            console.log(
+              "✅ Token verified, user refreshed:",
+              userWithRole.email
+            );
+          } else {
+            console.error("❌ Token verification failed:", response.message);
+            // Only clear if explicitly unauthorized
+            if (
+              response.message?.includes("unauthorized") ||
+              response.message?.includes("invalid")
+            ) {
+              console.log("🗑️ Clearing invalid token");
               localStorage.removeItem("auth_token");
               localStorage.removeItem("user");
               setTokenState(null);
               setUserState(null);
             }
-          } catch (error) {
-            console.error("Error verifying token:", error);
-            // Keep the saved user data even if verification fails
-            // (offline support)
           }
+        } catch (error: any) {
+          console.error("❌ Error verifying token:", error.message);
+          console.log("ℹ️ Keeping cached user data (might be network issue)");
+          // Don't clear user data on network errors
         }
       } catch (error) {
-        console.error("Error initializing auth:", error);
+        console.error("❌ Fatal error initializing auth:", error);
         localStorage.removeItem("auth_token");
         localStorage.removeItem("user");
         setTokenState(null);
         setUserState(null);
       } finally {
         setLoading(false);
+        console.log("✅ Auth initialization complete", {
+          hasUser: !!user,
+          hasToken: !!token,
+        });
       }
     };
 
     initializeAuth();
-  }, []);
+  }, []); // Empty dependency array - run once on mount
 
   const login = async (email: string, password: string) => {
     try {
+      console.log("🔐 Attempting login for:", email);
       const response = await loginUser({ email, password });
 
       if (response.success) {
@@ -147,11 +206,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
         setUser(userWithRole);
         setToken(userToken);
+        console.log("✅ Login successful:", userWithRole.email);
       } else {
         throw new Error(response.message);
       }
     } catch (error) {
-      console.error("Login error:", error);
+      console.error("❌ Login error:", error);
       throw error;
     }
   };
@@ -165,10 +225,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     subscription_plan?: string;
   }) => {
     try {
+      console.log("📝 Attempting registration for:", userData.email);
       const response = await registerUser(userData);
 
       if (response.success) {
         if (response.data?.requiresPayment) {
+          console.log("💳 Payment required");
           return response;
         } else {
           const { user: userInfo, token: userToken } = response.data;
@@ -178,6 +240,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           };
           setUser(userWithRole);
           setToken(userToken);
+          console.log("✅ Registration successful:", userWithRole.email);
         }
       } else {
         throw new Error(response.message);
@@ -185,23 +248,32 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
       return response;
     } catch (error) {
-      console.error("Registration error:", error);
+      console.error("❌ Registration error:", error);
       throw error;
     }
   };
 
   const logout = async () => {
     try {
-      if (token) {
-        await logoutUser(token);
-      }
-    } catch (error) {
-      console.error("Logout error:", error);
-    } finally {
       setUser(null);
       setToken(null);
+      console.log("✅ Logout complete");
+      console.log("🚪 Logging out...");
+    } catch (error) {
+      console.error("❌ Logout error:", error);
     }
   };
+
+  // Log state changes
+  useEffect(() => {
+    console.log("🔄 Auth state changed:", {
+      hasUser: !!user,
+      hasToken: !!token,
+      loading,
+      isAuthenticated: !!user && !!token,
+      userEmail: user?.email,
+    });
+  }, [user, token, loading]);
 
   const value: AuthContextType = {
     user,
@@ -213,8 +285,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     register,
     logout,
     signOut: logout,
-    setUser, // ✅ Expose setUser
-    setToken, // ✅ Expose setToken
+    setUser,
+    setToken,
     isAuthenticated: !!user && !!token,
   };
 

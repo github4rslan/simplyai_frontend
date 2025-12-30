@@ -9,6 +9,9 @@ import html2canvas from "html2canvas";
 import { API_BASE_URL } from "@/config/api";
 import { FileText } from "lucide-react";
 
+const BACKEND_BASE_URL =
+  API_BASE_URL.replace(/\/api\/?$/, "") || API_BASE_URL;
+
 const Report = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -900,7 +903,7 @@ const Report = () => {
                   size="sm"
                   onClick={() =>
                     window.open(
-                      `http://localhost:4000${report.pdf_url}`,
+                      `${BACKEND_BASE_URL}${report.pdf_url}`,
                       "_blank"
                     )
                   }
@@ -909,7 +912,7 @@ const Report = () => {
                 </Button>
 
                 <a
-                  href={`http://localhost:4000${report.pdf_url}`}
+                  href={`${BACKEND_BASE_URL}${report.pdf_url}`}
                   download={`${report.title || "Report"}.pdf`}
                 >
                   <Button variant="default" size="sm">

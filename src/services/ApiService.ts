@@ -253,6 +253,26 @@ export const fetchUserSubscription = async (token: string) => {
   return result;
 };
 
+// Subscribe logged-in user to a free plan
+export const subscribeFreePlan = async (planId: string, token: string) => {
+  const url = `${API_BASE_URL}/payment/subscribe-free`;
+  const response = await fetch(url, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ planId }),
+  });
+
+  if (!response.ok) {
+    const err = await response.json().catch(() => ({}));
+    throw new Error(err.message || "Failed to subscribe to free plan");
+  }
+
+  return await response.json();
+};
+
 // Authentication API functions
 export const registerUser = async (userData: {
   email: string;

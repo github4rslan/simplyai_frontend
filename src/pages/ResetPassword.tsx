@@ -25,6 +25,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Loader2 } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
+import { API_BASE_URL } from "@/config/api";
 
 const formSchema = z
   .object({
@@ -69,8 +70,6 @@ const ResetPassword = () => {
     }
     try {
       setIsLoading(true);
-      const API_BASE_URL =
-        import.meta.env.VITE_API_BASE_URL || "https://simplyai.it/api";
       const res = await fetch(`${API_BASE_URL}/auth/reset-password`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -105,7 +104,7 @@ const ResetPassword = () => {
   return (
     <div className="flex flex-col min-h-screen">
       <Navbar />
-      <div className="flex-grow flex items-center justify-center p-4 bg-[var(--color-secondary)]">
+      <div className="flex-grow flex items-center justify-center p-4 bg-[#7c6cc4]">
         <Card className="w-full max-w-md">
           <CardHeader>
             <CardTitle className="text-2xl">Reset Password</CardTitle>

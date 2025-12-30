@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -99,6 +99,17 @@ const Login = () => {
   const handleFacebookLogin = () => {
     window.location.href = `${API_BASE_URL}/auth/facebook`;
   };
+
+  useEffect(() => {
+    const savedToken = localStorage.getItem("auth_token");
+    if (savedToken) {
+      toast({
+        title: "Sei già connesso",
+        description: "Reindirizzamento alla dashboard...",
+      });
+      navigate("/dashboard");
+    }
+  }, []);
 
   return (
     <div className="flex flex-col min-h-screen">

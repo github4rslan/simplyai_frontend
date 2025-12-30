@@ -1,4 +1,5 @@
 import React, { useEffect } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
 import Navbar from "@/components/Navbar";
 import { fetchPageData, savePageData } from "@/services/pagesService";
 
@@ -7,10 +8,7 @@ type Page = { id: string; title: string; content: string };
 
 // Static JSX content for the Guide page
 const data = (
-  <div className="min-h-screen flex flex-col" id="guideJSX">
-    <Navbar />
-
-    <div className="flex-grow py-16 px-4 bg-[var(--color-secondary)]">
+  <div className="flex-grow py-16 px-4 bg-[#7c6cc4]" id="guideJSX">
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-16">
           <h1 className="text-4xl font-bold mb-4">Guida all'utilizzo</h1>
@@ -23,7 +21,7 @@ const data = (
         <div className="max-w-4xl mx-auto">
           <div className="mb-12">
             <h2 className="text-2xl font-semibold mb-4">Come funziona</h2>
-            <div className="bg-[var(--color-secondary)] p-8 rounded-xl shadow-sm">
+            <div className="bg-[#7c6cc4] p-8 rounded-xl shadow-sm">
               <ol className="space-y-6">
                 <li className="flex">
                   <span className="bg-[var(--color-primary-100)] text-[var(--color-primary)] font-bold rounded-full w-8 h-8 flex items-center justify-center mr-4 flex-shrink-0">
@@ -89,7 +87,7 @@ const data = (
           <div className="mb-12">
             <h2 className="text-2xl font-semibold mb-4">Domande frequenti</h2>
             <div className="space-y-4">
-              <div className="bg-[var(--color-secondary)] p-6 rounded-lg shadow-sm">
+              <div className="bg-[#7c6cc4] p-6 rounded-lg shadow-sm">
                 <h3 className="font-medium text-lg mb-2">
                   Quanto tempo richiede la compilazione del questionario?
                 </h3>
@@ -98,7 +96,7 @@ const data = (
                   compilato in modo completo.
                 </p>
               </div>
-              <div className="bg-[var(--color-secondary)] p-6 rounded-lg shadow-sm">
+              <div className="bg-[#7c6cc4] p-6 rounded-lg shadow-sm">
                 <h3 className="font-medium text-lg mb-2">
                   Posso modificare le mie risposte dopo aver inviato il
                   questionario?
@@ -108,7 +106,7 @@ const data = (
                   generare il report finale.
                 </p>
               </div>
-              <div className="bg-[var(--color-secondary)] p-6 rounded-lg shadow-sm">
+              <div className="bg-[#7c6cc4] p-6 rounded-lg shadow-sm">
                 <h3 className="font-medium text-lg mb-2">
                   Come viene generato il report?
                 </h3>
@@ -137,20 +135,27 @@ const data = (
         </div>
       </div>
     </div>
-  </div>
 );
+
+const fallbackContent = renderToStaticMarkup(data);
 
 const Guide = () => {
   const [pageData, setPageData] = React.useState<Page>({
-    id: "home",
-    title: "Home",
-    content: { __html: data }.toString(),
+    id: "guide",
+    title: "Guida",
+    content: fallbackContent,
   });
 
   useEffect(() => {
     const loadData = async () => {
-      const data = await fetchPageData("guide");
-      setPageData(data);
+      try {
+        const data = await fetchPageData("guide");
+        if (data?.content) {
+          setPageData(data);
+        }
+      } catch (error) {
+        console.error("Failed to load guide page content", error);
+      }
     };
     loadData();
   }, []);
