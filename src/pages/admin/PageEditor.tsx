@@ -24,7 +24,7 @@ import {
 } from "@/components/ui/dialog";
 import { Switch } from "@/components/ui/switch";
 import PageEditorToolbar from "@/components/admin/PageEditorToolbar";
-import { Edit, Trash2, Plus, Save, Eye, CloudFog } from "lucide-react";
+import { Edit, Trash2, Plus, Save, Eye, CloudFog, Eraser } from "lucide-react";
 import { fetchPageData, savePageData } from "@/services/pagesService";
 import Navbar from "@/components/Navbar";
 import { Link } from "react-router-dom";
@@ -144,6 +144,27 @@ const PageEditor = () => {
     toast({
       title: "Pagina salvata",
       description: `La pagina "${currentPage.title}" è stata salvata con successo.`,
+    });
+  };
+
+  const handleClear = () => {
+    const editor = document.getElementById(
+      `wysiwyg-editor-${currentPage.id}`
+    ) as HTMLElement | null;
+    if (editor) editor.innerHTML = "";
+
+    const updatedPages = pages.map((page) =>
+      page.id === currentPage.id ? { ...page, content: "" } : page
+    );
+    setPages(updatedPages);
+    setCurrentPage({ ...currentPage, content: "" });
+
+    // Save blank so backend returns fallback
+    savePageDataDB(currentPage.id, currentPage.title, "");
+
+    toast({
+      title: "Contenuto resettato",
+      description: `La pagina "${currentPage.title}" è tornata al contenuto predefinito.`,
     });
   };
 
@@ -628,17 +649,27 @@ const PageEditor = () => {
 
                 <CardContent>
                   <div className="space-y-4">
-                    <PageEditorToolbar
-                      onInsertHeading={handleInsertHeading}
-                      onInsertParagraph={handleInsertParagraph}
-                      onInsertLayout={handleInsertLayout}
-                      onInsertImage={handleInsertImage}
-                      onSave={handleSave}
-                      onBold={onBold}
-                      onItalic={onItalic}
-                      onUnderline={onUnderline}
-                      onNewSection={onNewSection}
-                    />
+                <div className="flex flex-wrap gap-2 items-center">
+                  <PageEditorToolbar
+                    onInsertHeading={handleInsertHeading}
+                    onInsertParagraph={handleInsertParagraph}
+                    onInsertLayout={handleInsertLayout}
+                    onInsertImage={handleInsertImage}
+                    onSave={handleSave}
+                    onBold={onBold}
+                    onItalic={onItalic}
+                    onUnderline={onUnderline}
+                    onNewSection={onNewSection}
+                  />
+                  <Button variant="secondary" size="sm" onClick={handleClear}>
+                    <Eraser className="h-4 w-4 mr-2" />
+                    Svuota pagina
+                  </Button>
+                  <Button variant="default" size="sm" onClick={handleSave}>
+                    <Save className="h-4 w-4 mr-2" />
+                    Salva Modifiche
+                  </Button>
+                </div>
 
                     <div
                       key={page.id}
