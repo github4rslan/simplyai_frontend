@@ -21,6 +21,7 @@ const Questionnaire = () => {
 
   const [planId, setPlanId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isGeneratingReport, setIsGeneratingReport] = useState(false);
   const [surveyJson, setSurveyJson] = useState<any>(null);
   const [originalFormData, setOriginalFormData] = useState<any>(null);
   const [title, setTitle] = useState("");
@@ -84,6 +85,62 @@ const Questionnaire = () => {
 
     fetchUserPlan();
   }, [user?.id, toast]);
+
+  const handleGenerateReport = async () => {
+    if (!id || !user?.id) {
+      toast({
+        variant: "destructive",
+        title: "Errore",
+        description: "Utente o questionario non valido",
+      });
+      return;
+    }
+    if (!planId) {
+      toast({
+        variant: "destructive",
+        title: "Errore piano",
+        description: "Nessun piano attivo trovato per l'utente",
+      });
+      return;
+    }
+    try {
+      setIsGeneratingReport(true);
+      const res = await fetch(`${API_BASE_URL}/ai/generate`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          questionnaireId: id,
+          planId,
+          userId: user.id,
+          title: "Report generato",
+        }),
+      });
+
+      if (!res.ok) {
+        const text = await res.text();
+        throw new Error(text || "Errore di generazione report");
+      }
+      const data = await res.json();
+      if (!data.success || !data.reportId) {
+        throw new Error(data.message || "Generazione report non riuscita");
+      }
+
+      toast({
+        title: "Report generato",
+        description: "Apri il report per visualizzarlo",
+      });
+      navigate(`/report/${data.reportId}`);
+    } catch (error: any) {
+      console.error("Errore generazione report:", error);
+      toast({
+        variant: "destructive",
+        title: "Errore report",
+        description: error?.message || "Impossibile generare il report",
+      });
+    } finally {
+      setIsGeneratingReport(false);
+    }
+  };
 
   // Inject comprehensive styles to match the old UI design
   useEffect(() => {
@@ -1460,6 +1517,16 @@ const Questionnaire = () => {
                     Invia
                   </button>
                 </div>
+
+                {progress >= 100 && (
+                  <button
+                    onClick={handleGenerateReport}
+                    disabled={isGeneratingReport || !planId}
+                    className="w-full mt-4 px-4 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors font-medium shadow-md disabled:opacity-60 disabled:cursor-not-allowed"
+                  >
+                    {isGeneratingReport ? "Generazione in corso..." : "Genera report"}
+                  </button>
+                )}
               </div>
             </div>
           </div>
