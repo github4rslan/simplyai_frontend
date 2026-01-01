@@ -178,6 +178,66 @@ const PageEditor = () => {
     return response;
   };
 
+  const applyInlineStyle = (styles: Partial<CSSStyleDeclaration>) => {
+    const selection = window.getSelection();
+    if (!selection || selection.rangeCount === 0) return;
+    const range = selection.getRangeAt(0);
+    if (range.collapsed) return;
+    const span = document.createElement("span");
+    Object.assign(span.style, styles);
+    span.appendChild(range.extractContents());
+    range.insertNode(span);
+    selection.removeAllRanges();
+    const newRange = document.createRange();
+    newRange.selectNodeContents(span);
+    newRange.collapse(false);
+    selection.addRange(newRange);
+  };
+
+  const applyBlockStyle = (styles: Partial<CSSStyleDeclaration>) => {
+    const block = getParentBlock();
+    if (block) {
+      Object.assign(block.style, styles);
+    }
+  };
+
+  const applyImageStyle = (styles: Partial<CSSStyleDeclaration>) => {
+    const selection = window.getSelection();
+    if (!selection || selection.rangeCount === 0) return;
+    let node = selection.anchorNode as HTMLElement | null;
+    if (node && node.nodeType === Node.TEXT_NODE) {
+      node = node.parentElement;
+    }
+    while (node && node.tagName !== "IMG") {
+      node = node.parentElement;
+    }
+    if (node && node.tagName === "IMG") {
+      Object.assign((node as HTMLImageElement).style, styles);
+    }
+  };
+
+  const handleFontSize = (size: string) => applyInlineStyle({ fontSize: size });
+  const handleFontFamily = (family: string) =>
+    applyInlineStyle({ fontFamily: family });
+  const handleTextColor = (color: string) =>
+    applyInlineStyle({ color: color });
+  const handleHighlight = (color: string) =>
+    applyInlineStyle({ backgroundColor: color });
+  const handleBlockBg = (color: string) =>
+    applyBlockStyle({ backgroundColor: color === "inherit" ? "" : color });
+  const handleBlockPadding = (value: string) =>
+    applyBlockStyle({ padding: value });
+  const handleImageWidth = (value: string) =>
+    applyImageStyle({
+      width: value,
+      display: "block",
+      margin: "0 auto",
+    });
+  const handleClearFormatting = () => {
+    document.execCommand("removeFormat");
+    applyInlineStyle({ backgroundColor: "", color: "", fontSize: "", fontFamily: "" });
+  };
+
   const handleAddPage = () => {
     if (!newPageTitle.trim()) {
       toast({
@@ -649,27 +709,37 @@ const PageEditor = () => {
 
                 <CardContent>
                   <div className="space-y-4">
-                <div className="flex flex-wrap gap-2 items-center">
-                  <PageEditorToolbar
-                    onInsertHeading={handleInsertHeading}
-                    onInsertParagraph={handleInsertParagraph}
-                    onInsertLayout={handleInsertLayout}
-                    onInsertImage={handleInsertImage}
-                    onSave={handleSave}
-                    onBold={onBold}
-                    onItalic={onItalic}
-                    onUnderline={onUnderline}
-                    onNewSection={onNewSection}
-                  />
-                  <Button variant="secondary" size="sm" onClick={handleClear}>
-                    <Eraser className="h-4 w-4 mr-2" />
-                    Svuota pagina
-                  </Button>
-                  <Button variant="default" size="sm" onClick={handleSave}>
-                    <Save className="h-4 w-4 mr-2" />
-                    Salva Modifiche
-                  </Button>
-                </div>
+                    <div className="flex flex-col gap-2">
+                      <PageEditorToolbar
+                        onInsertHeading={handleInsertHeading}
+                        onInsertParagraph={handleInsertParagraph}
+                        onInsertLayout={handleInsertLayout}
+                        onInsertImage={handleInsertImage}
+                        onSave={handleSave}
+                        onBold={onBold}
+                        onItalic={onItalic}
+                        onUnderline={onUnderline}
+                        onNewSection={onNewSection}
+                        onFontSize={handleFontSize}
+                        onFontFamily={handleFontFamily}
+                        onTextColor={handleTextColor}
+                        onHighlight={handleHighlight}
+                        onBlockBg={handleBlockBg}
+                        onBlockPadding={handleBlockPadding}
+                        onImageWidth={handleImageWidth}
+                        onClearFormatting={handleClearFormatting}
+                      />
+                      <div className="flex gap-2">
+                        <Button variant="secondary" size="sm" onClick={handleClear}>
+                          <Eraser className="h-4 w-4 mr-2" />
+                          Svuota pagina
+                        </Button>
+                        <Button variant="default" size="sm" onClick={handleSave}>
+                          <Save className="h-4 w-4 mr-2" />
+                          Salva Modifiche
+                        </Button>
+                      </div>
+                    </div>
 
                     <div
                       key={page.id}
