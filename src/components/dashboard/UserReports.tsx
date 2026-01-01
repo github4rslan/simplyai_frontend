@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Loader2, FileText, Download, RefreshCw } from "lucide-react";
 import { fetchReportsByUser, UserReport } from "@/services/report";
 import { API_BASE_URL } from "@/config/api";
+import { fetchUserQuestionnairesWithAccess } from "@/services/ApiService";
 
 export const UserReports = () => {
   const { toast } = useToast();
@@ -23,6 +24,13 @@ export const UserReports = () => {
   const [exportingReportId, setExportingReportId] = useState<string | null>(
     null
   );
+  const [availableQuestionnaires, setAvailableQuestionnaires] = useState<
+    { id: string; title: string }[]
+  >([]);
+  const [selectedQuestionnaireId, setSelectedQuestionnaireId] = useState<
+    string | null
+  >(null);
+  const [isGenerating, setIsGenerating] = useState(false);
 
   useEffect(() => {
     const loadReports = async () => {
@@ -51,6 +59,27 @@ export const UserReports = () => {
 
     loadReports();
   }, [user, toast]);
+
+  useEffect(() => {
+    const loadQuestionnaires = async () => {
+      if (!user) return;
+      try {
+        const result = await fetchUserQuestionnairesWithAccess(user.id);
+        const data = result?.data || [];
+        const mapped = data.map((q: any) => ({
+          id: q.id,
+          title: q.title || "Questionario",
+        }));
+        setAvailableQuestionnaires(mapped);
+        if (mapped.length > 0) {
+          setSelectedQuestionnaireId(mapped[0].id);
+        }
+      } catch (error) {
+        console.error("Errore caricamento questionari:", error);
+      }
+    };
+    loadQuestionnaires();
+  }, [user]);
 
   const handleViewReport = (reportId: string) => {
     navigate(`/report/${reportId}`);
@@ -146,13 +175,109 @@ export const UserReports = () => {
     }
   };
 
+  const handleGenerateReport = async () => {
+    if (!user?.id || !selectedQuestionnaireId) {
+      toast({
+        variant: "destructive",
+        title: "Errore",
+        description: "Seleziona un questionario",
+      });
+      return;
+    }
+    try {
+      setIsGenerating(true);
+
+      // Fetch active planId
+      const subRes = await fetch(
+        `${API_BASE_URL}/users/${user.id}/subscription`
+      );
+      if (!subRes.ok) throw new Error("Impossibile recuperare il piano");
+      const subData = await subRes.json();
+      const planId =
+        subData?.planId || subData?.plan_id || subData?.data?.planId;
+      if (!planId) throw new Error("Nessun piano attivo trovato");
+
+      const genRes = await fetch(`${API_BASE_URL}/ai/generate`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          questionnaireId: selectedQuestionnaireId,
+          planId,
+          userId: user.id,
+          title: "Report generato dal dashboard",
+        }),
+      });
+      if (!genRes.ok) {
+        const text = await genRes.text();
+        throw new Error(text || "Errore di generazione");
+      }
+      const genData = await genRes.json();
+      if (!genData.success || !genData.reportId) {
+        throw new Error(genData.message || "Generazione non riuscita");
+      }
+
+      toast({
+        title: "Report richiesto",
+        description: "Apro il report generato",
+      });
+      navigate(`/report/${genData.reportId}`);
+    } catch (error: any) {
+      console.error("Errore generazione report:", error);
+      toast({
+        variant: "destructive",
+        title: "Errore",
+        description: error?.message || "Impossibile generare il report",
+      });
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
   return (
     <Card>
       <CardHeader>
-        <CardTitle>I miei report</CardTitle>
-        <CardDescription>
-          Visualizza e gestisci i report generati dai tuoi questionari
-        </CardDescription>
+        <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+          <div>
+            <CardTitle>I miei report</CardTitle>
+            <CardDescription>
+              Visualizza e gestisci i report generati dai tuoi questionari
+            </CardDescription>
+          </div>
+          <div className="flex flex-col sm:flex-row gap-2 sm:items-center">
+            <select
+              className="border rounded-md px-3 py-2 text-sm"
+              value={selectedQuestionnaireId || ""}
+              onChange={(e) => setSelectedQuestionnaireId(e.target.value)}
+              disabled={availableQuestionnaires.length === 0}
+            >
+              {availableQuestionnaires.length === 0 ? (
+                <option value="">Nessun questionario disponibile</option>
+              ) : (
+                availableQuestionnaires.map((q) => (
+                  <option key={q.id} value={q.id}>
+                    {q.title}
+                  </option>
+                ))
+              )}
+            </select>
+            <Button
+              onClick={handleGenerateReport}
+              disabled={
+                isGenerating ||
+                !selectedQuestionnaireId ||
+                availableQuestionnaires.length === 0
+              }
+            >
+              {isGenerating ? (
+                <span className="flex items-center">
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" /> Generando...
+                </span>
+              ) : (
+                "Genera report"
+              )}
+            </Button>
+          </div>
+        </div>
       </CardHeader>
       <CardContent>
         {isLoading ? (
