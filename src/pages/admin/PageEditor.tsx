@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable no-var */
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   Card,
   CardContent,
@@ -93,6 +93,7 @@ const PageEditor = () => {
   const [previewMode, setPreviewMode] = useState(false);
   const [filterMainMenu, setFilterMainMenu] = useState(false);
   const [filteredPages, setFilteredPages] = useState(allPages);
+  const lastRangeRef = useRef<Range | null>(null);
 
   //fetch page content from backend
   useEffect(() => {
@@ -178,11 +179,37 @@ const PageEditor = () => {
     return response;
   };
 
-  const applyInlineStyle = (styles: Partial<CSSStyleDeclaration>) => {
+  const saveSelection = () => {
     const selection = window.getSelection();
     if (!selection || selection.rangeCount === 0) return;
     const range = selection.getRangeAt(0);
-    if (range.collapsed) return;
+    const editor = document.getElementById(`wysiwyg-editor-${currentPage.id}`);
+    if (editor && editor.contains(range.commonAncestorContainer)) {
+      lastRangeRef.current = range;
+    }
+  };
+
+  const restoreSelection = () => {
+    const range = lastRangeRef.current;
+    if (!range) return;
+    const selection = window.getSelection();
+    if (!selection) return;
+    selection.removeAllRanges();
+    selection.addRange(range);
+  };
+
+  const applyInlineStyle = (styles: Partial<CSSStyleDeclaration>) => {
+    restoreSelection();
+    const selection = window.getSelection();
+    if (!selection || selection.rangeCount === 0) return;
+    const range = selection.getRangeAt(0);
+    if (range.collapsed) {
+      const block = getParentBlock();
+      if (block) {
+        Object.assign(block.style, styles);
+      }
+      return;
+    }
     const span = document.createElement("span");
     Object.assign(span.style, styles);
     span.appendChild(range.extractContents());
@@ -202,6 +229,7 @@ const PageEditor = () => {
   };
 
   const applyImageStyle = (styles: Partial<CSSStyleDeclaration>) => {
+    restoreSelection();
     const selection = window.getSelection();
     if (!selection || selection.rangeCount === 0) return;
     let node = selection.anchorNode as HTMLElement | null;
@@ -295,6 +323,7 @@ const PageEditor = () => {
 
   // Insert heading at cursor position
   const handleInsertHeading = (level: number) => {
+    restoreSelection();
     const selection = window.getSelection();
     if (!selection || selection.rangeCount === 0) return;
 
@@ -344,6 +373,7 @@ const PageEditor = () => {
 
   // Insert paragraph at cursor position
   const handleInsertParagraph = () => {
+    restoreSelection();
     const selection = window.getSelection();
     if (!selection || selection.rangeCount === 0) return;
 
@@ -370,6 +400,7 @@ const PageEditor = () => {
   };
 
   const handleInsertLayout = (columns: number) => {
+    restoreSelection();
     const editor = document.getElementById(`wysiwyg-editor-${currentPage.id}`);
     if (editor) {
       let layout = '<div class="grid grid-cols-' + columns + ' gap-4">';
@@ -443,16 +474,19 @@ const PageEditor = () => {
 
   // on bold button click
   const onBold = () => {
+    restoreSelection();
     wrapSelection("strong");
   };
 
   // on italic button click
   const onItalic = () => {
+    restoreSelection();
     wrapSelection("em");
   };
 
   // on underline button click
   const onUnderline = () => {
+    restoreSelection();
     wrapSelection("u");
   };
 
@@ -746,6 +780,9 @@ const PageEditor = () => {
                       id={`wysiwyg-editor-${page.id}`} // Make ID unique per page
                       className="prose min-h-[500px] p-4 border rounded-md bg-white overflow-auto"
                       contentEditable={true}
+                      onMouseUp={saveSelection}
+                      onKeyUp={saveSelection}
+                      onKeyDown={saveSelection}
                       dangerouslySetInnerHTML={{ __html: page.content }}
                     />
                   </div>
