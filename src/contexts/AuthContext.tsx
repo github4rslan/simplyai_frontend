@@ -13,7 +13,6 @@ import {
 } from "@/services/ApiService";
 
 interface User {
-  password: string;
   id: string;
   email: string;
   firstName: string;

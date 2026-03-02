@@ -38,7 +38,7 @@ const staticContactData = (
                 </div>
                 <div>
                   <h3 className="font-medium text-lg mb-1">Email</h3>
-                  <p className="text-gray-600">info@simolyai.com</p>
+                  <p className="text-gray-600">info@simplyai.it</p>
                 </div>
               </div>
             </div>
@@ -169,7 +169,7 @@ const Contact = () => {
                   </div>
                   <div>
                     <h3 className="font-medium text-lg mb-1">Email</h3>
-                    <p className="text-gray-600">{settings?.contact_email || 'info@simolyai.com'}</p>
+                    <p className="text-gray-600">{settings?.contact_email || 'info@simplyai.it'}</p>
                   </div>
                 </div>
               </div>

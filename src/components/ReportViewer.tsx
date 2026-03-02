@@ -125,7 +125,7 @@ const ReportViewer = ({ data }: ReportProps) => {
         ))}
         
         <div className="my-16 p-8 bg-simoly-gray-light rounded-3xl text-center">
-          <h2 className="text-2xl font-bold mb-4">Grazie per aver utilizzato SimolyAI</h2>
+          <h2 className="text-2xl font-bold mb-4">Grazie per aver utilizzato SimplyAI</h2>
           <p className="text-simoly-gray-dark mb-6 max-w-lg mx-auto">
             Speriamo che questo report ti sia utile. Ricorda che puoi sempre tornare a consultarlo nella tua dashboard e scaricarlo in formato PDF.
           </p>

@@ -98,7 +98,7 @@ const AdminLayout = ({ children }) => {
       {/* Mobile Header */}
       <div className="md:hidden fixed top-0 left-0 right-0 z-40 flex items-center justify-between p-4 bg-[var(--color-primary-300)] text-white shadow-md">
         <Link to="/" className="text-xl font-bold">
-          SimolyAI Admin
+          SimplyAI Admin
         </Link>
         <button
           type="button"
@@ -136,7 +136,7 @@ const AdminLayout = ({ children }) => {
               className="text-xl font-bold"
               onClick={() => setMobileMenuOpen(false)}
             >
-              SimolyAI Admin
+              SimplyAI Admin
             </Link>
             <button
               type="button"
@@ -183,7 +183,7 @@ const AdminLayout = ({ children }) => {
         <div className="flex flex-col flex-grow pt-5 overflow-y-auto bg-[var(--color-primary-300)] text-white">
           <div className="flex items-center flex-shrink-0 px-4 mb-5">
             <Link to="/" className="text-xl font-bold">
-              SimolyAI Admin
+              SimplyAI Admin
             </Link>
           </div>
 

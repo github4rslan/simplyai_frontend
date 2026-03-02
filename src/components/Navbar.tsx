@@ -68,7 +68,7 @@ const preloadImage = (url: string) => {
 
 const Navbar = () => {
   const { user, signOut } = useAuth();
-  const [siteName, setSiteName] = useState("SimolyAI");
+  const [siteName, setSiteName] = useState("SimplyAI");
   const [logoUrl, setLogoUrl] = useState(DEFAULT_LOGO);
   const [logoReady, setLogoReady] = useState(true);
 
@@ -110,7 +110,7 @@ const Navbar = () => {
         updatedAt: json.data?.updated_at
       });
       if (json.success && json.data) {
-        setSiteName(json.data.site_name || "SimolyAI");
+        setSiteName(json.data.site_name || "SimplyAI");
         if (json.data.logo) {
           console.log("Updating logo with URL:", json.data.logo);
           updateLogo(json.data.logo, json.data.logo_version || json.data.updated_at);

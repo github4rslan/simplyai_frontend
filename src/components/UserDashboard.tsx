@@ -67,7 +67,7 @@ const UserDashboard = () => {
         const result = await response.json();
 
         if (result.success && result.data) {
-          setSiteName(result.data.site_name || "SimolyAI");
+          setSiteName(result.data.site_name || "SimplyAI");
           if (result.data.logo) {
             // Normalize logo URL - convert absolute URLs to relative if needed
             let processedLogo = result.data.logo;

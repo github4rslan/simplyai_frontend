@@ -17,12 +17,12 @@ const PagePreview = () => {
         { 
           id: 'home', 
           title: 'Home Page', 
-          content: '<h1>Benvenuto</h1><p>Questa è la home page del sito.</p><img src="https://picsum.photos/800/400" alt="Immagine di esempio" /><p>SimolyAI offre strumenti avanzati per l\'analisi dei dati e la creazione di report interattivi.</p>' 
+          content: '<h1>Benvenuto</h1><p>Questa è la home page del sito.</p><img src="https://picsum.photos/800/400" alt="Immagine di esempio" /><p>SimplyAI offre strumenti avanzati per l\'analisi dei dati e la creazione di report interattivi.</p>' 
         },
         { 
           id: 'about', 
           title: 'Chi Siamo', 
-          content: '<h1>Chi Siamo</h1><p>SimolyAI è un\'azienda innovativa nel campo dell\'intelligenza artificiale.</p><div class="team-section"><img src="https://picsum.photos/200/200" alt="Team member" /><h3>Mario Rossi</h3><p>CEO & Founder</p></div>' 
+          content: '<h1>Chi Siamo</h1><p>SimplyAI è un\'azienda innovativa nel campo dell\'intelligenza artificiale.</p><div class="team-section"><img src="https://picsum.photos/200/200" alt="Team member" /><h3>Mario Rossi</h3><p>CEO & Founder</p></div>' 
         },
         { 
           id: 'contact', 

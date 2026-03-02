@@ -9,7 +9,7 @@ import { Separator } from '@/components/ui/separator';
 import { Save, Edit, Plus, Download, Users, Settings } from 'lucide-react';
 
 const defaultConfig: Omit<QuestionnaireConfig, 'id' | 'created_at' | 'updated_at'> = {
-  title: 'Questionario SimolyAI',
+  title: 'Questionario SimplyAI',
   description: 'Un questionario per analizzare la tua situazione attuale',
   instructions: 'Rispondi onestamente a tutte le domande per un risultato accurato',
   questions: [],

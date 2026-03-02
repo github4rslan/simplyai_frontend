@@ -89,9 +89,9 @@ const Settings = () => {
   const form = useForm<GeneralSettingsFormValues>({
     resolver: zodResolver(generalSettingsSchema),
     defaultValues: {
-      siteName: "SimolyAI",
+      siteName: "SimplyAI",
       siteDescription: "Piattaforma di analisi con AI",
-      contactEmail: "info@simolyai.com",
+      contactEmail: "info@simplyai.it",
       enableRegistration: true,
       requireEmailVerification: true,
       maxStoragePerUser: 100,
@@ -128,12 +128,12 @@ const Settings = () => {
             siteName:
               data.site_name && data.site_name.length > 1
                 ? data.site_name
-                : "SimolyAI",
+                : "SimplyAI",
             siteDescription: data.site_description ?? "",
             contactEmail:
               data.contact_email && data.contact_email.includes("@")
                 ? data.contact_email
-                : "info@simolyai.com",
+                : "info@simplyai.it",
             enableRegistration:
               typeof data.enable_registration === "boolean"
                 ? data.enable_registration

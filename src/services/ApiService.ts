@@ -1,5 +1,10 @@
 import { API_BASE_URL } from "@/config/api";
 
+const getAuthHeaders = (): Record<string, string> => {
+  const token = localStorage.getItem("auth_token");
+  return token ? { Authorization: `Bearer ${token}` } : {};
+};
+
 export const savePlan = async (planData: any, isUpdate: boolean) => {
   const url = isUpdate
     ? `${API_BASE_URL}/plans/${planData.id}`
@@ -16,6 +21,7 @@ export const savePlan = async (planData: any, isUpdate: boolean) => {
     method,
     headers: {
       "Content-Type": "application/json",
+      ...getAuthHeaders(),
     },
     body: JSON.stringify(planData),
   });
@@ -50,7 +56,7 @@ export const fetchAllPlans = async () => {
 export const fetchAllPlansForAdmin = async () => {
   const url = `${API_BASE_URL}/plans/admin/all`;
 
-  const response = await fetch(url);
+  const response = await fetch(url, { headers: { ...getAuthHeaders() } });
 
   if (!response.ok) {
     throw new Error("Failed to fetch all plans for admin");
@@ -76,7 +82,7 @@ export const fetchPlan = async (id: string) => {
 export const fetchPlanForAdmin = async (id: string) => {
   const url = `${API_BASE_URL}/plans/admin/${id}`;
 
-  const response = await fetch(url);
+  const response = await fetch(url, { headers: { ...getAuthHeaders() } });
 
   if (!response.ok) {
     throw new Error("Failed to fetch plan for admin");
@@ -91,6 +97,7 @@ export const deletePlan = async (id: string) => {
 
   const response = await fetch(url, {
     method: "DELETE",
+    headers: { ...getAuthHeaders() },
   });
 
   if (!response.ok) {
@@ -118,6 +125,7 @@ export const updatePlanStatus = async (id: string, active: boolean) => {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
+        ...getAuthHeaders(),
       },
       body: JSON.stringify({
         name: planData.name,
@@ -164,7 +172,7 @@ export const fetchAllQuestionnaires = async () => {
 export const fetchPlanQuestionnaires = async (planId: string) => {
   const url = `${API_BASE_URL}/plans/${planId}/questionnaires`;
 
-  const response = await fetch(url);
+  const response = await fetch(url, { headers: { ...getAuthHeaders() } });
 
   if (!response.ok) {
     throw new Error("Failed to fetch plan questionnaires");
@@ -184,6 +192,7 @@ export const savePlanQuestionnaires = async (
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
+      ...getAuthHeaders(),
     },
     body: JSON.stringify({ questionnaires }),
   });

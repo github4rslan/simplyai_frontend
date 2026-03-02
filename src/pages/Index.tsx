@@ -43,7 +43,7 @@ const Index = () => {
             <div className="max-w-5xl mx-auto rounded-2xl shadow-2xl overflow-hidden border border-simoly-accent-purple animate-fade-in" style={{animationDelay: '0.3s'}}>
               <img 
                 src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=2070&auto=format&fit=crop" 
-                alt="SimolyAI Dashboard Preview" 
+                alt="SimplyAI Dashboard Preview" 
                 className="w-full h-auto object-cover"
               />
             </div>
@@ -55,7 +55,7 @@ const Index = () => {
       <section className="py-20 px-6 lg:px-8 bg-white">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">Come funziona SimolyAI</h2>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">Come funziona SimplyAI</h2>
             <p className="text-lg text-simoly-gray-dark max-w-3xl mx-auto">
               Un processo semplice in tre passi per ottenere il tuo report personalizzato
             </p>
@@ -126,7 +126,7 @@ const Index = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {[
               {
-                quote: "Il report generato da SimolyAI mi ha fornito insight che non avrei mai considerato. Incredibilmente utile!",
+                quote: "Il report generato da SimplyAI mi ha fornito insight che non avrei mai considerato. Incredibilmente utile!",
                 author: "Marco B.",
                 role: "Imprenditore"
               },
@@ -136,7 +136,7 @@ const Index = () => {
                 role: "Manager"
               },
               {
-                quote: "Ho usato SimolyAI per la mia azienda e abbiamo implementato le raccomandazioni con ottimi risultati. Lo consiglio vivamente.",
+                quote: "Ho usato SimplyAI per la mia azienda e abbiamo implementato le raccomandazioni con ottimi risultati. Lo consiglio vivamente.",
                 author: "Giovanni R.",
                 role: "CEO"
               }
@@ -158,7 +158,7 @@ const Index = () => {
         <div className="max-w-5xl mx-auto text-center">
           <h2 className="text-3xl md:text-4xl font-bold mb-4">Pronto a scoprire il tuo report personalizzato?</h2>
           <p className="text-lg mb-8 opacity-90 max-w-3xl mx-auto">
-            Inizia oggi stesso a utilizzare SimolyAI e ottieni un'analisi approfondita generata dall'intelligenza artificiale.
+            Inizia oggi stesso a utilizzare SimplyAI e ottieni un'analisi approfondita generata dall'intelligenza artificiale.
           </p>
           <Button asChild size="lg" variant="secondary" className="rounded-full">
             <Link to="/register">
@@ -172,7 +172,7 @@ const Index = () => {
       <footer className="py-12 px-6 lg:px-8 bg-simoly-gray-dark text-white">
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8">
           <div>
-            <h3 className="text-xl font-bold mb-4">SimolyAI</h3>
+            <h3 className="text-xl font-bold mb-4">SimplyAI</h3>
             <p className="text-sm opacity-80">
               Report personalizzati con l'intelligenza artificiale per aiutarti a prendere decisioni migliori.
             </p>
@@ -189,9 +189,9 @@ const Index = () => {
           <div>
             <h4 className="font-semibold mb-4">Legal</h4>
             <ul className="space-y-2">
-              <li><Link to="/privacy" className="text-sm opacity-80 hover:opacity-100">Privacy Policy</Link></li>
-              <li><Link to="/terms" className="text-sm opacity-80 hover:opacity-100">Termini di Servizio</Link></li>
-              <li><Link to="/cookies" className="text-sm opacity-80 hover:opacity-100">Cookie Policy</Link></li>
+              <li><Link to="/privacy-policy" className="text-sm opacity-80 hover:opacity-100">Privacy Policy</Link></li>
+              <li><Link to="/terms-of-service" className="text-sm opacity-80 hover:opacity-100">Termini di Servizio</Link></li>
+              <li><Link to="/privacy-policy" className="text-sm opacity-80 hover:opacity-100">Cookie Policy</Link></li>
             </ul>
           </div>
           <div>
@@ -209,10 +209,10 @@ const Index = () => {
                   </a>
                 ) : (
                   <a 
-                    href={`mailto:${settings?.contact_email || 'info@simolyai.com'}`}
+                    href={`mailto:${settings?.contact_email || 'info@simplyai.it'}`}
                     className="hover:opacity-100 transition-opacity"
                   >
-                    {settings?.contact_email || 'info@simolyai.com'}
+                    {settings?.contact_email || 'info@simplyai.it'}
                   </a>
                 )}
               </li>
@@ -221,7 +221,7 @@ const Index = () => {
           </div>
         </div>
         <div className="max-w-7xl mx-auto mt-12 pt-8 border-t border-white/10 text-center text-sm opacity-60">
-          &copy; {new Date().getFullYear()} SimolyAI. Tutti i diritti riservati.
+          &copy; {new Date().getFullYear()} SimplyAI. Tutti i diritti riservati.
         </div>
       </footer>
     </div>

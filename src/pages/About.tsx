@@ -22,7 +22,7 @@ const data = (
           <div className="bg-[#7c6cc4] p-8 rounded-xl shadow-sm mb-12">
             <h2 className="text-2xl font-semibold mb-4">La nostra missione</h2>
             <p className="text-gray-700 mb-6">
-              SimolyAI nasce con l'obiettivo di rendere l'intelligenza
+              SimplyAI nasce con l'obiettivo di rendere l'intelligenza
               artificiale accessibile a tutte le aziende, indipendentemente
               dalla loro dimensione. Crediamo che ogni impresa meriti di avere
               accesso a strumenti avanzati che possano aiutarla a crescere e a

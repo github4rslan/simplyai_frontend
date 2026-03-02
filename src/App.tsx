@@ -1,5 +1,5 @@
 import React, { Suspense, useEffect, lazy } from "react";
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-dom";
 import "./App.css";
 const Home = lazy(() => import("./pages/Home"));
 const About = lazy(() => import("./pages/About"));
@@ -125,6 +125,9 @@ const App = () => {
               <Route path="/faq" element={<Faq />} />
               <Route path="/privacy-policy" element={<PrivacyPolicy />} />
               <Route path="/terms-of-service" element={<TermsOfService />} />
+              <Route path="/cookies" element={<Navigate to="/privacy-policy" replace />} />
+              <Route path="/privacy" element={<Navigate to="/privacy-policy" replace />} />
+              <Route path="/terms" element={<Navigate to="/terms-of-service" replace />} />
               <Route path="/account" element={<Account />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
@@ -148,7 +151,6 @@ const App = () => {
               <Route path="/page-preview/:id" element={<PagePreview />} />
               <Route path="/report/:id" element={<Report />} />
               <Route path="/form-builder/editor" element={<FormEditorPage />} />
-              //{" "}
               <Route
                 path="/admin/form-builder-v2"
                 element={<FormBuilderV2 />}
