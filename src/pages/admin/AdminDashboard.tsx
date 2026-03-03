@@ -1,373 +1,199 @@
+import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import { AlertCircle, BarChart3, FileText, LayoutGrid, Settings, Users } from "lucide-react";
+import { useToast } from "@/components/ui/use-toast";
+import { dashboardService } from "@/services/dashboardService";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
 
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useToast } from '@/components/ui/use-toast';
-import { dashboardService } from '@/services/dashboardService';
-import { Link } from 'react-router-dom';
-import { Users, FileText, BarChart2, Settings, LayoutGrid, AlertCircle } from 'lucide-react';
-
-const RecentUserCard = ({ user }) => {
-  const formatDate = (dateStr) => {
-    const date = new Date(dateStr);
-    return date.toLocaleDateString('it-IT', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-    });
-  };
-
-  return (
-    <div className="flex items-center p-4 border rounded-lg mb-2">
-      <div className="w-10 h-10 rounded-full bg-[var(--color-primary-300)] flex items-center justify-center text-white font-bold mr-4">
-        {user.first_name ? user.first_name.charAt(0) : user.email ? user.email.charAt(0).toUpperCase() : 'U'}
-      </div>
-      <div className="flex-1">
-        <h4 className="font-medium">
-          {user.first_name && user.last_name
-            ? `${user.first_name} ${user.last_name}`
-            : user.email || 'User'}
-        </h4>
-        <p className="text-sm text-gray-500">
-          Registered: {formatDate(user.created_at)}
-        </p>
-        {user.email && (
-          <p className="text-sm text-gray-400">{user.email}</p>
-        )}
-      </div>
-      <Link to={`/admin/users?id=${user.id}`}>
-        <Button variant="outline" size="sm">
-          Details
-        </Button>
-      </Link>
-    </div>
-  );
+type DashboardStats = {
+  totalUsers: number;
+  activeQuestionnaires: number;
+  completedQuestionnaires: number;
+  totalReports: number;
 };
 
 const AdminDashboard = () => {
   const { toast } = useToast();
-  const [stats, setStats] = useState({
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+  const [stats, setStats] = useState<DashboardStats>({
     totalUsers: 0,
     activeQuestionnaires: 0,
     completedQuestionnaires: 0,
-    totalReports: 0
+    totalReports: 0,
   });
-  const [recentUsers, setRecentUsers] = useState([]);
-  const [recentQuestionnaires, setRecentQuestionnaires] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
+  const [recentUsers, setRecentUsers] = useState<any[]>([]);
+  const [recentQuestionnaires, setRecentQuestionnaires] = useState<any[]>([]);
 
   useEffect(() => {
-    const fetchDashboardData = async () => {
+    const loadDashboard = async () => {
       try {
         setLoading(true);
         setError(false);
-        
-        console.log('🔄 Loading dashboard data from MySQL...');
-        
-        // Fetch dashboard statistics from MySQL
-        const statsData = await dashboardService.getDashboardStats();
-        console.log('📊 Stats loaded:', statsData);
-        
+
+        const [statsData, usersData, responsesData] = await Promise.all([
+          dashboardService.getDashboardStats(),
+          dashboardService.getRecentUsers().catch(() => []),
+          dashboardService.getRecentResponses().catch(() => []),
+        ]);
+
         setStats({
-          totalUsers: statsData.totalUsers,
-          activeQuestionnaires: statsData.activeQuestionnaires,
-          completedQuestionnaires: statsData.completedQuestionnaires,
-          totalReports: statsData.totalReports
+          totalUsers: statsData?.totalUsers || 0,
+          activeQuestionnaires: statsData?.activeQuestionnaires || 0,
+          completedQuestionnaires: statsData?.completedQuestionnaires || 0,
+          totalReports: statsData?.totalReports || 0,
         });
-        
-        // Fetch recent users from MySQL
-        try {
-          const usersData = await dashboardService.getRecentUsers();
-          console.log('👥 Recent users loaded:', usersData.length);
-          setRecentUsers(usersData || []);
-        } catch (userError) {
-          console.error('Error loading recent users:', userError);
-          setRecentUsers([]);
-        }
-        
-        // Fetch recent questionnaire responses from MySQL
-        try {
-          const responsesData = await dashboardService.getRecentResponses();
-          console.log('📝 Recent responses loaded:', responsesData.length);
-          setRecentQuestionnaires(responsesData || []);
-        } catch (responseError) {
-          console.error('Error loading recent responses:', responseError);
-          setRecentQuestionnaires([]);
-        }
-        
-      } catch (error) {
-        console.error('❌ Error fetching dashboard data:', error);
+        setRecentUsers(usersData || []);
+        setRecentQuestionnaires(responsesData || []);
+      } catch (err) {
         setError(true);
         toast({
-          title: 'Error',
-          description: 'Unable to load dashboard data from the database.',
-          variant: 'destructive',
+          title: "Dashboard error",
+          description: "Could not load admin analytics.",
+          variant: "destructive",
         });
-        
-        // Set default values on error
-        setStats({
-          totalUsers: 0,
-          activeQuestionnaires: 0,
-          completedQuestionnaires: 0,
-          totalReports: 0
-        });
-        setRecentUsers([]);
-        setRecentQuestionnaires([]);
       } finally {
         setLoading(false);
       }
     };
-    
-    fetchDashboardData();
+
+    loadDashboard();
   }, [toast]);
 
   if (loading) {
-    return <div className="flex justify-center p-10">Loading...</div>;
+    return <div className="rounded-2xl border border-cyan-100 bg-white p-8 text-center">Loading admin dashboard...</div>;
   }
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold">Administration Dashboard</h1>
-        <p className="text-muted-foreground mt-2">
-          Welcome to the SimplyAI control panel
-        </p>
-      </div>
-      
-      {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded-md flex items-start mb-6">
-          <AlertCircle className="h-5 w-5 mr-2 mt-0.5" />
+      <section className="rounded-2xl border border-cyan-100 bg-white/90 p-6 shadow-sm">
+        <h1 className="text-3xl font-semibold text-slate-900">Admin Overview</h1>
+        <p className="mt-1 text-sm text-slate-600">Monitor platform activity and manage core workflows.</p>
+      </section>
+
+      {error ? (
+        <div className="flex items-start gap-2 rounded-2xl border border-red-200 bg-red-50 p-4 text-red-700">
+          <AlertCircle className="mt-0.5 h-5 w-5" />
           <div>
-            <h3 className="font-medium">Database connection error</h3>
-            <p className="text-sm">Unable to load dashboard data. Please check the MySQL connection.</p>
+            <p className="font-medium">Data source issue</p>
+            <p className="text-sm">Some dashboard data could not be loaded.</p>
           </div>
         </div>
-      )}
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-2xl">{stats.totalUsers}</CardTitle>
-            <CardDescription>Total Users</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Link to="/admin/users">
-              <Button variant="outline" className="w-full mt-2" size="sm">
-                <Users className="mr-2 h-4 w-4" />
-                Manage Users
-              </Button>
-            </Link>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-2xl">{stats.activeQuestionnaires}</CardTitle>
-            <CardDescription>Active Questionnaires</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Link to="/admin/form-builder">
-              <Button variant="outline" className="w-full mt-2" size="sm">
-                <FileText className="mr-2 h-4 w-4" />
-                Manage Forms
-              </Button>
-            </Link>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-2xl">{stats.completedQuestionnaires}</CardTitle>
-            <CardDescription>Completed Questionnaires</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Link to="/admin/form-builder">
-              <Button variant="outline" className="w-full mt-2" size="sm">
-                <LayoutGrid className="mr-2 h-4 w-4" />
-                Form Builder
-              </Button>
-            </Link>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-2xl">{stats.totalReports}</CardTitle>
-            <CardDescription>Generated Reports</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Link to="/admin/reports">
-              <Button variant="outline" className="w-full mt-2" size="sm">
-                <BarChart2 className="mr-2 h-4 w-4" />
-                View Reports
-              </Button>
-            </Link>
-          </CardContent>
-        </Card>
-      </div>
-      
+      ) : null}
+
+      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        {[
+          { label: "Users", value: stats.totalUsers, href: "/admin/users", icon: Users },
+          { label: "Active Questionnaires", value: stats.activeQuestionnaires, href: "/admin/form-builder", icon: FileText },
+          { label: "Completed Questionnaires", value: stats.completedQuestionnaires, href: "/admin/form-builder", icon: LayoutGrid },
+          { label: "Reports", value: stats.totalReports, href: "/admin/reports", icon: BarChart3 },
+        ].map((item) => {
+          const Icon = item.icon;
+          return (
+            <Card key={item.label} className="border-cyan-100 bg-white/95 shadow-sm">
+              <CardHeader className="pb-2">
+                <CardDescription>{item.label}</CardDescription>
+                <CardTitle className="text-3xl">{item.value}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Link to={item.href}>
+                  <Button variant="outline" className="w-full border-cyan-200 text-cyan-700 hover:bg-cyan-50">
+                    <Icon className="mr-2 h-4 w-4" />
+                    Open
+                  </Button>
+                </Link>
+              </CardContent>
+            </Card>
+          );
+        })}
+      </section>
+
       <Tabs defaultValue="users" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="users">Latest Users</TabsTrigger>
-          <TabsTrigger value="questionnaires">Latest Questionnaires</TabsTrigger>
+        <TabsList className="rounded-full border border-cyan-200 bg-white p-1">
+          <TabsTrigger value="users" className="rounded-full">Recent Users</TabsTrigger>
+          <TabsTrigger value="responses" className="rounded-full">Recent Responses</TabsTrigger>
         </TabsList>
-        
+
         <TabsContent value="users">
-          <Card>
+          <Card className="border-cyan-100 bg-white/95 shadow-sm">
             <CardHeader>
               <CardTitle>Latest Registered Users</CardTitle>
-              <CardDescription>
-                The most recently registered users on the platform
-              </CardDescription>
+              <CardDescription>Most recent user signups.</CardDescription>
             </CardHeader>
-            <CardContent>
-              {recentUsers.length > 0 ? (
-                <div className="space-y-2">
-                  {recentUsers.map((user) => (
-                    <RecentUserCard key={user.id} user={user} />
-                  ))}
-                  <div className="mt-4 text-center">
-                    <Link to="/admin/users">
-                      <Button>View all users</Button>
+            <CardContent className="space-y-3">
+              {recentUsers.length === 0 ? (
+                <p className="text-sm text-slate-500">No recent users.</p>
+              ) : (
+                recentUsers.slice(0, 8).map((user) => (
+                  <div key={user.id} className="flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50 p-3">
+                    <div>
+                      <p className="font-medium text-slate-900">{user.first_name && user.last_name ? `${user.first_name} ${user.last_name}` : user.email}</p>
+                      <p className="text-xs text-slate-500">{new Date(user.created_at).toLocaleDateString("en-US")}</p>
+                    </div>
+                    <Link to={`/admin/users/${user.id}`}>
+                      <Button size="sm" variant="outline">Details</Button>
                     </Link>
                   </div>
-                </div>
-              ) : (
-                <p>No registered users.</p>
+                ))
               )}
             </CardContent>
           </Card>
         </TabsContent>
-        
-        <TabsContent value="questionnaires">
-          <Card>
+
+        <TabsContent value="responses">
+          <Card className="border-cyan-100 bg-white/95 shadow-sm">
             <CardHeader>
-              <CardTitle>Latest Questionnaires</CardTitle>
-              <CardDescription>
-                The most recently completed questionnaires by users
-              </CardDescription>
+              <CardTitle>Latest Questionnaire Responses</CardTitle>
+              <CardDescription>Recently submitted forms.</CardDescription>
             </CardHeader>
-            <CardContent>
-              {recentQuestionnaires.length > 0 ? (
-                <div className="space-y-4">
-                  {recentQuestionnaires.map((questionnaire) => (
-                    <div key={questionnaire.id} className="p-4 border rounded-lg">
-                      <div className="flex justify-between items-center">
-                        <h4 className="font-medium">
-                          Questionnaire #{String(questionnaire.id ?? "").substring(0, 8)}
-                        </h4>
-                        <span
-                          className={`px-2 py-1 text-xs rounded-full ${
-                            questionnaire.status === 'completed'
-                              ? 'bg-green-100 text-green-800'
-                              : 'bg-amber-100 text-amber-800'
-                          }`}
-                        >
-                          {questionnaire.status === 'completed' ? 'Completed' : 'Draft'}
-                        </span>
-                      </div>
-                      <p className="text-sm text-gray-500 mt-1">
-                        {questionnaire.first_name && questionnaire.last_name
-                          ? `${questionnaire.first_name} ${questionnaire.last_name}`
-                          : questionnaire.email || `User ID: ${String(questionnaire.user_id ?? "").substring(0, 8)}`}
-                      </p>
-                      <p className="text-sm text-gray-500">
-                        Date: {new Date(questionnaire.created_at).toLocaleDateString('en-US')}
-                      </p>
-                      {questionnaire.updated_at && questionnaire.updated_at !== questionnaire.created_at && (
-                        <p className="text-sm text-gray-400">
-                          Updated: {new Date(questionnaire.updated_at).toLocaleDateString('en-US')}
-                        </p>
-                      )}
-                    </div>
-                  ))}
-                  <div className="mt-4 text-center">
-                    <Link to="/admin/form-builder">
-                      <Button>View all questionnaires</Button>
-                    </Link>
-                  </div>
-                </div>
+            <CardContent className="space-y-3">
+              {recentQuestionnaires.length === 0 ? (
+                <p className="text-sm text-slate-500">No recent responses.</p>
               ) : (
-                <p>No questionnaires submitted.</p>
+                recentQuestionnaires.slice(0, 8).map((response) => (
+                  <div key={response.id} className="rounded-xl border border-slate-200 bg-slate-50 p-3">
+                    <div className="flex items-center justify-between">
+                      <p className="font-medium text-slate-900">Response #{String(response.id).slice(0, 8)}</p>
+                      <span className={`rounded-full px-2 py-1 text-xs ${response.status === "completed" ? "bg-emerald-100 text-emerald-700" : "bg-amber-100 text-amber-700"}`}>
+                        {response.status === "completed" ? "Completed" : "Draft"}
+                      </span>
+                    </div>
+                    <p className="mt-1 text-xs text-slate-500">{new Date(response.created_at).toLocaleDateString("en-US")}</p>
+                  </div>
+                ))
               )}
             </CardContent>
           </Card>
         </TabsContent>
       </Tabs>
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Card>
+
+      <section className="grid gap-4 md:grid-cols-2">
+        <Card className="border-cyan-100 bg-white/95 shadow-sm">
           <CardHeader>
             <CardTitle>Quick Actions</CardTitle>
-            <CardDescription>
-              Quickly manage the main features
-            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-2">
-            <Link to="/admin/users">
-              <Button variant="outline" className="w-full justify-start" size="lg">
-                <Users className="mr-2 h-5 w-5" />
-                User Management
-              </Button>
-            </Link>
-            <Link to="/admin/page-editor">
-              <Button variant="outline" className="w-full justify-start" size="lg">
-                <FileText className="mr-2 h-5 w-5" />
-                Page Editor
-              </Button>
-            </Link>
-            <Link to="/admin/form-builder">
-              <Button variant="outline" className="w-full justify-start" size="lg">
-                <LayoutGrid className="mr-2 h-5 w-5" />
-                Form Builder
-              </Button>
-            </Link>
-            <Link to="/admin/settings">
-              <Button variant="outline" className="w-full justify-start" size="lg">
-                <Settings className="mr-2 h-5 w-5" />
-                System Settings
-              </Button>
-            </Link>
+            <Link to="/admin/users"><Button variant="outline" className="w-full justify-start">User Management</Button></Link>
+            <Link to="/admin/page-editor"><Button variant="outline" className="w-full justify-start">Page Editor</Button></Link>
+            <Link to="/admin/form-builder"><Button variant="outline" className="w-full justify-start">Form Builder</Button></Link>
+            <Link to="/admin/settings"><Button variant="outline" className="w-full justify-start">System Settings</Button></Link>
           </CardContent>
         </Card>
-        
-        <Card>
+
+        <Card className="border-cyan-100 bg-white/95 shadow-sm">
           <CardHeader>
             <CardTitle>System Status</CardTitle>
-            <CardDescription>
-              Statistics and system information
-            </CardDescription>
           </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="flex justify-between items-center pb-2 border-b">
-                <span className="font-medium">Versione</span>
-                <span>1.0.0</span>
-              </div>
-              <div className="flex justify-between items-center pb-2 border-b">
-                <span className="font-medium">Database MySQL</span>
-                <span className={error ? "text-red-600" : "text-green-600"}>
-                  {error ? "Connection error" : "Online"}
-                </span>
-              </div>
-              <div className="flex justify-between items-center pb-2 border-b">
-                <span className="font-medium">Storage</span>
-                <span className="text-green-600">Online</span>
-              </div>
-              <div className="flex justify-between items-center pb-2 border-b">
-                <span className="font-medium">Questionnaires</span>
-                <span>{stats.activeQuestionnaires + stats.completedQuestionnaires} total</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="font-medium">Generated reports</span>
-                <span>{stats.totalReports}</span>
-              </div>
-            </div>
+          <CardContent className="space-y-3 text-sm text-slate-700">
+            <div className="flex justify-between border-b pb-2"><span>Version</span><span>1.0.0</span></div>
+            <div className="flex justify-between border-b pb-2"><span>Database</span><span className={error ? "text-red-600" : "text-emerald-600"}>{error ? "Issue" : "Online"}</span></div>
+            <div className="flex justify-between border-b pb-2"><span>Storage</span><span className="text-emerald-600">Online</span></div>
+            <div className="flex justify-between"><span>Total Reports</span><span>{stats.totalReports}</span></div>
           </CardContent>
         </Card>
-      </div>
+      </section>
     </div>
   );
 };

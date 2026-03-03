@@ -1,21 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Edit, Plus, Trash2 } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import {
@@ -28,20 +16,15 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import {
-  fetchAllPlansForAdmin,
-  deletePlan,
-  updatePlanStatus,
-} from "@/services/ApiService";
-import { Plus, Edit, Trash2 } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { fetchAllPlansForAdmin, deletePlan, updatePlanStatus } from "@/services/ApiService";
 
 interface Plan {
   id: string;
   name: string;
   price: number;
   description: string | null;
-  features: string[] | any; // Can be array or object
+  features: string[] | any;
   is_popular: boolean | null;
   is_free: boolean | null;
   active: boolean | null;
@@ -55,37 +38,30 @@ const PlansManagement = () => {
   const [planToDelete, setPlanToDelete] = useState<Plan | null>(null);
 
   useEffect(() => {
-    fetchPlans();
+    loadPlans();
   }, []);
 
-  const fetchPlans = async () => {
+  const loadPlans = async () => {
     try {
       setIsLoading(true);
-      console.log("🔄 Fetching plans...");
-
       const plansData = await fetchAllPlansForAdmin();
-      console.log("📦 Plans data received:", plansData);
-
       if (plansData) {
-        const transformedPlans = plansData.map((plan: any) => ({
-          ...plan,
-          features: Array.isArray(plan.features)
-            ? plan.features
-            : typeof plan.features === "string"
-            ? JSON.parse(plan.features || "[]")
-            : plan.features || [],
-          is_free: Boolean(plan.is_free),
-        }));
-
-        console.log("✅ Setting plans:", transformedPlans.length);
-        setPlans(transformedPlans);
+        setPlans(
+          plansData.map((plan: any) => ({
+            ...plan,
+            features: Array.isArray(plan.features)
+              ? plan.features
+              : typeof plan.features === "string"
+              ? JSON.parse(plan.features || "[]")
+              : plan.features || [],
+            is_free: Boolean(plan.is_free),
+          }))
+        );
       }
     } catch (error) {
-      console.error("❌ Error fetching plans:", error);
       toast({
-        title: "Errore",
-        description:
-          "Impossibile caricare i piani: " + (error as Error).message,
+        title: "Load failed",
+        description: "Could not load subscription plans.",
         variant: "destructive",
       });
     } finally {
@@ -95,21 +71,14 @@ const PlansManagement = () => {
 
   const handleDeletePlan = async () => {
     if (!planToDelete) return;
-
     try {
       await deletePlan(planToDelete.id);
-
+      toast({ title: "Plan deleted", description: "The plan was removed." });
+      loadPlans();
+    } catch {
       toast({
-        title: "Plan deleted",
-        description: "The plan has been deleted successfully",
-      });
-
-      fetchPlans();
-    } catch (error) {
-      console.error("Error deleting plan:", error);
-      toast({
-        title: "Error",
-        description: "Unable to delete the plan",
+        title: "Delete failed",
+        description: "Could not delete the selected plan.",
         variant: "destructive",
       });
     } finally {
@@ -120,97 +89,69 @@ const PlansManagement = () => {
   const handleToggleActive = async (id: string, isActive: boolean | null) => {
     try {
       await updatePlanStatus(id, !isActive);
-
       toast({
         title: isActive ? "Plan deactivated" : "Plan activated",
-        description: `The plan has been ${
-          isActive ? "deactivated" : "activated"
-        } successfully`,
+        description: "Status updated successfully.",
       });
-
-      fetchPlans();
-    } catch (error) {
-      console.error("Error toggling plan active state:", error);
+      loadPlans();
+    } catch {
       toast({
-        title: "Error",
-        description: "Unable to update the plan status",
+        title: "Update failed",
+        description: "Could not update plan status.",
         variant: "destructive",
       });
     }
   };
 
-  const formatPrice = (price: number) => {
-    return `€${price.toFixed(2)}`;
-  };
+  const formatPrice = (price: number) => `$${price.toFixed(2)}`;
 
   const renderPlanType = (plan: Plan) => {
-    if (plan.is_free === true) {
-      return (
-        <Badge
-          variant="outline"
-          className="bg-green-50 text-green-700 border-green-300"
-        >
-          Gratuito
-        </Badge>
-      );
+    if (plan.is_free) {
+      return <Badge className="bg-emerald-100 text-emerald-700 hover:bg-emerald-100">Free</Badge>;
     }
-
-    if (plan.is_popular === true) {
-      return (
-        <Badge
-          variant="default"
-          className="bg-[var(--color-primary-100)] text-[var(--color-primary-700)] border-[var(--color-primary-300)]"
-        >
-          Premium
-        </Badge>
-      );
+    if (plan.is_popular) {
+      return <Badge className="bg-cyan-100 text-cyan-700 hover:bg-cyan-100">Popular</Badge>;
     }
-
     return <Badge variant="outline">Standard</Badge>;
   };
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
+      <section className="flex flex-col gap-4 rounded-2xl border border-cyan-100 bg-white/95 p-6 shadow-sm sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Gestione Piani</h1>
-          <p className="text-muted-foreground mt-2">
-            Gestisci i piani di abbonamento della piattaforma
-          </p>
+          <h1 className="text-3xl font-semibold text-slate-900">Plan Management</h1>
+          <p className="mt-1 text-sm text-slate-600">Create and maintain subscription plans.</p>
         </div>
-        <Button onClick={() => navigate("/admin/plans/create")}>
-          <Plus className="h-4 w-4 mr-2" />
-          Nuovo Piano
+        <Button onClick={() => navigate("/admin/plans/create")} className="bg-cyan-700 text-white hover:bg-cyan-800">
+          <Plus className="mr-2 h-4 w-4" />
+          New Plan
         </Button>
-      </div>
+      </section>
 
-      <Card>
+      <Card className="border-cyan-100 bg-white/95 shadow-sm">
         <CardHeader>
-          <CardTitle>Piani</CardTitle>
-          <CardDescription>
-            Gestisci i piani di abbonamento disponibili per i tuoi utenti. Piani
-            caricati: {plans.length}
-          </CardDescription>
+          <CardTitle>Plans</CardTitle>
+          <CardDescription>{plans.length} plan(s) configured.</CardDescription>
         </CardHeader>
         <CardContent>
           {isLoading ? (
-            <div className="text-center py-10">Caricamento in corso...</div>
+            <div className="py-12 text-center text-sm text-slate-500">Loading plans...</div>
           ) : (
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Nome</TableHead>
-                  <TableHead>Tipo</TableHead>
-                  <TableHead>Prezzo</TableHead>
-                  <TableHead>Attivo</TableHead>
-                  <TableHead className="text-right">Azioni</TableHead>
+                  <TableHead>Name</TableHead>
+                  <TableHead>Type</TableHead>
+                  <TableHead>Price</TableHead>
+                  <TableHead>Active</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {plans.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={5} className="text-center py-6">
-                      Nessun piano trovato. Crea un nuovo piano per iniziare.
+                    <TableCell colSpan={5} className="py-8 text-center text-slate-500">
+                      No plans found.
                     </TableCell>
                   </TableRow>
                 ) : (
@@ -218,39 +159,21 @@ const PlansManagement = () => {
                     <TableRow key={plan.id}>
                       <TableCell className="font-medium">{plan.name}</TableCell>
                       <TableCell>{renderPlanType(plan)}</TableCell>
-                      <TableCell>
-                        {plan.is_free ? "Gratuito" : formatPrice(plan.price)}
-                      </TableCell>
+                      <TableCell>{plan.is_free ? "Free" : formatPrice(plan.price)}</TableCell>
                       <TableCell>
                         <Switch
                           checked={plan.active === true}
-                          onCheckedChange={() =>
-                            handleToggleActive(plan.id, plan.active)
-                          }
-                          aria-label={`${
-                            plan.active ? "Disattiva" : "Attiva"
-                          } piano ${plan.name}`}
+                          onCheckedChange={() => handleToggleActive(plan.id, plan.active)}
+                          aria-label={`${plan.active ? "Disable" : "Enable"} ${plan.name}`}
                         />
                       </TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex justify-end space-x-2">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() =>
-                              navigate(`/admin/plans/edit/${plan.id}`)
-                            }
-                          >
-                            <Edit className="h-4 w-4 mr-1" />
-                            Modifica
+                      <TableCell>
+                        <div className="flex justify-end gap-2">
+                          <Button variant="outline" size="sm" onClick={() => navigate(`/admin/plans/edit/${plan.id}`)}>
+                            <Edit className="mr-1 h-4 w-4" />Edit
                           </Button>
-                          <Button
-                            variant="destructive"
-                            size="sm"
-                            onClick={() => setPlanToDelete(plan)}
-                          >
-                            <Trash2 className="h-4 w-4 mr-1" />
-                            Elimina
+                          <Button variant="destructive" size="sm" onClick={() => setPlanToDelete(plan)}>
+                            <Trash2 className="mr-1 h-4 w-4" />Delete
                           </Button>
                         </div>
                       </TableCell>
@@ -263,28 +186,17 @@ const PlansManagement = () => {
         </CardContent>
       </Card>
 
-      <AlertDialog
-        open={!!planToDelete}
-        onOpenChange={() => setPlanToDelete(null)}
-      >
+      <AlertDialog open={!!planToDelete} onOpenChange={() => setPlanToDelete(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>
-              Are you sure you want to delete this plan?
-            </AlertDialogTitle>
+            <AlertDialogTitle>Delete plan?</AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete the
-              plan "{planToDelete?.name}" and remove the associated data.
+              This action is permanent and will remove the plan "{planToDelete?.name}".
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleDeletePlan}
-              className="bg-red-600 hover:bg-red-700"
-            >
-              Delete
-            </AlertDialogAction>
+            <AlertDialogAction onClick={handleDeletePlan} className="bg-red-600 hover:bg-red-700">Delete</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

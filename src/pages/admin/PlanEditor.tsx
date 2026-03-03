@@ -203,7 +203,7 @@ const PlanEditor = () => {
             setPlan(newPlan);
           }
         } catch (error) {
-          console.error("Errore nel caricamento del piano:", error);
+          console.error("Error loading plan:", error);
           toast({
             title: "Error",
             description: "Unable to load the requested plan",
@@ -300,7 +300,7 @@ const PlanEditor = () => {
         is_free: plan.is_free,
         features: plan.features,
         active: plan.isActive,
-        button_text: plan.is_free ? "Inizia Gratis" : "Seleziona Piano",
+        button_text: plan.is_free ? "Get Started Free" : "Select Plan",
         button_variant: plan.is_free ? "default" : "outline",
         sort_order: 0,
         interval: "month",
@@ -496,7 +496,7 @@ const PlanEditor = () => {
     if (newOptions.singleQuestionnaire && updatedQuestionnaires.length > 1) {
       updatedQuestionnaires = [updatedQuestionnaires[0]];
       toast({
-        title: "Avviso",
+        title: "Notice",
         description:
           "A single questionnaire plan can only have one questionnaire. The other questionnaires have been removed.",
       });
@@ -543,7 +543,7 @@ const PlanEditor = () => {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[50vh]">
-        <p>Caricamento in corso...</p>
+        <p>Loading...</p>
       </div>
     );
   }
@@ -1173,3 +1173,4 @@ const PlanEditor = () => {
 };
 
 export default PlanEditor;
+

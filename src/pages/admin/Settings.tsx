@@ -1392,7 +1392,7 @@ const Settings = () => {
                       Saving...
                     </>
                   ) : (
-                    "Salva Impostazioni"
+                    "Save Settings"
                   )}
                 </Button>
               </CardFooter>
@@ -1534,10 +1534,10 @@ const Settings = () => {
                   {saving ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Salvataggio...
+                      Saving...
                     </>
                   ) : (
-                    "Salva Impostazioni"
+                    "Save Settings"
                   )}
                 </Button>
               </CardFooter>
@@ -1550,3 +1550,4 @@ const Settings = () => {
 };
 
 export default Settings;
+

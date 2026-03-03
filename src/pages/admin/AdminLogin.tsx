@@ -1,146 +1,104 @@
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { z } from "zod";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { AlertCircle, Eye, EyeOff, ShieldCheck } from "lucide-react";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { useToast } from "@/components/ui/use-toast";
+import { useAuth } from "@/hooks/useAuth";
 
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { useToast } from '@/components/ui/use-toast';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '@/hooks/useAuth';
-import { AlertCircle, Eye, EyeOff } from 'lucide-react';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
-import * as z from 'zod';
+const DEFAULT_ADMIN_EMAIL = "admin@simpolyai.com";
 
-// Credenziali predefinite (usate solo per pre-riempire il campo email)
-const DEFAULT_ADMIN_EMAIL = 'admin@simpolyai.com';
-
-// Form schema con validazione
 const formSchema = z.object({
-  email: z.string()
-    .email({
-      message: "Please enter a valid email address.",
-    }),
-  password: z.string().min(6, {
-    message: "Password must be at least 6 characters long.",
-  }),
+  email: z.string().email("Please enter a valid email address."),
+  password: z.string().min(6, "Password must be at least 6 characters."),
 });
 
 const AdminLogin = () => {
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [hasAttemptedLogin, setHasAttemptedLogin] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
-  const { toast } = useToast();
   const navigate = useNavigate();
+  const { toast } = useToast();
   const { user, login, logout } = useAuth();
 
-  useEffect(() => {
-    // Se già loggato e admin, reindirizza alla dashboard admin
-    if (user && user.isAdmin) {
-      navigate('/admin');
-    }
-  }, [user, navigate]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [attempted, setAttempted] = useState(false);
 
-  // Clear error message on component mount/refresh
-  useEffect(() => {
-    setError('');
-    setHasAttemptedLogin(false);
-  }, []);
-
-  // Inizializza il form con l'email predefinita per facilitare il login
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       email: DEFAULT_ADMIN_EMAIL,
-      password: '',
+      password: "",
     },
   });
 
-  const handleLogin = async (values: z.infer<typeof formSchema>) => {
+  useEffect(() => {
+    if (user?.isAdmin) {
+      navigate("/admin");
+    }
+  }, [user, navigate]);
+
+  useEffect(() => {
+    if (user && attempted && !loading) {
+      if (user.role === "administrator") {
+        toast({
+          title: "Login successful",
+          description: "Welcome back to the admin console.",
+        });
+        navigate("/admin");
+      } else {
+        setError("Access denied. This account does not have admin privileges.");
+        logout();
+      }
+    }
+  }, [user, attempted, loading, navigate, logout, toast]);
+
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       setLoading(true);
-      setError('');
-      setHasAttemptedLogin(true); // Mark that user has attempted login
-      
-      // Rimuovi spazi bianchi dai valori di input
-      const trimmedEmail = values.email.trim();
-      const trimmedPassword = values.password.trim();
-      
-      console.log('Tentativo di accesso admin con:', trimmedEmail);
-      
-      // Usa il login del contesto auth con MySQL
-      await login(trimmedEmail, trimmedPassword);
-      
-      // Verifica che l'utente sia un admin dopo il login
-      // Il controllo viene fatto in useEffect quando user cambia
-      
-    } catch (error) {
-      console.error('Errore di login admin:', error);
-      
-      // Gestione personalizzata degli errori
-      if (error.message?.includes('Invalid credentials') || error.message?.includes('Credenziali non valide')) {
-        setError('Invalid credentials. Please contact the system administrator.');
-      } else if (error.message?.includes('User not found')) {
-        setError('User not found. Please contact the system administrator.');
-      } else {
-        setError(`Login error: ${error.message || 'Unknown error'}`);
-      }
+      setError("");
+      setAttempted(true);
 
+      await login(values.email.trim(), values.password.trim());
+    } catch (err: any) {
+      const message = err?.message || "Invalid credentials.";
+      setError(message.includes("Invalid") ? "Invalid credentials." : `Login failed: ${message}`);
       toast({
-        title: 'Access error',
-        description: 'Please check your administrator credentials',
-        variant: 'destructive',
+        title: "Login failed",
+        description: "Please check your credentials and try again.",
+        variant: "destructive",
       });
     } finally {
       setLoading(false);
     }
   };
 
-  // Controlla se l'utente è admin dopo il login
-  useEffect(() => {
-    if (user && !loading && hasAttemptedLogin) {
-      if (user.role === 'administrator') {
-        toast({
-          title: 'Login successful',
-          description: 'Welcome to the administration panel',
-        });
-        navigate('/admin');
-      } else {
-        setError('Access denied. The user does not have administrator privileges.');
-        toast({
-          title: 'Access denied',
-          description: 'You do not have the necessary privileges to access the administration panel',
-          variant: 'destructive',
-        });
-        
-        // Logout dell'utente non-admin
-        logout();
-        setHasAttemptedLogin(false); // Reset the flag
-      }
-    }
-  }, [user, loading, hasAttemptedLogin, navigate, toast, logout]);
-
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-100 p-4">
-      <Card className="w-full max-w-md">
-        <CardHeader className="space-y-1 text-center">
-          <CardTitle className="text-2xl font-bold">SimplyAI Admin</CardTitle>
-          <CardDescription>
-            Log in to the administration panel
-          </CardDescription>
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-b from-cyan-50 to-slate-100 p-4">
+      <Card className="w-full max-w-md border-cyan-100 bg-white/95 shadow-xl">
+        <CardHeader className="space-y-2 text-center">
+          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-cyan-100 text-cyan-700">
+            <ShieldCheck className="h-6 w-6" />
+          </div>
+          <CardTitle className="text-2xl">Admin Login</CardTitle>
+          <CardDescription>Sign in to access the control panel.</CardDescription>
         </CardHeader>
+
         <CardContent>
-          {error && (
+          {error ? (
             <Alert variant="destructive" className="mb-4">
               <AlertCircle className="h-4 w-4" />
               <AlertDescription>{error}</AlertDescription>
             </Alert>
-          )}
-          
+          ) : null}
+
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(handleLogin)} className="space-y-4">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
               <FormField
                 control={form.control}
                 name="email"
@@ -148,16 +106,13 @@ const AdminLogin = () => {
                   <FormItem>
                     <FormLabel>Email</FormLabel>
                     <FormControl>
-                      <Input
-                        placeholder="Administrator email"
-                        {...field}
-                      />
+                      <Input placeholder="admin@company.com" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-              
+
               <FormField
                 control={form.control}
                 name="password"
@@ -166,24 +121,15 @@ const AdminLogin = () => {
                     <FormLabel>Password</FormLabel>
                     <FormControl>
                       <div className="relative">
-                        <Input 
-                          type={showPassword ? "text" : "password"}
-                          placeholder="Administrator password"
-                          {...field} 
-                          className="pr-10"
-                        />
+                        <Input type={showPassword ? "text" : "password"} className="pr-10" {...field} />
                         <Button
                           type="button"
                           variant="ghost"
                           size="sm"
-                          className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                          onClick={() => setShowPassword(!showPassword)}
+                          className="absolute right-0 top-0 h-full px-3"
+                          onClick={() => setShowPassword((prev) => !prev)}
                         >
-                          {showPassword ? (
-                            <EyeOff className="h-4 w-4 text-gray-500" />
-                          ) : (
-                            <Eye className="h-4 w-4 text-gray-500" />
-                          )}
+                          {showPassword ? <EyeOff className="h-4 w-4 text-slate-500" /> : <Eye className="h-4 w-4 text-slate-500" />}
                         </Button>
                       </div>
                     </FormControl>
@@ -191,17 +137,16 @@ const AdminLogin = () => {
                   </FormItem>
                 )}
               />
-              
-              <Button type="submit" className="w-full" disabled={loading}>
-                {loading ? 'Logging in...' : 'Log In'}
+
+              <Button type="submit" disabled={loading} className="w-full bg-cyan-700 text-white hover:bg-cyan-800">
+                {loading ? "Signing in..." : "Sign in"}
               </Button>
             </form>
           </Form>
         </CardContent>
-        <CardFooter className="text-center text-sm text-gray-600">
-          <p>
-            Use the administrator credentials provided by the system.
-          </p>
+
+        <CardFooter className="text-center text-xs text-slate-500">
+          Administrator credentials are required.
         </CardFooter>
       </Card>
     </div>

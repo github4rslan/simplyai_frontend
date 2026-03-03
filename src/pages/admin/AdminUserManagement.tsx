@@ -118,7 +118,7 @@ const AdminUserManagement = () => {
     } catch (error) {
       console.error("Error loading users:", error);
       toast({
-        title: "Errore",
+        title: "Error",
         description: "Impossibile caricare gli utenti.",
         variant: "destructive",
       });
@@ -400,7 +400,7 @@ const AdminUserManagement = () => {
       case "administrator":
         return "bg-red-100 text-red-800";
       case "premium_user":
-        return "bg-purple-100 text-purple-800";
+        return "bg-cyan-100 text-cyan-800";
       case "user":
         return "bg-blue-100 text-blue-800";
       default:
@@ -500,7 +500,7 @@ const AdminUserManagement = () => {
           onOpenChange={setCreateUserDialogOpen}
         >
           <DialogTrigger asChild>
-            <Button className="bg-purple-600 hover:bg-purple-700 w-full sm:w-auto">
+            <Button className="bg-cyan-700 hover:bg-cyan-800 w-full sm:w-auto">
               <UserPlus className="h-4 w-4 mr-2" />
               Add User
             </Button>
@@ -625,7 +625,7 @@ const AdminUserManagement = () => {
               </Button>
               <Button
                 onClick={handleCreateUser}
-                className="bg-purple-600 hover:bg-purple-700 w-full sm:w-auto"
+                className="bg-cyan-700 hover:bg-cyan-800 w-full sm:w-auto"
               >
                 Create User
               </Button>
@@ -693,7 +693,7 @@ const AdminUserManagement = () => {
           <Filter className="h-4 w-4 mr-2" />
           Filters
           {activeFiltersCount > 0 && (
-            <Badge className="ml-2 bg-purple-600">{activeFiltersCount}</Badge>
+            <Badge className="ml-2 bg-cyan-700">{activeFiltersCount}</Badge>
           )}
         </Button>
 
@@ -958,7 +958,7 @@ const AdminUserManagement = () => {
                               onClick={() => setSelectedUserForDelete(user)}
                               className="whitespace-nowrap"
                             >
-                              Elimina
+                              Delete
                             </Button>
                           </DialogTrigger>
                           <DialogContent>
@@ -1033,7 +1033,7 @@ const AdminUserManagement = () => {
                       : "bg-gray-100 text-gray-800"
                   }`}
                 >
-                  {user.last_login ? "Attivo" : "Inattivo"}
+                  {user.last_login ? "Active" : "Inactive"}
                 </span>
               </div>
 
@@ -1201,3 +1201,4 @@ const AdminUserManagement = () => {
 };
 
 export default AdminUserManagement;
+
