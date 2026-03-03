@@ -18,8 +18,8 @@ interface LocalImageUploaderProps {
 
 const LocalImageUploader = ({
   onImageUpload,
-  label = "Carica immagine",
-  buttonText = "Carica immagine dal computer",
+  label = "Upload image",
+  buttonText = "Upload image from computer",
   accept = "image/*",
   uploadType,
 }: LocalImageUploaderProps) => {
@@ -60,10 +60,10 @@ const LocalImageUploader = ({
       });
 
       toast({
-        title: `${uploadType === "logo" ? "Logo" : "Favicon"} caricato`,
-        description: `Il ${
+        title: `${uploadType === "logo" ? "Logo" : "Favicon"} uploaded`,
+        description: `The ${
           uploadType === "logo" ? "logo" : "favicon"
-        } è stato caricato con successo e salvato nel database`,
+        } was uploaded successfully and saved to the database`,
       });
 
       // Clear the input
@@ -71,11 +71,11 @@ const LocalImageUploader = ({
     } catch (error) {
       console.error("Upload error:", error);
       toast({
-        title: "Errore durante il caricamento",
+        title: "Upload error",
         description:
           error instanceof Error
             ? error.message
-            : "Si è verificato un errore durante il caricamento",
+            : "An error occurred during the upload",
         variant: "destructive",
       });
     } finally {
@@ -98,7 +98,7 @@ const LocalImageUploader = ({
           {uploading ? (
             <>
               <Loader2 className="h-4 w-4 animate-spin" />
-              Caricamento...
+              Loading...
             </>
           ) : (
             <>
@@ -120,7 +120,7 @@ const LocalImageUploader = ({
 
       {uploading && (
         <div className="text-sm text-muted-foreground">
-          Caricamento e salvataggio nel database...
+          Uploading and saving to the database...
         </div>
       )}
     </div>

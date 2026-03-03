@@ -47,10 +47,10 @@ const QuestionEditor = ({ initialQuestions = [], onSave }: QuestionEditorProps) 
   const addQuestion = () => {
     const newQuestion: Question = {
       id: generateId(),
-      text: 'Nuova domanda',
+      text: 'New question',
       type: 'single',
       required: true,
-      options: [{ id: generateId(), text: 'Opzione 1', value: 1 }],
+      options: [{ id: generateId(), text: 'Option 1', value: 1 }],
     };
     
     setQuestions([...questions, newQuestion]);
@@ -79,7 +79,7 @@ const QuestionEditor = ({ initialQuestions = [], onSave }: QuestionEditorProps) 
       ...question,
       options: [
         ...(question.options || []),
-        { id: generateId(), text: `Opzione ${(question.options?.length || 0) + 1}`, value: (question.options?.length || 0) + 1 }
+        { id: generateId(), text: `Option ${(question.options?.length || 0) + 1}`, value: (question.options?.length || 0) + 1 }
       ]
     };
     
@@ -109,17 +109,17 @@ const QuestionEditor = ({ initialQuestions = [], onSave }: QuestionEditorProps) 
   const handleSave = () => {
     if (questions.length === 0) {
       toast({
-        title: "Nessuna domanda",
-        description: "Aggiungi almeno una domanda al questionario.",
+        title: "No questions",
+        description: "Add at least one question to the questionnaire.",
         variant: "destructive",
       });
       return;
     }
-    
+
     onSave(questions);
     toast({
-      title: "Questionario salvato",
-      description: `${questions.length} domande salvate con successo.`,
+      title: "Questionnaire saved",
+      description: `${questions.length} questions saved successfully.`,
     });
   };
 
@@ -128,7 +128,7 @@ const QuestionEditor = ({ initialQuestions = [], onSave }: QuestionEditorProps) 
       <div className="md:col-span-1">
         <Card className="sticky top-6">
           <CardHeader>
-            <CardTitle>Domande</CardTitle>
+            <CardTitle>Questions</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
@@ -162,114 +162,114 @@ const QuestionEditor = ({ initialQuestions = [], onSave }: QuestionEditorProps) 
                 className="w-full mt-4 bg-simoly-purple hover:bg-simoly-purple-dark"
                 onClick={addQuestion}
               >
-                <PlusCircle className="mr-2 h-4 w-4" /> Aggiungi Domanda
+                <PlusCircle className="mr-2 h-4 w-4" /> Add Question
               </Button>
             </div>
           </CardContent>
         </Card>
       </div>
-      
+
       <div className="md:col-span-2">
         {editingQuestion ? (
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle>Modifica Domanda</CardTitle>
-              <Button 
-                variant="outline" 
+              <CardTitle>Edit Question</CardTitle>
+              <Button
+                variant="outline"
                 size="sm"
                 onClick={() => setEditingQuestion(null)}
               >
-                <Settings className="h-4 w-4 mr-2" /> Opzioni Avanzate
+                <Settings className="h-4 w-4 mr-2" /> Advanced Options
               </Button>
             </CardHeader>
             <CardContent>
               <div className="grid gap-6">
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">Testo della domanda</label>
-                  <Input 
-                    value={editingQuestion.text} 
+                  <label className="text-sm font-medium">Question text</label>
+                  <Input
+                    value={editingQuestion.text}
                     onChange={(e) => updateQuestion({...editingQuestion, text: e.target.value})}
-                    placeholder="Inserisci la domanda..."
+                    placeholder="Enter the question..."
                   />
                 </div>
-                
+
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">Guida alla domanda</label>
-                  <Textarea 
-                    value={editingQuestion.guide || ''} 
+                  <label className="text-sm font-medium">Question guide</label>
+                  <Textarea
+                    value={editingQuestion.guide || ''}
                     onChange={(e) => updateQuestion({...editingQuestion, guide: e.target.value})}
-                    placeholder="Inserisci un testo di aiuto per questa domanda (opzionale)..."
+                    placeholder="Enter a help text for this question (optional)..."
                   />
                 </div>
-                
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <label className="text-sm font-medium">Tipo di risposta</label>
-                    <Select 
-                      value={editingQuestion.type} 
+                    <label className="text-sm font-medium">Answer type</label>
+                    <Select
+                      value={editingQuestion.type}
                       onValueChange={(value) => updateQuestion({
-                        ...editingQuestion, 
+                        ...editingQuestion,
                         type: value as QuestionType,
-                        options: value === 'single' || value === 'multiple' 
-                          ? editingQuestion.options || [{ id: generateId(), text: 'Opzione 1', value: 1 }]
+                        options: value === 'single' || value === 'multiple'
+                          ? editingQuestion.options || [{ id: generateId(), text: 'Option 1', value: 1 }]
                           : undefined
                       })}
                     >
                       <SelectTrigger>
-                        <SelectValue placeholder="Seleziona tipo" />
+                        <SelectValue placeholder="Select type" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="single">Scelta singola</SelectItem>
-                        <SelectItem value="multiple">Scelta multipla</SelectItem>
-                        <SelectItem value="scale">Scala numerica</SelectItem>
-                        <SelectItem value="text">Testo libero</SelectItem>
+                        <SelectItem value="single">Single choice</SelectItem>
+                        <SelectItem value="multiple">Multiple choice</SelectItem>
+                        <SelectItem value="scale">Numeric scale</SelectItem>
+                        <SelectItem value="text">Free text</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
-                  
+
                   <div className="flex items-center space-x-2">
-                    <Switch 
+                    <Switch
                       id="required"
                       checked={editingQuestion.required}
                       onCheckedChange={(checked) => updateQuestion({...editingQuestion, required: checked})}
                     />
                     <label htmlFor="required" className="text-sm font-medium">
-                      Domanda obbligatoria
+                      Required question
                     </label>
                   </div>
                 </div>
-                
+
                 {(editingQuestion.type === 'single' || editingQuestion.type === 'multiple') && (
                   <div className="space-y-4">
                     <div className="flex justify-between items-center">
-                      <label className="text-sm font-medium">Opzioni di risposta</label>
-                      <Button 
-                        variant="outline" 
+                      <label className="text-sm font-medium">Answer options</label>
+                      <Button
+                        variant="outline"
                         size="sm"
                         onClick={() => addOption(editingQuestion.id)}
                       >
-                        <PlusCircle className="h-4 w-4 mr-2" /> Aggiungi
+                        <PlusCircle className="h-4 w-4 mr-2" /> Add
                       </Button>
                     </div>
-                    
+
                     <div className="space-y-3">
                       {editingQuestion.options?.map((option) => (
                         <div key={option.id} className="flex items-center space-x-2">
-                          <Input 
-                            value={option.text} 
+                          <Input
+                            value={option.text}
                             onChange={(e) => updateOption(editingQuestion.id, option.id, 'text', e.target.value)}
-                            placeholder="Testo opzione"
+                            placeholder="Option text"
                             className="flex-grow"
                           />
-                          <Input 
+                          <Input
                             type="number"
-                            value={option.value} 
+                            value={option.value}
                             onChange={(e) => updateOption(editingQuestion.id, option.id, 'value', parseInt(e.target.value))}
-                            placeholder="Valore"
+                            placeholder="Value"
                             className="w-20"
                           />
-                          <Button 
-                            variant="ghost" 
+                          <Button
+                            variant="ghost"
                             size="sm"
                             onClick={() => deleteOption(editingQuestion.id, option.id)}
                             disabled={editingQuestion.options?.length === 1}
@@ -281,39 +281,39 @@ const QuestionEditor = ({ initialQuestions = [], onSave }: QuestionEditorProps) 
                     </div>
                   </div>
                 )}
-                
+
                 {editingQuestion.type === 'scale' && (
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <label className="text-sm font-medium">Valore minimo</label>
-                      <Input 
-                        type="number" 
-                        value={editingQuestion.minScale || 1} 
+                      <label className="text-sm font-medium">Minimum value</label>
+                      <Input
+                        type="number"
+                        value={editingQuestion.minScale || 1}
                         onChange={(e) => updateQuestion({...editingQuestion, minScale: parseInt(e.target.value)})}
                       />
                     </div>
                     <div className="space-y-2">
-                      <label className="text-sm font-medium">Valore massimo</label>
-                      <Input 
-                        type="number" 
-                        value={editingQuestion.maxScale || 5} 
+                      <label className="text-sm font-medium">Maximum value</label>
+                      <Input
+                        type="number"
+                        value={editingQuestion.maxScale || 5}
                         onChange={(e) => updateQuestion({...editingQuestion, maxScale: parseInt(e.target.value)})}
                       />
                     </div>
                     <div className="space-y-2">
-                      <label className="text-sm font-medium">Etichetta minimo</label>
-                      <Input 
-                        value={editingQuestion.minLabel || ''} 
+                      <label className="text-sm font-medium">Minimum label</label>
+                      <Input
+                        value={editingQuestion.minLabel || ''}
                         onChange={(e) => updateQuestion({...editingQuestion, minLabel: e.target.value})}
-                        placeholder="Es. Per niente"
+                        placeholder="E.g. Not at all"
                       />
                     </div>
                     <div className="space-y-2">
-                      <label className="text-sm font-medium">Etichetta massimo</label>
-                      <Input 
-                        value={editingQuestion.maxLabel || ''} 
+                      <label className="text-sm font-medium">Maximum label</label>
+                      <Input
+                        value={editingQuestion.maxLabel || ''}
                         onChange={(e) => updateQuestion({...editingQuestion, maxLabel: e.target.value})}
-                        placeholder="Es. Moltissimo"
+                        placeholder="E.g. Very much"
                       />
                     </div>
                   </div>
@@ -324,25 +324,25 @@ const QuestionEditor = ({ initialQuestions = [], onSave }: QuestionEditorProps) 
         ) : (
           <div className="h-full flex items-center justify-center p-10 border-2 border-dashed rounded-xl border-gray-300">
             <div className="text-center space-y-3">
-              <h3 className="text-lg font-medium text-gray-600">Seleziona una domanda per modificarla</h3>
-              <p className="text-gray-500">Oppure aggiungi una nuova domanda dal menu a sinistra</p>
-              <Button 
-                variant="outline" 
-                className="mt-4" 
+              <h3 className="text-lg font-medium text-gray-600">Select a question to edit it</h3>
+              <p className="text-gray-500">Or add a new question from the menu on the left</p>
+              <Button
+                variant="outline"
+                className="mt-4"
                 onClick={addQuestion}
               >
-                <PlusCircle className="mr-2 h-4 w-4" /> Aggiungi Domanda
+                <PlusCircle className="mr-2 h-4 w-4" /> Add Question
               </Button>
             </div>
           </div>
         )}
-        
+
         <div className="mt-6 flex justify-end">
-          <Button 
+          <Button
             className="bg-simoly-purple hover:bg-simoly-purple-dark"
             onClick={handleSave}
           >
-            <Save className="mr-2 h-4 w-4" /> Salva Questionario
+            <Save className="mr-2 h-4 w-4" /> Save Questionnaire
           </Button>
         </div>
       </div>

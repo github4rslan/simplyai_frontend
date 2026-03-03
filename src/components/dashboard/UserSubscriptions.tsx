@@ -103,13 +103,13 @@ export const UserSubscriptions = () => {
           toast({
             variant: 'default',
             title: 'Info',
-            description: 'Non hai ancora un abbonamento attivo',
+            description: 'You do not have an active subscription yet',
           });
         } else {
           toast({
             variant: 'destructive',
-            title: 'Errore',
-            description: 'Non è stato possibile caricare i dati dell\'abbonamento',
+            title: 'Error',
+            description: 'Could not load subscription data',
           });
         }
       } finally {
@@ -125,27 +125,27 @@ export const UserSubscriptions = () => {
     // In un'implementazione reale, qui reindirizzeremmo a una pagina di gestione abbonamenti
     // o a un portale cliente di servizi come Stripe
     toast({
-      title: 'Funzionalità in arrivo',
-      description: 'La gestione degli abbonamenti sarà disponibile a breve.',
+      title: 'Coming soon',
+      description: 'Subscription management will be available soon.',
     });
   };
   
   const getStatusBadge = (status: string) => {
     switch(status) {
       case 'active':
-        return <Badge className="bg-green-100 text-green-800 hover:bg-green-200">Attivo</Badge>;
+        return <Badge className="bg-green-100 text-green-800 hover:bg-green-200">Active</Badge>;
       case 'expired':
-        return <Badge className="bg-red-100 text-red-800 hover:bg-red-200">Scaduto</Badge>;
+        return <Badge className="bg-red-100 text-red-800 hover:bg-red-200">Expired</Badge>;
       case 'canceled':
-        return <Badge className="bg-gray-100 text-gray-800 hover:bg-gray-200">Cancellato</Badge>;
+        return <Badge className="bg-gray-100 text-gray-800 hover:bg-gray-200">Canceled</Badge>;
       case 'completed':
-        return <Badge className="bg-blue-100 text-blue-800 hover:bg-blue-200">Completato</Badge>;
+        return <Badge className="bg-blue-100 text-blue-800 hover:bg-blue-200">Completed</Badge>;
       case 'pending':
-        return <Badge className="bg-amber-100 text-amber-800 hover:bg-amber-200">In attesa</Badge>;
+        return <Badge className="bg-amber-100 text-amber-800 hover:bg-amber-200">Pending</Badge>;
       case 'available':
-        return <Badge className="bg-green-100 text-green-800 hover:bg-green-200">Disponibile</Badge>;
+        return <Badge className="bg-green-100 text-green-800 hover:bg-green-200">Available</Badge>;
       default:
-        return <Badge className="bg-gray-100 text-gray-800 hover:bg-gray-200">Sconosciuto</Badge>;
+        return <Badge className="bg-gray-100 text-gray-800 hover:bg-gray-200">Unknown</Badge>;
     }
   };
   
@@ -169,17 +169,17 @@ export const UserSubscriptions = () => {
   const getPlanTypeName = (planType: string) => {
     switch(planType) {
       case 'single':
-        return "Questionario singolo";
+        return "Single questionnaire";
       case 'verification':
-        return "Verifica dopo periodo";
+        return "Verification after period";
       case 'periodic':
-        return "Questionari periodici";
+        return "Periodic questionnaires";
       case 'multiple':
-        return "Questionari multipli";
+        return "Multiple questionnaires";
       case 'progress':
-        return "Progressione di apprendimento";
+        return "Learning progression";
       default:
-        return "Piano standard";
+        return "Standard plan";
     }
   };
 
@@ -187,14 +187,14 @@ export const UserSubscriptions = () => {
     if (!subscription.questionnaires || subscription.questionnaires.length === 0) {
       return (
         <div className="text-center p-4 border border-dashed rounded-md">
-          <p className="text-gray-500">Nessun questionario disponibile</p>
+          <p className="text-gray-500">No questionnaires available</p>
         </div>
       );
     }
 
     return (
       <div className="space-y-3">
-        <h3 className="text-sm font-medium mb-3">Questionari del tuo piano:</h3>
+        <h3 className="text-sm font-medium mb-3">Your plan questionnaires:</h3>
         {subscription.questionnaires.map((q) => (
           <div key={q.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border">
             <div className="flex items-center space-x-3 flex-1">
@@ -211,12 +211,12 @@ export const UserSubscriptions = () => {
                   {getStatusBadge(q.status)}
                   {q.status === 'pending' && q.available_at && (
                     <span className="text-gray-500">
-                      Disponibile dal: {new Date(q.available_at).toLocaleDateString('it-IT')}
+                      Available from: {new Date(q.available_at).toLocaleDateString('en-US')}
                     </span>
                   )}
                   {q.sequence && (
                     <span className="text-gray-500">
-                      Sequenza: {q.sequence}
+                      Sequence: {q.sequence}
                     </span>
                   )}
                 </div>
@@ -230,7 +230,7 @@ export const UserSubscriptions = () => {
               onClick={() => window.location.href = `/questionnaire/${q.id}`}
               className="ml-4 flex-shrink-0"
             >
-              {q.status === 'completed' ? 'Visualizza' : q.status === 'available' ? 'Compila' : 'In attesa'}
+              {q.status === 'completed' ? 'View' : q.status === 'available' ? 'Fill in' : 'Pending'}
             </Button>
           </div>
         ))}
@@ -241,9 +241,9 @@ export const UserSubscriptions = () => {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>I miei abbonamenti</CardTitle>
+        <CardTitle>My subscriptions</CardTitle>
         <CardDescription>
-          Gestisci i tuoi abbonamenti e piani attivi
+          Manage your subscriptions and active plans
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -261,7 +261,7 @@ export const UserSubscriptions = () => {
                       <div className="flex items-center mb-3">
                         {getPlanTypeIcon(subscription.plan_type)}
                         <h3 className="font-semibold text-lg">
-                          Piano {subscription.plan_name}
+                          Plan {subscription.plan_name}
                         </h3>
                       </div>
                       <div className="flex flex-wrap items-center gap-2 mb-2">
@@ -270,7 +270,7 @@ export const UserSubscriptions = () => {
                         </span>
                         {subscription.is_free && (
                           <span className="bg-green-100 px-3 py-1 rounded-full text-sm text-green-800">
-                            Gratuito
+                            Free
                           </span>
                         )}
                       </div>
@@ -284,9 +284,9 @@ export const UserSubscriptions = () => {
                     <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-md flex items-center">
                       <AlertTriangle className="h-5 w-5 text-amber-500 mr-2" />
                       <div>
-                        <p className="text-sm font-medium">Prossimo questionario previsto</p>
+                        <p className="text-sm font-medium">Next scheduled questionnaire</p>
                         <p className="text-sm text-gray-600">
-                          {new Date(subscription.next_questionnaire_date).toLocaleDateString('it-IT')}
+                          {new Date(subscription.next_questionnaire_date).toLocaleDateString('en-US')}
                         </p>
                       </div>
                     </div>
@@ -296,27 +296,27 @@ export const UserSubscriptions = () => {
                     <div className="flex items-center space-x-2">
                       <Calendar className="h-4 w-4 text-gray-500 flex-shrink-0" />
                       <div>
-                        <span className="text-sm font-medium">Data inizio:</span>
+                        <span className="text-sm font-medium">Start date:</span>
                         <br />
                         <span className="text-sm text-gray-600">
-                          {new Date(subscription.started_at).toLocaleDateString('it-IT')}
+                          {new Date(subscription.started_at).toLocaleDateString('en-US')}
                         </span>
                       </div>
                     </div>
                     <div className="flex items-center space-x-2">
                       <Calendar className="h-4 w-4 text-gray-500 flex-shrink-0" />
                       <div>
-                        <span className="text-sm font-medium">Data scadenza:</span>
+                        <span className="text-sm font-medium">Expiry date:</span>
                         <br />
                         <span className="text-sm text-gray-600">
-                          {new Date(subscription.expires_at).toLocaleDateString('it-IT')}
+                          {new Date(subscription.expires_at).toLocaleDateString('en-US')}
                         </span>
                       </div>
                     </div>
                   </div>
                   
                   <div className="mb-6">
-                    <h3 className="text-sm font-medium mb-3">Caratteristiche del piano:</h3>
+                    <h3 className="text-sm font-medium mb-3">Plan features:</h3>
                     <ul className="grid grid-cols-1 md:grid-cols-2 gap-3">
                       {(subscription.features || []).map((feature, idx) => (
                         <li key={idx} className="flex items-start space-x-2">
@@ -336,7 +336,7 @@ export const UserSubscriptions = () => {
                       className="w-full flex items-center justify-center space-x-2"
                     >
                       <CreditCard className="h-4 w-4" />
-                      <span>Gestisci abbonamento</span>
+                      <span>Manage subscription</span>
                     </Button>
                   </div>
                 </CardContent>
@@ -346,12 +346,12 @@ export const UserSubscriptions = () => {
         ) : (
           <div className="text-center py-8">
             <CreditCard className="h-12 w-12 mx-auto text-gray-300 mb-2" />
-            <p className="mb-4">Non hai abbonamenti attivi</p>
+            <p className="mb-4">You have no active subscriptions</p>
             <Button 
               onClick={() => window.location.href = '/pricing'}
               className="bg-[var(--color-primary)] hover:bg-[var(--color-primary-700)]"
             >
-              Visualizza i piani disponibili
+              View available plans
             </Button>
           </div>
         )}

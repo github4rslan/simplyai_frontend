@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
@@ -28,7 +28,6 @@ import { Eye, EyeOff, LogIn, Loader2, AlertCircle } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import Navbar from "@/components/Navbar";
 
-// Form schema for validation
 const formSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email address" }),
   password: z.string().min(1, { message: "Password is required" }),
@@ -57,232 +56,215 @@ const Login = () => {
     try {
       setIsLoading(true);
       setOauthError(null);
-
-      // Login with MySQL backend
       await login(values.email, values.password);
 
       toast({
         title: "Logged in",
-        description: "Welcome to the platform",
+        description: "Welcome back.",
       });
-
-      // Reindirizza alla dashboard
       navigate("/dashboard");
-    } catch (error: any) {
-      console.error("Errore durante il login:", error);
+    } catch (error: unknown) {
+      const maybeError = error as {
+        response?: { data?: { provider?: string; message?: string } };
+      };
 
-      // Check if error indicates OAuth account
-      if (error.response?.data?.provider) {
-        const provider = error.response.data.provider;
+      if (maybeError.response?.data?.provider) {
         setOauthError({
-          message: error.response.data.message,
-          provider: provider,
+          message:
+            maybeError.response?.data?.message ||
+            "This account uses social login.",
+          provider: maybeError.response.data.provider,
         });
       } else {
         toast({
           variant: "destructive",
-          title: "Login error",
+          title: "Login failed",
           description:
-            error.response?.data?.message || "Invalid credentials. Please try again.",
+            maybeError.response?.data?.message ||
+            "Invalid credentials. Please try again.",
         });
       }
     } finally {
       setIsLoading(false);
     }
   };
-  // Your existing code is fine!
+
   const handleGoogleLogin = () => {
     window.location.href = `${API_BASE_URL}/auth/google`;
-    // New users will now be auto-registered and redirected to dashboard
-    // Existing users will just log in normally
   };
+
   const handleFacebookLogin = () => {
     window.location.href = `${API_BASE_URL}/auth/facebook`;
   };
 
   useEffect(() => {
-    const savedToken = localStorage.getItem("auth_token");
-    if (savedToken) {
-      toast({
-        title: "Already logged in",
-        description: "Redirecting to dashboard...",
-      });
+    const token = localStorage.getItem("auth_token");
+    if (token) {
       navigate("/dashboard");
     }
-  }, []);
+  }, [navigate]);
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-cyan-50">
       <Navbar />
-
-      <div className="flex-grow flex items-center justify-center p-4 bg-gradient-to-b from-white to-[var(--color-primary-100)]">
-        <Card className="w-full max-w-md">
-          <CardHeader>
-            <CardTitle className="text-2xl">Sign in to your account</CardTitle>
-            <CardDescription>
-              Enter your credentials to log in
-            </CardDescription>
-          </CardHeader>
-
-          <CardContent className="space-y-4">
-            {/* OAuth Error Alert */}
-            {oauthError && (
-              <Alert variant="destructive">
-                <AlertCircle className="h-4 w-4" />
-                <AlertDescription>{oauthError.message}</AlertDescription>
-              </Alert>
-            )}
-
-            {/* Social Login Buttons */}
-            <div className="space-y-2">
-              <Button
-                variant="outline"
-                className="w-full"
-                onClick={handleGoogleLogin}
-                type="button"
-              >
-                <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
-                  <path
-                    fill="currentColor"
-                    d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-                  />
-                  <path
-                    fill="currentColor"
-                    d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-                  />
-                  <path
-                    fill="currentColor"
-                    d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
-                  />
-                  <path
-                    fill="currentColor"
-                    d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-                  />
-                </svg>
-                Continue with Google
-              </Button>
-
-              <Button
-                variant="outline"
-                className="w-full"
-                onClick={handleFacebookLogin}
-                type="button"
-              >
-                <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
-                  <path
-                    fill="currentColor"
-                    d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"
-                  />
-                </svg>
-                Continue with Facebook
-              </Button>
+      <main className="min-h-[calc(100vh-64px)] pt-24 px-4 pb-10">
+        <div className="mx-auto max-w-5xl grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
+          <section className="hidden lg:flex rounded-2xl border border-slate-200 bg-slate-900 text-white p-8 flex-col justify-between">
+            <div>
+              <h1 className="text-3xl font-semibold tracking-tight">
+                Welcome Back
+              </h1>
+              <p className="mt-3 text-slate-200 leading-relaxed">
+                Access questionnaires, reports, and subscription insights from one
+                dashboard.
+              </p>
             </div>
-
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t" />
-              </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-white px-2 text-muted-foreground">
-                  Or
-                </span>
-              </div>
+            <div className="space-y-2 text-sm text-slate-300">
+              <p>• Faster form workflows</p>
+              <p>• AI-powered report generation</p>
+              <p>• Secure access across devices</p>
             </div>
+          </section>
 
-            <Form {...form}>
-              <form
-                onSubmit={form.handleSubmit(handleSubmit)}
-                className="space-y-4"
-              >
-                <FormField
-                  control={form.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Email</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="email"
-                          placeholder="name@example.com"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+          <Card className="w-full border-slate-200 shadow-sm">
+            <CardHeader>
+              <CardTitle className="text-2xl text-slate-900">
+                Sign in to your account
+              </CardTitle>
+              <CardDescription>Use your email or social login.</CardDescription>
+            </CardHeader>
 
-                <FormField
-                  control={form.control}
-                  name="password"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Password</FormLabel>
-                      <FormControl>
-                        <div className="relative">
-                          <Input
-                            type={showPassword ? "text" : "password"}
-                            placeholder="••••••••"
-                            {...field}
-                          />
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="sm"
-                            className="absolute top-0 right-0 h-full px-3"
-                            onClick={() => setShowPassword(!showPassword)}
-                          >
-                            {showPassword ? (
-                              <EyeOff className="h-4 w-4" />
-                            ) : (
-                              <Eye className="h-4 w-4" />
-                            )}
-                          </Button>
-                        </div>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+            <CardContent className="space-y-4">
+              {oauthError && (
+                <Alert variant="destructive">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertDescription>{oauthError.message}</AlertDescription>
+                </Alert>
+              )}
 
-                <div className="text-right">
-                  <Link
-                    to="/forgot-password"
-                    className="text-sm text-[var(--color-primary)] hover:text-[var(--color-primary-700)]"
-                  >
-                    Forgot password?
-                  </Link>
-                </div>
+              <div className="space-y-2">
+                <Button
+                  variant="outline"
+                  className="w-full h-11"
+                  onClick={handleGoogleLogin}
+                  type="button"
+                >
+                  Continue with Google
+                </Button>
 
                 <Button
-                  type="submit"
-                  className="w-full bg-[var(--color-primary)] hover:bg-[var(--color-primary-700)]"
-                  disabled={isLoading}
+                  variant="outline"
+                  className="w-full h-11"
+                  onClick={handleFacebookLogin}
+                  type="button"
                 >
-                  {isLoading ? (
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  ) : (
-                    <LogIn className="mr-2 h-4 w-4" />
-                  )}
-                  {isLoading ? "Logging in..." : "Log In"}
+                  Continue with Facebook
                 </Button>
-              </form>
-            </Form>
-          </CardContent>
+              </div>
 
-          <CardFooter className="flex justify-center">
-            <p className="text-sm text-gray-500">
-              Don't have an account?{" "}
-              <Link
-                to="/register"
-                className="text-[var(--color-primary)] hover:text-[var(--color-primary-700)]"
-              >
-                Register
-              </Link>
-            </p>
-          </CardFooter>
-        </Card>
-      </div>
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <span className="w-full border-t border-slate-200" />
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                  <span className="bg-white px-2 text-slate-500">Or</span>
+                </div>
+              </div>
+
+              <Form {...form}>
+                <form
+                  onSubmit={form.handleSubmit(handleSubmit)}
+                  className="space-y-4"
+                >
+                  <FormField
+                    control={form.control}
+                    name="email"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Email</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="email"
+                            placeholder="name@example.com"
+                            className="h-11 rounded-lg border-slate-300 focus-visible:ring-cyan-600"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="password"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Password</FormLabel>
+                        <FormControl>
+                          <div className="relative">
+                            <Input
+                              type={showPassword ? "text" : "password"}
+                              placeholder="Enter your password"
+                              className="h-11 rounded-lg border-slate-300 pr-10 focus-visible:ring-cyan-600"
+                              {...field}
+                            />
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              className="absolute top-1/2 right-1 -translate-y-1/2 h-8 w-8 px-0"
+                              onClick={() => setShowPassword((prev) => !prev)}
+                            >
+                              {showPassword ? (
+                                <EyeOff className="h-4 w-4" />
+                              ) : (
+                                <Eye className="h-4 w-4" />
+                              )}
+                            </Button>
+                          </div>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <div className="text-right">
+                    <Link
+                      to="/forgot-password"
+                      className="text-sm text-cyan-700 hover:text-cyan-800"
+                    >
+                      Forgot password?
+                    </Link>
+                  </div>
+
+                  <Button
+                    type="submit"
+                    className="w-full h-11 rounded-lg bg-cyan-700 hover:bg-cyan-800 text-white"
+                    disabled={isLoading}
+                  >
+                    {isLoading ? (
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    ) : (
+                      <LogIn className="mr-2 h-4 w-4" />
+                    )}
+                    {isLoading ? "Logging in..." : "Log In"}
+                  </Button>
+                </form>
+              </Form>
+            </CardContent>
+
+            <CardFooter className="flex justify-center">
+              <p className="text-sm text-slate-600">
+                Don&apos;t have an account?{" "}
+                <Link to="/register" className="text-cyan-700 hover:text-cyan-800">
+                  Register
+                </Link>
+              </p>
+            </CardFooter>
+          </Card>
+        </div>
+      </main>
     </div>
   );
 };

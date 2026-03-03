@@ -14,8 +14,8 @@ interface ImageUploaderProps {
 
 const ImageUploader = ({
   onImageUpload,
-  label = "Carica immagine",
-  buttonText = "Carica immagine dal computer",
+  label = "Upload image",
+  buttonText = "Upload image from computer",
   accept = "image/*",
 }: ImageUploaderProps) => {
   const { toast } = useToast();
@@ -37,16 +37,16 @@ const ImageUploader = ({
       if (res && res.url) {
         onImageUpload(res.url); // e.g. "/uploads/1694093131234.jpg"
         toast({
-          title: "Immagine caricata",
-          description: "L'immagine è stata caricata con successo",
+          title: "Image uploaded",
+          description: "The image was uploaded successfully",
         });
       }
     } catch (error) {
       console.error("Error uploading image:", error);
       toast({
-        title: "Errore",
+        title: "Error",
         description:
-          "Si è verificato un errore durante il caricamento dell'immagine",
+          "An error occurred while uploading the image",
         variant: "destructive",
       });
     } finally {
@@ -69,7 +69,7 @@ const ImageUploader = ({
         }
       >
         {uploading ? (
-          "Caricamento..."
+          "Loading..."
         ) : (
           <>
             <Upload className="h-4 w-4 mr-2" />

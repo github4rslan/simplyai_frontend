@@ -28,9 +28,9 @@ const PromptEditor = () => {
     plan_id: planId || '',
     questionnaire_id: '',
     sequence_index: 0,
-    title: 'Nuovo Prompt',
+    title: 'New Prompt',
     content: '',
-    system_prompt: 'Sei un assistente esperto che analizza i dati dei questionari.',
+    system_prompt: 'You are an expert assistant that analyzes questionnaire data.',
     variables: [],
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
@@ -68,10 +68,10 @@ const PromptEditor = () => {
             });
           }
         } catch (error) {
-          console.error('Errore caricamento prompt:', error);
+          console.error('Error loading prompt:', error);
           toast({
-            title: 'Errore',
-            description: 'Impossibile caricare il template di prompt',
+            title: 'Error',
+            description: 'Could not load the prompt template',
             variant: 'destructive'
           });
         }
@@ -85,8 +85,8 @@ const PromptEditor = () => {
   const handleSave = async () => {
     if (!template.questionnaire_id) {
       toast({
-        title: 'Errore',
-        description: 'Seleziona un questionario',
+        title: 'Error',
+        description: 'Select a questionnaire',
         variant: 'destructive'
       });
       return;
@@ -102,8 +102,8 @@ const PromptEditor = () => {
 
       if (savedTemplate) {
         toast({
-          title: 'Salvato!',
-          description: 'Il template del prompt è stato salvato con successo'
+          title: 'Saved!',
+          description: 'The prompt template has been saved successfully'
         });
 
         if (promptId === 'new') {
@@ -111,10 +111,10 @@ const PromptEditor = () => {
         }
       }
     } catch (error) {
-      console.error('Errore salvataggio prompt:', error);
+      console.error('Error saving prompt:', error);
       toast({
-        title: 'Errore',
-        description: 'Impossibile salvare il template di prompt',
+        title: 'Error',
+        description: 'Could not save the prompt template',
         variant: 'destructive'
       });
     } finally {
@@ -295,8 +295,8 @@ const PromptEditor = () => {
   const copyShortcode = (shortcode: string) => {
     navigator.clipboard.writeText(`[${shortcode}]`);
     toast({
-      title: 'Shortcode copiato!',
-      description: `Lo shortcode [${shortcode}] è stato copiato negli appunti`
+      title: 'Shortcode copied!',
+      description: `The shortcode [${shortcode}] has been copied to the clipboard`
     });
   };
 
@@ -332,72 +332,72 @@ const PromptEditor = () => {
   };
 
   if (loading) {
-    return <div className="flex items-center justify-center p-12">Caricamento...</div>;
+    return <div className="flex items-center justify-center p-12">Loading...</div>;
   }
 
   return (
     <div className="container mx-auto py-6">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">
-          {promptId === 'new' ? 'Nuovo Template Prompt' : 'Modifica Template Prompt'}
+          {promptId === 'new' ? 'New Prompt Template' : 'Edit Prompt Template'}
         </h1>
         <div className="flex gap-2">
           <Button variant="outline" onClick={() => navigate(`/admin/plans/${planId}/prompts`)}>
-            Annulla
+            Cancel
           </Button>
           <Button onClick={handleSave} disabled={saving}>
-            {saving ? 'Salvataggio...' : 'Salva Template'}
+            {saving ? 'Saving...' : 'Save Template'}
           </Button>
         </div>
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="mb-6">
-          <TabsTrigger value="general">Configurazione Prompt Generale</TabsTrigger>
-          <TabsTrigger value="sections">Sezioni Report e Prompt</TabsTrigger>
+          <TabsTrigger value="general">General Prompt Configuration</TabsTrigger>
+          <TabsTrigger value="sections">Report Sections and Prompts</TabsTrigger>
         </TabsList>
 
         <TabsContent value="general">
           <Card>
             <CardHeader>
-              <CardTitle>Configura il Prompt Generale per il questionario</CardTitle>
+              <CardTitle>Configure the General Prompt for the questionnaire</CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
               <div>
-                <Label htmlFor="title">Titolo del Template</Label>
-                <Input 
-                  id="title" 
-                  value={template.title || ''} 
-                  onChange={(e) => setTemplate({ ...template, title: e.target.value })} 
-                  placeholder="Nuovo Prompt" 
+                <Label htmlFor="title">Template Title</Label>
+                <Input
+                  id="title"
+                  value={template.title || ''}
+                  onChange={(e) => setTemplate({ ...template, title: e.target.value })}
+                  placeholder="New Prompt"
                 />
               </div>
 
               <div>
                 <Label htmlFor="system-prompt">System Prompt</Label>
-                <Textarea 
-                  id="system-prompt" 
-                  value={template.system_prompt || ''} 
+                <Textarea
+                  id="system-prompt"
+                  value={template.system_prompt || ''}
                   onChange={(e) => setTemplate({ ...template, system_prompt: e.target.value })}
-                  placeholder="Sei un assistente esperto che analizza i dati dei questionari." 
+                  placeholder="You are an expert assistant that analyzes questionnaire data."
                   rows={4}
                 />
                 <p className="text-sm text-muted-foreground mt-2">
-                  Il system prompt definisce il comportamento generale dell'assistente AI
+                  The system prompt defines the general behavior of the AI assistant
                 </p>
               </div>
 
               <div>
-                <Label htmlFor="content">Prompt Principale</Label>
-                <Textarea 
-                  id="content" 
-                  value={template.content || ''} 
+                <Label htmlFor="content">Main Prompt</Label>
+                <Textarea
+                  id="content"
+                  value={template.content || ''}
                   onChange={(e) => setTemplate({ ...template, content: e.target.value })}
-                  placeholder="Inserisci qui il contenuto del prompt generale con le variabili tra parentesi graffe, es: {nome_variabile}..." 
+                  placeholder="Enter the general prompt content here with variables in curly braces, e.g.: {variable_name}..."
                   rows={8}
                 />
                 <p className="text-sm text-muted-foreground mt-2">
-                  Questo è il prompt generale per tutto il report. I prompt specifici per ogni sezione possono essere definiti nella scheda "Sezioni Report e Prompt". Usa {'{questionnaire_data}'} per includere automaticamente i dati del questionario.
+                  This is the general prompt for the entire report. Specific prompts for each section can be defined in the "Report Sections and Prompts" tab. Use {'{questionnaire_data}'} to automatically include questionnaire data.
                 </p>
               </div>
 
@@ -410,26 +410,26 @@ const PromptEditor = () => {
                     <Input
                       value={newVariable.name}
                       onChange={(e) => setNewVariable({ ...newVariable, name: e.target.value })}
-                      placeholder="Nome variabile"
+                      placeholder="Variable name"
                     />
                   </div>
                   <div className="col-span-5">
                     <Input
                       value={newVariable.description}
                       onChange={(e) => setNewVariable({ ...newVariable, description: e.target.value })}
-                      placeholder="Descrizione (opzionale)"
+                      placeholder="Description (optional)"
                     />
                   </div>
                   <div className="col-span-2">
                     <Button onClick={addVariable} type="button" className="w-full" variant="secondary">
-                      Aggiungi
+                      Add
                     </Button>
                   </div>
                 </div>
 
                 <div className="border rounded-md divide-y">
                   {!template.variables?.length ? (
-                    <p className="p-4 text-center text-muted-foreground">Nessuna variabile definita</p>
+                    <p className="p-4 text-center text-muted-foreground">No variables defined</p>
                   ) : (
                     template.variables.map((variable, index) => (
                       <div key={index} className="grid grid-cols-12 gap-4 p-3 items-center">
@@ -455,23 +455,23 @@ const PromptEditor = () => {
 
         <TabsContent value="sections">
           <div className="space-y-8">
-            {/* Sezioni di Testo */}
+            {/* Text Sections */}
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center">
                   <Text className="h-5 w-5 mr-2" />
-                  Sezioni di Testo
+                  Text Sections
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-12 gap-4 mb-4">
                   <div className="col-span-4">
-                    <Label htmlFor="text-title">Titolo Sezione</Label>
+                    <Label htmlFor="text-title">Section Title</Label>
                     <Input
                       id="text-title"
                       value={newTextSection.title}
                       onChange={(e) => setNewTextSection({ ...newTextSection, title: e.target.value })}
-                      placeholder="Analisi Generale"
+                      placeholder="General Analysis"
                     />
                   </div>
                   <div className="col-span-3">
@@ -480,20 +480,20 @@ const PromptEditor = () => {
                       id="text-shortcode"
                       value={newTextSection.shortcode}
                       onChange={(e) => setNewTextSection({ ...newTextSection, shortcode: e.target.value })}
-                      placeholder="Generato automaticamente"
+                      placeholder="Auto-generated"
                     />
                   </div>
                   <div className="col-span-5">
-                    <Label htmlFor="text-prompt">Prompt Specifico (opzionale)</Label>
+                    <Label htmlFor="text-prompt">Specific Prompt (optional)</Label>
                     <div className="flex gap-2">
                       <Input
                         id="text-prompt"
                         value={newTextSection.prompt}
                         onChange={(e) => setNewTextSection({ ...newTextSection, prompt: e.target.value })}
-                        placeholder="Prompt specifico per questa sezione"
+                        placeholder="Specific prompt for this section"
                       />
                       <Button type="button" onClick={addTextSection}>
-                        Aggiungi
+                        Add
                       </Button>
                     </div>
                   </div>
@@ -509,7 +509,7 @@ const PromptEditor = () => {
                           className="border rounded-md divide-y"
                         >
                           {!template.sections?.text?.length ? (
-                            <p className="p-4 text-center text-muted-foreground">Nessuna sezione di testo definita</p>
+                            <p className="p-4 text-center text-muted-foreground">No text sections defined</p>
                           ) : (
                             template.sections.text.map((section, index) => (
                               <Draggable key={section.id} draggableId={section.id} index={index}>
@@ -525,7 +525,7 @@ const PromptEditor = () => {
                                       <code className="px-2 py-1 rounded bg-muted text-xs">[{section.shortcode}]</code>
                                     </div>
                                     <div className="col-span-3 truncate text-muted-foreground">
-                                      {section.prompt ? section.prompt.substring(0, 30) + '...' : 'Nessun prompt specifico'}
+                                      {section.prompt ? section.prompt.substring(0, 30) + '...' : 'No specific prompt'}
                                     </div>
                                     <div className="col-span-2 flex justify-end gap-1">
                                       <Button
@@ -535,8 +535,8 @@ const PromptEditor = () => {
                                       >
                                         <Copy className="h-4 w-4" />
                                       </Button>
-                                      <Button 
-                                        onClick={() => removeTextSection(index)} 
+                                      <Button
+                                        onClick={() => removeTextSection(index)}
                                         size="icon"
                                         variant="ghost"
                                       >
@@ -557,36 +557,36 @@ const PromptEditor = () => {
               </CardContent>
             </Card>
 
-            {/* Grafici */}
+            {/* Charts */}
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center">
                   <BarChart3 className="h-5 w-5 mr-2" />
-                  Grafici
+                  Charts
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-12 gap-4 mb-4">
                   <div className="col-span-3">
-                    <Label htmlFor="chart-title">Titolo Grafico</Label>
+                    <Label htmlFor="chart-title">Chart Title</Label>
                     <Input
                       id="chart-title"
                       value={newChartSection.title}
                       onChange={(e) => setNewChartSection({ ...newChartSection, title: e.target.value })}
-                      placeholder="Panoramica Risultati"
+                      placeholder="Results Overview"
                     />
                   </div>
                   <div className="col-span-2">
-                    <Label htmlFor="chart-type">Tipo di Grafico</Label>
+                    <Label htmlFor="chart-type">Chart Type</Label>
                     <select
                       id="chart-type"
                       className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                       value={newChartSection.chartType}
                       onChange={(e) => setNewChartSection({ ...newChartSection, chartType: e.target.value })}
                     >
-                      <option value="bar">Barre</option>
-                      <option value="line">Linea</option>
-                      <option value="pie">Torta</option>
+                      <option value="bar">Bar</option>
+                      <option value="line">Line</option>
+                      <option value="pie">Pie</option>
                       <option value="radar">Radar</option>
                     </select>
                   </div>
@@ -596,20 +596,20 @@ const PromptEditor = () => {
                       id="chart-shortcode"
                       value={newChartSection.shortcode}
                       onChange={(e) => setNewChartSection({ ...newChartSection, shortcode: e.target.value })}
-                      placeholder="Generato automaticamente"
+                      placeholder="Auto-generated"
                     />
                   </div>
                   <div className="col-span-5">
-                    <Label htmlFor="chart-prompt">Prompt Specifico (opzionale)</Label>
+                    <Label htmlFor="chart-prompt">Specific Prompt (optional)</Label>
                     <div className="flex gap-2">
                       <Input
                         id="chart-prompt"
                         value={newChartSection.prompt}
                         onChange={(e) => setNewChartSection({ ...newChartSection, prompt: e.target.value })}
-                        placeholder="Prompt specifico per questo grafico"
+                        placeholder="Specific prompt for this chart"
                       />
                       <Button type="button" onClick={addChartSection}>
-                        Aggiungi
+                        Add
                       </Button>
                     </div>
                   </div>
@@ -625,7 +625,7 @@ const PromptEditor = () => {
                           className="border rounded-md divide-y"
                         >
                           {!template.sections?.charts?.length ? (
-                            <p className="p-4 text-center text-muted-foreground">Nessun grafico definito</p>
+                            <p className="p-4 text-center text-muted-foreground">No charts defined</p>
                           ) : (
                             template.sections.charts.map((section, index) => (
                               <Draggable key={section.id} draggableId={section.id} index={index}>
@@ -646,7 +646,7 @@ const PromptEditor = () => {
                                       <code className="px-2 py-1 rounded bg-muted text-xs">[{section.shortcode}]</code>
                                     </div>
                                     <div className="col-span-3 truncate text-muted-foreground">
-                                      {section.prompt ? section.prompt.substring(0, 30) + '...' : 'Nessun prompt specifico'}
+                                      {section.prompt ? section.prompt.substring(0, 30) + '...' : 'No specific prompt'}
                                     </div>
                                     <div className="col-span-2 flex justify-end gap-1">
                                       <Button
@@ -656,7 +656,7 @@ const PromptEditor = () => {
                                       >
                                         <Copy className="h-4 w-4" />
                                       </Button>
-                                      <Button 
+                                      <Button
                                         onClick={() => removeChartSection(index)} 
                                         size="icon"
                                         variant="ghost"
@@ -678,36 +678,36 @@ const PromptEditor = () => {
               </CardContent>
             </Card>
 
-            {/* Tabelle */}
+            {/* Tables */}
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center">
                   <Table className="h-5 w-5 mr-2" />
-                  Tabelle
+                  Tables
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-12 gap-4 mb-4">
                   <div className="col-span-3">
-                    <Label htmlFor="table-title">Titolo Tabella</Label>
+                    <Label htmlFor="table-title">Table Title</Label>
                     <Input
                       id="table-title"
                       value={newTableSection.title}
                       onChange={(e) => setNewTableSection({ ...newTableSection, title: e.target.value })}
-                      placeholder="Riepilogo Dati"
+                      placeholder="Data Summary"
                     />
                   </div>
                   <div className="col-span-2">
-                    <Label htmlFor="table-type">Tipo di Tabella</Label>
+                    <Label htmlFor="table-type">Table Type</Label>
                     <select
                       id="table-type"
                       className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                       value={newTableSection.tableType}
                       onChange={(e) => setNewTableSection({ ...newTableSection, tableType: e.target.value })}
                     >
-                      <option value="simple">Semplice</option>
-                      <option value="comparison">Confronto</option>
-                      <option value="details">Dettaglio</option>
+                      <option value="simple">Simple</option>
+                      <option value="comparison">Comparison</option>
+                      <option value="details">Details</option>
                     </select>
                   </div>
                   <div className="col-span-2">
@@ -716,20 +716,20 @@ const PromptEditor = () => {
                       id="table-shortcode"
                       value={newTableSection.shortcode}
                       onChange={(e) => setNewTableSection({ ...newTableSection, shortcode: e.target.value })}
-                      placeholder="Generato automaticamente"
+                      placeholder="Auto-generated"
                     />
                   </div>
                   <div className="col-span-5">
-                    <Label htmlFor="table-prompt">Prompt Specifico (opzionale)</Label>
+                    <Label htmlFor="table-prompt">Specific Prompt (optional)</Label>
                     <div className="flex gap-2">
                       <Input
                         id="table-prompt"
                         value={newTableSection.prompt}
                         onChange={(e) => setNewTableSection({ ...newTableSection, prompt: e.target.value })}
-                        placeholder="Prompt specifico per questa tabella"
+                        placeholder="Specific prompt for this table"
                       />
                       <Button type="button" onClick={addTableSection}>
-                        Aggiungi
+                        Add
                       </Button>
                     </div>
                   </div>
@@ -745,7 +745,7 @@ const PromptEditor = () => {
                           className="border rounded-md divide-y"
                         >
                           {!template.sections?.tables?.length ? (
-                            <p className="p-4 text-center text-muted-foreground">Nessuna tabella definita</p>
+                            <p className="p-4 text-center text-muted-foreground">No tables defined</p>
                           ) : (
                             template.sections.tables.map((section, index) => (
                               <Draggable key={section.id} draggableId={section.id} index={index}>
@@ -766,7 +766,7 @@ const PromptEditor = () => {
                                       <code className="px-2 py-1 rounded bg-muted text-xs">[{section.shortcode}]</code>
                                     </div>
                                     <div className="col-span-3 truncate text-muted-foreground">
-                                      {section.prompt ? section.prompt.substring(0, 30) + '...' : 'Nessun prompt specifico'}
+                                      {section.prompt ? section.prompt.substring(0, 30) + '...' : 'No specific prompt'}
                                     </div>
                                     <div className="col-span-2 flex justify-end gap-1">
                                       <Button
@@ -776,7 +776,7 @@ const PromptEditor = () => {
                                       >
                                         <Copy className="h-4 w-4" />
                                       </Button>
-                                      <Button 
+                                      <Button
                                         onClick={() => removeTableSection(index)} 
                                         size="icon"
                                         variant="ghost"
@@ -798,24 +798,24 @@ const PromptEditor = () => {
               </CardContent>
             </Card>
 
-            {/* Template del Report */}
+            {/* Report Template */}
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center">
                   <FileEdit className="h-5 w-5 mr-2" />
-                  Template del Report
+                  Report Template
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-sm mb-4">
-                  Puoi creare un template personalizzato per il report utilizzando gli shortcode definiti sopra.
-                  Gli shortcode devono essere racchiusi tra parentesi quadre, ad esempio: [text_intro_123]
+                  You can create a custom template for the report using the shortcodes defined above.
+                  Shortcodes must be enclosed in square brackets, for example: [text_intro_123]
                 </p>
                 <Textarea
                   id="report-template"
                   value={template.reportTemplate || ''}
                   onChange={(e) => setTemplate({ ...template, reportTemplate: e.target.value })}
-                  placeholder="# Titolo Report\n\n## Introduzione\n[text_intro]\n\n## Analisi Dati\n[chart_overview]\n\n### Dettagli\n[table_summary]"
+                  placeholder="# Report Title\n\n## Introduction\n[text_intro]\n\n## Data Analysis\n[chart_overview]\n\n### Details\n[table_summary]"
                   rows={10}
                   className="font-mono"
                 />
@@ -825,13 +825,13 @@ const PromptEditor = () => {
                       const newReportTemplate = generateReportTemplate();
                       setTemplate({ ...template, reportTemplate: newReportTemplate });
                       toast({
-                        title: 'Template generato',
-                        description: 'Un template base è stato generato utilizzando tutte le sezioni definite'
+                        title: 'Template generated',
+                        description: 'A base template has been generated using all defined sections'
                       });
                     }}
                     variant="outline"
                   >
-                    Genera Template Base
+                    Generate Base Template
                   </Button>
                 </div>
               </CardContent>

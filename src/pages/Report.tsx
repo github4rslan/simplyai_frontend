@@ -395,8 +395,8 @@ const Report = () => {
       const reportElement = document.getElementById("report-content");
       if (!reportElement) {
         toast({
-          title: "Errore",
-          description: "Contenuto del report non trovato",
+          title: "Error",
+          description: "Report content not found",
           variant: "destructive",
         });
         return;
@@ -457,15 +457,15 @@ const Report = () => {
       pdf.save(fileName);
 
       toast({
-        title: "PDF Generato",
-        description: "Il report è stato salvato come PDF",
+        title: "PDF Generated",
+        description: "The report has been saved as PDF",
         variant: "default",
       });
     } catch (error) {
       console.error("Error generating PDF:", error);
       toast({
-        title: "Errore",
-        description: "Errore durante la generazione del PDF",
+        title: "Error",
+        description: "Error generating PDF",
         variant: "destructive",
       });
     } finally {
@@ -485,7 +485,7 @@ const Report = () => {
       );
       console.log("Response statusiii:", response);
       if (!response.ok) {
-        throw new Error("Errore nel recupero del template del report");
+        throw new Error("Error fetching report template");
       }
 
       const data = await response.json();
@@ -805,7 +805,7 @@ const Report = () => {
           `${API_BASE_URL}/reports/${id}/ai-response`
         );
         if (!response.ok) {
-          throw new Error("Errore nel recupero della risposta AI");
+          throw new Error("Error fetching AI response");
         }
 
         const data = await response.json();
@@ -827,10 +827,10 @@ const Report = () => {
       } catch (error) {
         console.error("Error loading report or AI response:", error);
         toast({
-          title: "Errore",
+          title: "Error",
           description:
             error.message ||
-            "Si è verificato un errore nel caricamento del report",
+            "An error occurred while loading the report",
           variant: "destructive",
         });
       } finally {
@@ -846,7 +846,7 @@ const Report = () => {
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-simoly-purple mx-auto"></div>
-          <p className="mt-4">Caricamento report in corso...</p>
+          <p className="mt-4">Loading report...</p>
         </div>
       </div>
     );
@@ -908,7 +908,7 @@ const Report = () => {
                     )
                   }
                 >
-                  Visualizza PDF
+                  View PDF
                 </Button>
 
                 <a

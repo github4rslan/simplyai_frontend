@@ -38,7 +38,7 @@ const AdminLayout = ({ children }) => {
       active: location.pathname === "/admin",
     },
     {
-      name: "Editor Pagine",
+      name: "Page Editor",
       href: "/admin/page-editor",
       icon: FileText,
       active: location.pathname.startsWith("/admin/page-editor"),
@@ -50,7 +50,7 @@ const AdminLayout = ({ children }) => {
       active: location.pathname.startsWith("/admin/form-builder"),
     },
     {
-      name: "Gestione Piani",
+      name: "Plan Management",
       href: "/admin/plans",
       icon: CreditCard,
       active: location.pathname.startsWith("/admin/plans"),
@@ -64,7 +64,7 @@ const AdminLayout = ({ children }) => {
         location.pathname.startsWith("/admin/reports/"),
     },
     {
-      name: "Utenti",
+      name: "Users",
       href: "/admin/users",
       icon: Users,
       active: location.pathname.startsWith("/admin/users"),
@@ -76,7 +76,7 @@ const AdminLayout = ({ children }) => {
       active: location.pathname.startsWith("/admin/chatgpt"),
     },
     {
-      name: "Impostazioni",
+      name: "Settings",
       href: "/admin/settings",
       icon: Settings,
       active: location.pathname.startsWith("/admin/settings"),

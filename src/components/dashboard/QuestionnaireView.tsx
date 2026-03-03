@@ -122,8 +122,8 @@ const QuestionnaireView = () => {
         console.error('Errore nel caricamento del questionario:', error);
         toast({
           variant: 'destructive',
-          title: 'Errore',
-          description: 'Non è stato possibile caricare il questionario',
+          title: 'Error',
+          description: 'Could not load the questionnaire',
         });
       } finally {
         setIsLoading(false);
@@ -159,8 +159,8 @@ const QuestionnaireView = () => {
         console.error('Error fetching user subscription:', userError);
         toast({
           variant: 'destructive',
-          title: 'Errore',
-          description: 'Non è stato possibile caricare le informazioni del piano',
+          title: 'Error',
+          description: 'Could not load plan information',
         });
         return;
       }
@@ -217,16 +217,16 @@ const QuestionnaireView = () => {
         console.error('No subscription plan found for user');
         toast({
           variant: 'destructive',
-          title: 'Errore',
-          description: 'Nessun piano di sottoscrizione trovato',
+          title: 'Error',
+          description: 'No subscription plan found',
         });
       }
     } catch (error) {
       console.error('Error loading user plan:', error);
       toast({
         variant: 'destructive',
-        title: 'Errore',
-        description: 'Errore nel caricamento del piano utente',
+        title: 'Error',
+        description: 'Error loading user plan',
       });
     }
   };
@@ -317,12 +317,12 @@ const QuestionnaireView = () => {
     if (plan.multipleQuestionnaires) {
       // Type 3: Multiple questionnaires - always available
       isAvailable = true;
-      accessReason = 'Accesso illimitato con il tuo piano';
+      accessReason = 'Unlimited access with your plan';
     } else if (plan.verificationAfter) {
       // Type 1: verificationAfter - can access once, then after verification period (total 2 times)
       if (completionCount === 0) {
         isAvailable = true;
-        accessReason = 'Prima compilazione disponibile';
+        accessReason = 'First submission available';
       } else if (completionCount === 1) {
         if (lastCompletedDate) {
           const nextAvailable = new Date(lastCompletedDate);
@@ -330,41 +330,41 @@ const QuestionnaireView = () => {
           
           if (now >= nextAvailable) {
             isAvailable = true;
-            accessReason = 'Seconda compilazione disponibile';
+            accessReason = 'Second submission available';
           } else {
             isAvailable = false;
-            nextAvailableDate = nextAvailable.toLocaleDateString('it-IT');
+            nextAvailableDate = nextAvailable.toLocaleDateString('en-US');
             waitingPeriodDays = Math.ceil((nextAvailable.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
-            accessReason = `Disponibile dopo il periodo di verifica (${waitingPeriodDays} giorni)`;
+            accessReason = `Available after the verification period (${waitingPeriodDays} days)`;
           }
         }
       } else {
         isAvailable = false;
-        accessReason = 'Limite di 2 compilazioni raggiunto';
+        accessReason = 'Limit of 2 submissions reached';
       }
     } else if (plan.periodicQuestionnaires) {
       // Type 2: Periodic - limited repetitions with waiting period
       if (completionCount < plan.maxRepetitions) {
         if (completionCount === 0) {
           isAvailable = true;
-          accessReason = 'Prima compilazione disponibile';
+          accessReason = 'First submission available';
         } else if (lastCompletedDate) {
           const nextAvailable = new Date(lastCompletedDate);
           nextAvailable.setDate(nextAvailable.getDate() + plan.verificationPeriod);
           
           if (now >= nextAvailable) {
             isAvailable = true;
-            accessReason = `Compilazione ${completionCount + 1} di ${plan.maxRepetitions} disponibile`;
+            accessReason = `Submission ${completionCount + 1} of ${plan.maxRepetitions} available`;
           } else {
             isAvailable = false;
-            nextAvailableDate = nextAvailable.toLocaleDateString('it-IT');
+            nextAvailableDate = nextAvailable.toLocaleDateString('en-US');
             waitingPeriodDays = Math.ceil((nextAvailable.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
-            accessReason = `Prossima compilazione tra ${waitingPeriodDays} giorni`;
+            accessReason = `Next submission in ${waitingPeriodDays} days`;
           }
         }
       } else {
         isAvailable = false;
-        accessReason = `Limite di ${plan.maxRepetitions} compilazioni raggiunto`;
+        accessReason = `Limit of ${plan.maxRepetitions} submissions reached`;
       }
     } else if (plan.progressQuestionnaires) {
       // Type 4: Progressive - one after another with waiting period
@@ -374,51 +374,51 @@ const QuestionnaireView = () => {
         // First questionnaire
         if (completionCount === 0) {
           isAvailable = true;
-          accessReason = 'Primo questionario del percorso';
+          accessReason = 'First questionnaire in the path';
         } else {
           isAvailable = false;
-          accessReason = 'Questionario già completato';
+          accessReason = 'Questionnaire already completed';
         }
       } else {
         // Check if previous questionnaire is completed
         const previousQuestionnaireId = `questionnaire-${questionnaireIndex}`;
         const previousHistory = allHistory.find(h => h.questionnaireId === previousQuestionnaireId);
-        
+
         if (previousHistory && previousHistory.completionCount > 0) {
           const previousCompletedDate = new Date(previousHistory.lastCompletedDate);
           const nextAvailable = new Date(previousCompletedDate);
           nextAvailable.setDate(nextAvailable.getDate() + plan.minWaitingPeriod);
-          
+
           if (completionCount === 0) {
             if (now >= nextAvailable) {
               isAvailable = true;
-              accessReason = 'Disponibile dopo il completamento del questionario precedente';
+              accessReason = 'Available after completing the previous questionnaire';
             } else {
               isAvailable = false;
-              nextAvailableDate = nextAvailable.toLocaleDateString('it-IT');
+              nextAvailableDate = nextAvailable.toLocaleDateString('en-US');
               waitingPeriodDays = Math.ceil((nextAvailable.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
-              accessReason = `Disponibile tra ${waitingPeriodDays} giorni`;
+              accessReason = `Available in ${waitingPeriodDays} days`;
             }
           } else {
             isAvailable = false;
-            accessReason = 'Questionario già completato';
+            accessReason = 'Questionnaire already completed';
           }
         } else {
           isAvailable = false;
-          accessReason = 'Completa prima il questionario precedente';
+          accessReason = 'Complete the previous questionnaire first';
         }
       }
     } else {
       // Default: single questionnaire
       if (completionCount === 0) {
         isAvailable = true;
-        accessReason = 'Disponibile per la compilazione';
+        accessReason = 'Available for submission';
       } else {
         isAvailable = false;
-        accessReason = 'Questionario già completato';
+        accessReason = 'Questionnaire already completed';
       }
     }
-    
+
     return {
       id: questionnaire.id,
       title: questionnaire.title,
@@ -426,7 +426,7 @@ const QuestionnaireView = () => {
       isAvailable,
       nextAvailableDate,
       completionCount,
-      lastCompletedDate: lastCompletedDate?.toLocaleDateString('it-IT'),
+      lastCompletedDate: lastCompletedDate?.toLocaleDateString('en-US'),
       accessReason,
       waitingPeriodDays
     };
@@ -461,8 +461,8 @@ const QuestionnaireView = () => {
       await new Promise(resolve => setTimeout(resolve, 1000));
       
       toast({
-        title: 'Bozza salvata',
-        description: 'Il tuo questionario è stato salvato come bozza',
+        title: 'Draft saved',
+        description: 'Your questionnaire has been saved as a draft',
       });
       
       navigate('/dashboard');
@@ -471,8 +471,8 @@ const QuestionnaireView = () => {
       console.error('Errore nel salvataggio della bozza:', error);
       toast({
         variant: 'destructive',
-        title: 'Errore',
-        description: 'Non è stato possibile salvare la bozza',
+        title: 'Error',
+        description: 'Could not save the draft',
       });
     } finally {
       setIsSubmitting(false);
@@ -492,8 +492,8 @@ const QuestionnaireView = () => {
       const reportId = "demo-report-1"; // In un'implementazione reale, questo verrebbe dal backend
       
       toast({
-        title: 'Questionario completato',
-        description: 'Il tuo report è stato generato con successo',
+        title: 'Questionnaire completed',
+        description: 'Your report has been generated successfully',
       });
       
       // Reindirizza alla pagina del report
@@ -503,8 +503,8 @@ const QuestionnaireView = () => {
       console.error('Errore nell\'invio delle risposte:', error);
       toast({
         variant: 'destructive',
-        title: 'Errore',
-        description: 'Non è stato possibile inviare le risposte',
+        title: 'Error',
+        description: 'Could not submit the answers',
       });
     } finally {
       setIsSubmitting(false);
@@ -517,8 +517,8 @@ const QuestionnaireView = () => {
     if (!access || !access.isAvailable) {
       toast({
         variant: 'destructive',
-        title: 'Questionario non disponibile',
-        description: access?.accessReason || 'Questo questionario non è attualmente disponibile.',
+        title: 'Questionnaire unavailable',
+        description: access?.accessReason || 'This questionnaire is not currently available.',
       });
       return;
     }
@@ -527,8 +527,8 @@ const QuestionnaireView = () => {
     setCurrentQuestionnaireId(questionnaireId);
     
     toast({
-      title: 'Questionario avviato',
-      description: `Hai iniziato: ${access.title}`,
+      title: 'Questionnaire started',
+      description: `You started: ${access.title}`,
     });
     
     // In a real implementation, you would navigate to the specific questionnaire
@@ -554,8 +554,8 @@ const QuestionnaireView = () => {
       <Card>
         <CardContent className="py-10">
           <div className="text-center">
-            <p className="text-lg">Nessun questionario disponibile al momento.</p>
-            <p className="text-sm text-gray-500 mt-2">Controlla più tardi o contatta l'assistenza.</p>
+            <p className="text-lg">No questionnaires available at the moment.</p>
+            <p className="text-sm text-gray-500 mt-2">Check back later or contact support.</p>
           </div>
         </CardContent>
       </Card>
@@ -569,12 +569,12 @@ const QuestionnaireView = () => {
       <div className="md:col-span-3">
         <Card>
           <CardHeader>
-            <CardTitle>Questionario di Valutazione</CardTitle>
+            <CardTitle>Assessment Questionnaire</CardTitle>
             <CardDescription>
-              Rispondi alle domande per ricevere il tuo report personalizzato
+              Answer the questions to receive your personalized report
               {currentQuestionnaireId && (
                 <div className="mt-2 text-sm text-purple-600 font-medium">
-                  Attualmente compilando: {questionnaireAccess.find(a => a.id === currentQuestionnaireId)?.title || currentQuestionnaireId}
+                  Currently filling: {questionnaireAccess.find(a => a.id === currentQuestionnaireId)?.title || currentQuestionnaireId}
                 </div>
               )}
             </CardDescription>
@@ -582,8 +582,8 @@ const QuestionnaireView = () => {
           <CardContent>
             <div className="mb-6">
               <div className="flex justify-between items-center mb-2">
-                <span className="text-sm text-gray-500">Domanda {currentQuestion + 1} di {questions.length}</span>
-                <span className="text-sm text-gray-500">{Math.round((currentQuestion + 1) / questions.length * 100)}% completato</span>
+                <span className="text-sm text-gray-500">Question {currentQuestion + 1} of {questions.length}</span>
+                <span className="text-sm text-gray-500">{Math.round((currentQuestion + 1) / questions.length * 100)}% completed</span>
               </div>
               <div className="w-full bg-gray-200 h-2 rounded-full overflow-hidden">
                 <div 
@@ -604,7 +604,7 @@ const QuestionnaireView = () => {
                       </button>
                     </PopoverTrigger>
                     <PopoverContent className="max-w-xs">
-                      <div className="font-semibold mb-1">Guida</div>
+                      <div className="font-semibold mb-1">Guide</div>
                       <div className="text-sm text-blue-800">{currentQ.guide}</div>
                     </PopoverContent>
                   </Popover>
@@ -615,7 +615,7 @@ const QuestionnaireView = () => {
                 {currentQ.type === 'text' && (
                   <textarea
                     className="w-full p-3 border rounded-lg min-h-32"
-                    placeholder="Scrivi la tua risposta qui..."
+                    placeholder="Write your answer here..."
                     value={answers[currentQ.id] || ''}
                     onChange={(e) => handleAnswer(currentQ.id, e.target.value)}
                   />
@@ -689,7 +689,7 @@ const QuestionnaireView = () => {
               onClick={handlePreviousQuestion}
               disabled={currentQuestion === 0}
             >
-              Precedente
+              Previous
             </Button>
             
             <div className="flex space-x-3">
@@ -700,11 +700,11 @@ const QuestionnaireView = () => {
                 className="bg-purple-600 hover:bg-purple-700 text-white"
               >
                 <Save className="mr-2 h-4 w-4" />
-                Salva in bozza
+                Save Draft
               </Button>
               
               {currentQuestion < questions.length - 1 ? (
-                <Button onClick={handleNextQuestion}>Successiva</Button>
+                <Button onClick={handleNextQuestion}>Next</Button>
               ) : (
                 <Button 
                   onClick={() => setSubmitConfirmOpen(true)} 
@@ -714,11 +714,11 @@ const QuestionnaireView = () => {
                   {isSubmitting ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Invio in corso...
+                      Submitting...
                     </>
                   ) : (
                     <>
-                      Invia <Send className="ml-2 h-4 w-4" />
+                      Submit <Send className="ml-2 h-4 w-4" />
                     </>
                   )}
                 </Button>
@@ -733,17 +733,17 @@ const QuestionnaireView = () => {
         <div className="space-y-6">
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-lg">Informazioni Domanda</CardTitle>
+              <CardTitle className="text-lg">Question Info</CardTitle>
             </CardHeader>
             <CardContent>
               {guidePopoverOpen && currentQ.guide ? (
                 <div className="bg-blue-50 p-4 rounded-md">
-                  <h4 className="font-semibold text-sm mb-1">Guida</h4>
+                  <h4 className="font-semibold text-sm mb-1">Guide</h4>
                   <p className="text-sm text-blue-800">{currentQ.guide}</p>
                 </div>
               ) : (
                 <p className="text-sm text-gray-500">
-                  Clicca il pulsante <span className="font-bold">?</span> per visualizzare la guida, se disponibile.
+                  Click the <span className="font-bold">?</span> button to view the guide, if available.
                 </p>
               )}
             </CardContent>
@@ -751,7 +751,7 @@ const QuestionnaireView = () => {
           
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-lg">Questionari Disponibili</CardTitle>
+              <CardTitle className="text-lg">Available Questionnaires</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
               {questionnaireAccess.length > 0 ? (
@@ -769,11 +769,11 @@ const QuestionnaireView = () => {
                       <p className="font-medium text-sm">{access.title}</p>
                       {access.isAvailable ? (
                         <span className="text-xs text-green-600 font-medium bg-green-100 px-2 py-1 rounded">
-                          Disponibile
+                          Available
                         </span>
                       ) : (
                         <span className="text-xs text-red-600 font-medium bg-red-100 px-2 py-1 rounded">
-                          Non disponibile
+                          Unavailable
                         </span>
                       )}
                     </div>
@@ -787,22 +787,22 @@ const QuestionnaireView = () => {
                       
                       {access.completionCount > 0 && (
                         <p className="text-xs text-blue-600">
-                          Completato {access.completionCount} volte
-                          {access.lastCompletedDate && ` (ultima: ${access.lastCompletedDate})`}
+                          Completed {access.completionCount} times
+                          {access.lastCompletedDate && ` (last: ${access.lastCompletedDate})`}
                         </p>
                       )}
                       
                       {access.nextAvailableDate && (
                         <p className="text-xs text-orange-600">
-                          Prossima disponibilità: {access.nextAvailableDate}
-                          {access.waitingPeriodDays && ` (tra ${access.waitingPeriodDays} giorni)`}
+                          Next availability: {access.nextAvailableDate}
+                          {access.waitingPeriodDays && ` (in ${access.waitingPeriodDays} days)`}
                         </p>
                       )}
                     </div>
                   </div>
                 ))
               ) : (
-                <p className="text-sm text-gray-500">Caricamento questionari in corso...</p>
+                <p className="text-sm text-gray-500">Loading questionnaires...</p>
               )}
             </CardContent>
           </Card>
@@ -810,35 +810,35 @@ const QuestionnaireView = () => {
           {userPlan && (
             <Card>
               <CardHeader className="pb-2">
-                <CardTitle className="text-lg">Informazioni Piano</CardTitle>
+                <CardTitle className="text-lg">Plan Information</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-2 text-sm">
                   {userPlan.multipleQuestionnaires && (
                     <div className="bg-green-50 p-2 rounded text-green-800">
-                      <strong>Piano Unlimited:</strong> Accesso illimitato a tutti i questionari
+                      <strong>Unlimited Plan:</strong> Unlimited access to all questionnaires
                     </div>
                   )}
                   {userPlan.verificationAfter && (
                     <div className="bg-blue-50 p-2 rounded text-blue-800">
-                      <strong>Piano Verification:</strong> 2 accessi per questionario con periodo di verifica di {userPlan.verificationPeriod} giorni
+                      <strong>Verification Plan:</strong> 2 accesses per questionnaire with a verification period of {userPlan.verificationPeriod} days
                     </div>
                   )}
                   {userPlan.periodicQuestionnaires && (
                     <div className="bg-purple-50 p-2 rounded text-purple-800">
-                      <strong>Piano Periodico:</strong> Massimo {userPlan.maxRepetitions} ripetizioni con attesa di {userPlan.verificationPeriod} giorni tra le compilazioni
+                      <strong>Periodic Plan:</strong> Maximum {userPlan.maxRepetitions} repetitions with a wait of {userPlan.verificationPeriod} days between submissions
                     </div>
                   )}
                   {userPlan.progressQuestionnaires && (
                     <div className="bg-orange-50 p-2 rounded text-orange-800">
-                      <strong>Piano Progressivo:</strong> Questionari sequenziali con attesa di {userPlan.minWaitingPeriod} giorni tra i livelli
+                      <strong>Progressive Plan:</strong> Sequential questionnaires with a wait of {userPlan.minWaitingPeriod} days between levels
                     </div>
                   )}
                   
                   {userPlan.emailNotifications && (
                     <p className="text-xs text-gray-600 mt-2">
-                      📧 Notifiche email attive
-                      {userPlan.reminderDaysBefore > 0 && ` (promemoria ${userPlan.reminderDaysBefore} giorni prima)`}
+                      📧 Email notifications active
+                      {userPlan.reminderDaysBefore > 0 && ` (reminder ${userPlan.reminderDaysBefore} days before)`}
                     </p>
                   )}
                 </div>

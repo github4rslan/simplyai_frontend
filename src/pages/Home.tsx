@@ -65,7 +65,7 @@ const fallbackContent = `
         <h2 class="text-3xl font-bold mb-4">Pronto a trasformare la tua azienda?</h2>
         <p class="text-xl mb-8 text-gray-700">Scegli il piano più adatto alle tue esigenze e inizia oggi stesso.</p>
         <a href="/pricing" class="inline-block text-lg px-8 py-6 rounded-full bg-[var(--color-primary)] hover:bg-[var(--color-primary-700)] text-white">
-          Visualizza i piani
+          View plans
         </a>
       </div>
     </section>

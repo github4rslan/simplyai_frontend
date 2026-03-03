@@ -19,9 +19,8 @@ const AuthCallback = () => {
         console.error("OAuth error:", error);
         toast({
           variant: "destructive",
-          title: "Errore di autenticazione",
-          description:
-            "Si è verificato un errore durante l'accesso con il provider sociale.",
+          title: "Authentication error",
+          description: "An error occurred while signing in with the social provider.",
         });
         navigate("/login");
         return;
@@ -52,8 +51,8 @@ const AuthCallback = () => {
           });
 
           toast({
-            title: "Accesso effettuato",
-            description: `Benvenuto ${response.data.firstName}!`,
+            title: "Logged in",
+            description: `Welcome ${response.data.firstName}!`,
           });
 
           console.log("✅ OAuth login successful, redirecting to dashboard");
@@ -71,8 +70,8 @@ const AuthCallback = () => {
         setUser(null);
         toast({
           variant: "destructive",
-          title: "Errore",
-          description: "Si è verificato un errore durante l'accesso.",
+          title: "Error",
+          description: "An error occurred while signing in.",
         });
         navigate("/login");
       }
@@ -85,7 +84,7 @@ const AuthCallback = () => {
     <div className="flex items-center justify-center min-h-screen">
       <div className="text-center">
         <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-[var(--color-primary)] mx-auto"></div>
-        <p className="mt-4 text-lg">Completamento accesso...</p>
+        <p className="mt-4 text-lg">Completing sign in...</p>
       </div>
     </div>
   );

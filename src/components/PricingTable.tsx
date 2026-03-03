@@ -126,8 +126,8 @@ const PricingTable = ({
       if (!token) {
         toast({
           variant: "destructive",
-          title: "Errore",
-          description: "Token non trovato. Effettua di nuovo il login.",
+          title: "Error",
+          description: "Token not found. Please log in again.",
         });
         setNavigatingPlan(null);
         return;
@@ -136,8 +136,8 @@ const PricingTable = ({
       subscribeFreePlan(plan.id, token)
         .then(() => {
           toast({
-            title: "Piano attivato",
-            description: "Il piano gratuito è stato attivato sul tuo account.",
+            title: "Plan activated",
+            description: "The free plan has been activated on your account.",
           });
           navigate("/dashboard");
         })
@@ -145,10 +145,10 @@ const PricingTable = ({
           console.error("Error activating free plan:", error);
           toast({
             variant: "destructive",
-            title: "Errore",
+            title: "Error",
             description:
               error.message ||
-              "Non è stato possibile attivare il piano gratuito. Riprova.",
+              "Could not activate the free plan. Please try again.",
           });
         })
         .finally(() => {
@@ -193,7 +193,7 @@ const PricingTable = ({
             localStorage.removeItem("temp_user_data"); // Clean up temp data
 
             toast({
-              title: "Registrazione completata!",
+              title: "Registration complete!",
               description: `Benvenuto ${tempUserData.firstName}! Controlla la tua email per confermare il tuo account e poi accedi.`,
             });
 
@@ -210,10 +210,10 @@ const PricingTable = ({
         console.error("Error completing registration:", error);
         toast({
           variant: "destructive",
-          title: "Errore di registrazione",
+          title: "Registration error",
           description:
             error.message ||
-            "Si è verificato un errore durante la registrazione.",
+            "An error occurred during registration.",
         });
       } finally {
         setProcessingPlan(null);
@@ -231,8 +231,8 @@ const PricingTable = ({
       if (!token) {
         toast({
           variant: "destructive",
-          title: "Errore",
-          description: "Token non trovato. Effettua di nuovo il login.",
+          title: "Error",
+          description: "Token not found. Please log in again.",
         });
         return;
       }
@@ -240,18 +240,18 @@ const PricingTable = ({
         setProcessingPlan(plan.id);
         subscribeFreePlan(plan.id, token).then(() => {
           toast({
-            title: "Piano attivato",
-            description: "Il piano gratuito è stato attivato sul tuo account.",
+            title: "Plan activated",
+            description: "The free plan has been activated on your account.",
           });
           navigate("/dashboard");
         }).catch((error) => {
           console.error("Error activating free plan:", error);
           toast({
             variant: "destructive",
-            title: "Errore",
+            title: "Error",
             description:
               error.message ||
-              "Non è stato possibile attivare il piano gratuito. Riprova.",
+              "Could not activate the free plan. Please try again.",
           });
         }).finally(() => {
           setProcessingPlan(null);
@@ -260,10 +260,10 @@ const PricingTable = ({
         console.error("Error activating free plan:", error);
         toast({
           variant: "destructive",
-          title: "Errore",
+          title: "Error",
           description:
             error.message ||
-            "Non è stato possibile attivare il piano gratuito. Riprova.",
+            "Could not activate the free plan. Please try again.",
         });
       }
       return;
@@ -301,9 +301,9 @@ const PricingTable = ({
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 animate-in fade-in duration-200">
           <div className="bg-white rounded-lg p-8 flex flex-col items-center shadow-2xl animate-in zoom-in-95 duration-200">
             <Loader2 className="h-12 w-12 animate-spin text-[var(--color-primary)] mb-4" />
-            <p className="text-lg font-medium text-gray-900">Caricamento...</p>
+            <p className="text-lg font-medium text-gray-900">Loading...</p>
             <p className="text-sm text-gray-600 mt-2">
-              Preparazione della pagina in corso
+              Preparing the page
             </p>
           </div>
         </div>
@@ -330,17 +330,17 @@ const PricingTable = ({
             >
               {isPreSelected && (
                 <div className="bg-[var(--color-primary)] text-white text-center py-2 rounded-t-[1.4rem] text-sm font-medium">
-                  Piano selezionato
+                  Selected plan
                 </div>
               )}
               {plan.is_popular && !isPreSelected && (
                 <div className="bg-[var(--color-primary)] text-white text-center py-2 rounded-t-[1.4rem] text-sm font-medium">
-                  Più popolare
+                  Most popular
                 </div>
               )}
               {plan.is_free && !plan.is_popular && !isPreSelected && (
                 <div className="bg-[var(--color-primary)] text-white text-center py-2 rounded-t-[1.4rem] text-sm font-medium">
-                  Gratuito
+                  Free
                 </div>
               )}
               <CardHeader
@@ -353,7 +353,7 @@ const PricingTable = ({
                 <CardTitle className="text-xl">{plan.name}</CardTitle>
                 <div className="flex items-baseline mt-3">
                   {plan.is_free ? (
-                    <span className="text-3xl font-bold">Gratuito</span>
+                    <span className="text-3xl font-bold">Free</span>
                   ) : (
                     <>
                       <span className="text-3xl font-bold">
@@ -397,11 +397,11 @@ const PricingTable = ({
                     {processingPlan === plan.id ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        {plan.is_free ? "Registrazione..." : "Elaborazione..."}
+                        {plan.is_free ? "Registering..." : "Processing..."}
                       </>
                     ) : (
                       plan.button_text ||
-                      (plan.is_free ? "Inizia Gratis" : "Seleziona Piano")
+                      (plan.is_free ? "Get Started Free" : "Select Plan")
                     )}
                   </Button>
                 ) : (
@@ -419,11 +419,11 @@ const PricingTable = ({
                     {navigatingPlan === plan.id ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Caricamento...
+                        Loading...
                       </>
                     ) : (
                       plan.button_text ||
-                      (plan.is_free ? "Inizia Gratis" : "Seleziona Piano")
+                      (plan.is_free ? "Get Started Free" : "Select Plan")
                     )}
                   </Button>
                 )}

@@ -22,18 +22,18 @@ const QuestionSaveConfirmation: React.FC<QuestionSaveConfirmationProps> = ({
       <DialogContent className="w-full max-w-2xl">
         <DialogHeader>
           <DialogTitle className="text-xl">
-            {mode === 'draft' ? 'Salva in bozza' : 'Invia questionario'}
+            {mode === 'draft' ? 'Save as Draft' : 'Submit questionnaire'}
           </DialogTitle>
         </DialogHeader>
         
         <div className="py-4">
           {mode === 'draft' ? (
             <p className="text-sm text-gray-700 leading-relaxed">
-              Salvando in bozza salva tutte le risposte già completate, quindi è possibile sospendere il questionario e riprenderlo, modificando alcune di loro.
+              Saving as a draft saves all completed answers, allowing you to pause the questionnaire and resume it later, editing some of them.
             </p>
           ) : (
             <p className="text-sm text-gray-700 leading-relaxed">
-              <span className="font-semibold">ATTENZIONE:</span> Il pulsante Invia salva definitivamente il questionario e consente l'elaborazione del report finale. Conferma solo se sei certo che tutte le risposte siano corrette, poiché non sarà possibile ripetere l'operazione. Altrimenti salva in draft per sospendere il questionario, riprenderlo e modificare alcune risposte.
+              <span className="font-semibold">WARNING:</span> The Submit button permanently saves the questionnaire and allows the final report to be generated. Confirm only if you are sure all answers are correct, as this action cannot be undone. Otherwise, save as draft to pause the questionnaire and make changes later.
             </p>
           )}
         </div>
@@ -44,7 +44,7 @@ const QuestionSaveConfirmation: React.FC<QuestionSaveConfirmationProps> = ({
             onClick={() => onOpenChange(false)}
             className="w-full sm:w-auto"
           >
-            Annulla
+            Cancel
           </Button>
           <Button 
             onClick={() => {
@@ -57,12 +57,12 @@ const QuestionSaveConfirmation: React.FC<QuestionSaveConfirmationProps> = ({
             {mode === 'draft' ? (
               <>
                 <Save className="mr-2 h-4 w-4" />
-                Conferma salvataggio in bozza
+                Confirm save as draft
               </>
             ) : (
               <>
                 <Send className="mr-2 h-4 w-4" />
-                Conferma l'invio del questionario
+                Confirm questionnaire submission
               </>
             )}
           </Button>

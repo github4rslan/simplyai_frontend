@@ -48,9 +48,32 @@ const Questionnaire = () => {
   const [survey, setSurvey] = useState<Model | null>(null);
   const [showSaveDraftModal, setShowSaveDraftModal] = useState(false);
   const [showSubmitModal, setShowSubmitModal] = useState(false);
+  const [isSavingDraft, setIsSavingDraft] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showDetailsPanel, setShowDetailsPanel] = useState(false);
 
   // Check if on final page
   const isOnFinalPage = currentPage === totalPages - 1;
+
+  const isAnswered = (value: unknown) => {
+    if (value === null || value === undefined) return false;
+    if (typeof value === "string") return value.trim().length > 0;
+    if (Array.isArray(value)) return value.length > 0;
+    return true;
+  };
+
+  const allVisibleQuestions = survey
+    ? survey.getAllQuestions().filter((question) => question.isVisible)
+    : [];
+  const requiredVisibleQuestions = allVisibleQuestions.filter(
+    (question) => question.isRequired
+  );
+  const requiredAnsweredCount = requiredVisibleQuestions.filter((question) =>
+    isAnswered(question.value)
+  ).length;
+  const isReadyToSubmit =
+    isOnFinalPage &&
+    requiredAnsweredCount === requiredVisibleQuestions.length;
   // Register custom properties immediately when component loads
   useEffect(() => {
     console.log("Registering custom properties...");
@@ -246,8 +269,9 @@ const Questionnaire = () => {
         }
 
         /* Text area styling */
-        .sv-text,
-        .sv-comment {
+        .sv-comment,
+        .sv-question textarea,
+        .sv-question textarea.sv-text {
           width: 100% !important;
           min-height: 150px !important;
           padding: 1rem !important;
@@ -260,16 +284,30 @@ const Questionnaire = () => {
           resize: vertical !important;
         }
 
-        .sv-text:focus,
-        .sv-comment:focus {
+        .sv-comment:focus,
+        .sv-question textarea:focus,
+        .sv-question textarea.sv-text:focus {
           outline: none !important;
           border-color: #c084fc !important;
           box-shadow: 0 0 0 3px rgba(196, 132, 252, 0.1) !important;
         }
 
-        .sv-text::placeholder,
-        .sv-comment::placeholder {
+        .sv-comment::placeholder,
+        .sv-question textarea::placeholder,
+        .sv-question textarea.sv-text::placeholder {
           color: #9ca3af !important;
+        }
+
+        /* Dropdown/select controls should remain compact */
+        .sv-dropdown,
+        .sv-dropdown select,
+        .sv-selectbase input.sv-text {
+          min-height: 44px !important;
+          height: 44px !important;
+          padding: 0 0.875rem !important;
+          border-radius: 10px !important;
+          border: 1px solid #d1d5db !important;
+          background: #ffffff !important;
         }
 
         /* Navigation footer - matches CardFooter */
@@ -580,7 +618,7 @@ const Questionnaire = () => {
     setShowSaveDraftModal(true);
   };
   const handleConfirmSaveDraft = async () => {
-    if (!user || !id) {
+    if (!user || !id || !survey) {
       toast({
         title: "Error",
         description: "Missing user or questionnaire information",
@@ -590,6 +628,7 @@ const Questionnaire = () => {
     }
 
     try {
+      setIsSavingDraft(true);
       const currentResponses = survey.data;
 
       // Call the unified API with status='draft'
@@ -635,9 +674,35 @@ const Questionnaire = () => {
         description: "Could not save the questionnaire as a draft",
         variant: "destructive",
       });
+    } finally {
+      setIsSavingDraft(false);
     }
   };
   const handleSubmitQuestionnaire = () => {
+    if (!survey) {
+      return;
+    }
+
+    if (!isOnFinalPage) {
+      toast({
+        title: "Final page required",
+        description: "Move to the final page before submitting the questionnaire.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const isValid = survey.validate();
+    if (!isValid) {
+      toast({
+        title: "Required fields missing",
+        description:
+          "Please complete all required fields before submitting your questionnaire.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setShowSubmitModal(true);
   };
   // Load existing draft if available
@@ -678,63 +743,62 @@ const Questionnaire = () => {
       loadDraftIfExists();
     }
   }, [user, id, survey]);
-  const handleConfirmSubmit = async () => {
+  const saveCompletion = async (responses: Record<string, unknown>) => {
     if (!user || !id) {
-      toast({
-        title: "Error",
-        description: "Missing user or questionnaire information",
-        variant: "destructive",
-      });
-      return;
+      throw new Error("Missing user or questionnaire information");
     }
 
+    const token = localStorage.getItem("auth_token");
+    const response = await fetch(`${API_BASE_URL}/save-questionnaire-completion`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      body: JSON.stringify({
+        user_id: user.id,
+        questionnaire_id: id,
+        questionnaire_title: title || "Questionnaire",
+        responses,
+        status: "completed",
+        created_at: new Date().toISOString(),
+      }),
+    });
+
+    if (!response.ok) {
+      const errData = await response.json().catch(() => ({}));
+      throw new Error(errData.message || "Failed to submit questionnaire");
+    }
+  };
+
+  const handleConfirmSubmit = async () => {
+    if (!survey) return;
+
     try {
-      const currentResponses = survey.data;
-
-      // Call the unified API with status='completed' (default)
-      const token = localStorage.getItem("auth_token");
-      const response = await fetch(
-        `${API_BASE_URL}/save-questionnaire-completion`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            ...(token ? { Authorization: `Bearer ${token}` } : {}),
-          },
-          body: JSON.stringify({
-            user_id: user.id,
-            questionnaire_id: id,
-            questionnaire_title: title || "Questionnaire",
-            responses: currentResponses,
-            status: "completed",
-            created_at: new Date().toISOString(),
-          }),
-        }
-      );
-
-      if (!response.ok) {
-        const errData = await response.json().catch(() => ({}));
-        throw new Error(errData.message || "Failed to submit questionnaire");
-      }
-
-      const result = await response.json();
-
+      setIsSubmitting(true);
+      await saveCompletion(survey.data as Record<string, unknown>);
       setShowSubmitModal(false);
-
-      // Now trigger the report generation using your existing handleSurveyComplete
-      await handleSurveyComplete(survey);
+      await handleSurveyComplete(survey, true);
     } catch (error) {
       console.error("Error submitting questionnaire:", error);
       setShowSubmitModal(false);
       toast({
         title: "Error",
-        description: error.message || "An error occurred while submitting the questionnaire",
+        description:
+          error instanceof Error
+            ? error.message
+            : "An error occurred while submitting the questionnaire",
         variant: "destructive",
       });
+    } finally {
+      setIsSubmitting(false);
     }
   };
   // SurveyJS onComplete handler
-  const handleSurveyComplete = async (sender: Model) => {
+  const handleSurveyComplete = async (
+    sender: Model,
+    completionAlreadySaved = false
+  ) => {
     if (!user || !id) {
       toast({
         title: "Error",
@@ -776,13 +840,15 @@ const Questionnaire = () => {
           "No prompt template found, saving completion and redirecting to homepage"
         );
 
-        const success = await saveQuestionnaireCompletion({
-          user_id: user.id,
-          questionnaire_id: id,
-          questionnaire_title: title || "Questionnaire",
-          responses: sender.data,
-          completed_at: new Date().toISOString(),
-        });
+        const success = completionAlreadySaved
+          ? true
+          : await saveQuestionnaireCompletion({
+              user_id: user.id,
+              questionnaire_id: id,
+              questionnaire_title: title || "Questionnaire",
+              responses: sender.data,
+              completed_at: new Date().toISOString(),
+            });
 
         if (success) {
           toast({
@@ -802,13 +868,15 @@ const Questionnaire = () => {
       console.log("Prompt template found, proceeding with report generation");
 
       // Save questionnaire completion to MySQL database
-      const success = await saveQuestionnaireCompletion({
-        user_id: user.id,
-        questionnaire_id: id,
-        questionnaire_title: title || "Questionnaire",
-        responses: sender.data,
-        completed_at: new Date().toISOString(),
-      });
+      const success = completionAlreadySaved
+        ? true
+        : await saveQuestionnaireCompletion({
+            user_id: user.id,
+            questionnaire_id: id,
+            questionnaire_title: title || "Questionnaire",
+            responses: sender.data,
+            completed_at: new Date().toISOString(),
+          });
 
       if (success) {
         toast({
@@ -847,7 +915,7 @@ const Questionnaire = () => {
       console.error("Error in questionnaire completion process:", error);
 
       // Check if this is a template check error (early in the process)
-      if (error.message && error.message.includes("template")) {
+      if (error instanceof Error && error.message.includes("template")) {
         toast({
           title: "Template not configured",
           description:
@@ -856,16 +924,18 @@ const Questionnaire = () => {
         });
 
         // Try to save the completion anyway, but don't generate report
-        try {
-          await saveQuestionnaireCompletion({
-            user_id: user.id,
-            questionnaire_id: id,
-            questionnaire_title: title || "Questionnaire",
-            responses: sender.data,
-            completed_at: new Date().toISOString(),
-          });
-        } catch (saveError) {
-          console.error("Failed to save questionnaire completion:", saveError);
+        if (!completionAlreadySaved) {
+          try {
+            await saveQuestionnaireCompletion({
+              user_id: user.id,
+              questionnaire_id: id,
+              questionnaire_title: title || "Questionnaire",
+              responses: sender.data,
+              completed_at: new Date().toISOString(),
+            });
+          } catch (saveError) {
+            console.error("Failed to save questionnaire completion:", saveError);
+          }
         }
 
         setTimeout(() => {
@@ -1346,6 +1416,74 @@ const Questionnaire = () => {
     };
   }, [survey]);
 
+  // Final aesthetic pass for cleaner, modern form visuals
+  useEffect(() => {
+    const styleId = "questionnaire-modern-aesthetic";
+    const oldStyle = document.getElementById(styleId);
+    if (oldStyle) {
+      oldStyle.remove();
+    }
+
+    const styleTag = document.createElement("style");
+    styleTag.id = styleId;
+    styleTag.innerHTML = `
+      :root {
+        --q-primary: #0f766e;
+        --q-primary-soft: #ccfbf1;
+        --q-border: #d1d5db;
+        --q-bg-soft: #f8fafc;
+      }
+
+      .questionnaire-shell {
+        background: radial-gradient(circle at top right, #ecfeff 0%, #f8fafc 45%, #ffffff 100%);
+      }
+
+      .sv-page {
+        border-radius: 14px !important;
+        border: 1px solid var(--q-border) !important;
+        box-shadow: 0 10px 25px rgba(2, 6, 23, 0.06) !important;
+      }
+
+      .sv-question__title,
+      .sv-question__title .sv-string-viewer {
+        color: #0f172a !important;
+      }
+
+      .sv-selectbase__item {
+        border: 1px solid var(--q-border) !important;
+        border-radius: 12px !important;
+      }
+
+      .sv-selectbase__item:hover {
+        border-color: var(--q-primary) !important;
+        background: var(--q-bg-soft) !important;
+      }
+
+      .sv-selectbase__item--checked,
+      .sv-selectbase__item--selected {
+        border-color: var(--q-primary) !important;
+        background: var(--q-primary-soft) !important;
+      }
+
+      .sv-text,
+      .sv-comment {
+        border: 1px solid var(--q-border) !important;
+        border-radius: 12px !important;
+      }
+
+      .sv-text:focus,
+      .sv-comment:focus {
+        border-color: var(--q-primary) !important;
+        box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.15) !important;
+      }
+    `;
+    document.head.appendChild(styleTag);
+
+    return () => {
+      styleTag.remove();
+    };
+  }, []);
+
   if (loading) {
     return (
       <div className="container mx-auto p-6">
@@ -1384,12 +1522,20 @@ const Questionnaire = () => {
   }
 
   return (
-    <div className="container mx-auto">
+    <div className="questionnaire-shell min-h-screen">
       <MainNavigation variant="questionnaire" title={title} />
 
-      <div className="max-w-4xl mx-auto p-6">
+      <div className="max-w-6xl mx-auto p-6">
         <div className="mb-8">
-          <h1 className="text-2xl md:text-3xl font-bold mb-2">{title}</h1>
+          <div className="flex flex-wrap items-center justify-between gap-3 mb-2">
+            <h1 className="text-2xl md:text-3xl font-bold">{title}</h1>
+            <button
+              onClick={() => setShowDetailsPanel((prev) => !prev)}
+              className="px-3 py-1.5 text-sm border border-gray-300 rounded-md bg-white hover:bg-gray-50 transition-colors"
+            >
+              {showDetailsPanel ? "Hide details" : "Show details"}
+            </button>
+          </div>
           {description && <p className="text-gray-600">{description}</p>}
 
           {/* Survey Logo Display */}
@@ -1406,8 +1552,8 @@ const Questionnaire = () => {
           )}
         </div>
 
-        <div className="grid md:grid-cols-3 gap-6">
-          <div className="md:col-span-2">
+        <div className="grid lg:grid-cols-12 gap-6">
+          <div className={showDetailsPanel ? "lg:col-span-8" : "lg:col-span-12"}>
             {/* Progress Bar */}
             <div className="mb-6 bg-white rounded-lg border border-gray-200 p-4 shadow-sm">
               <div className="flex justify-between items-center mb-2">
@@ -1422,7 +1568,7 @@ const Questionnaire = () => {
               {/* Progress Bar */}
               <div className="w-full bg-gray-200 rounded-full h-3 mb-2">
                 <div
-                  className="bg-gradient-to-r from-purple-500 to-purple-600 h-3 rounded-full transition-all duration-300 ease-out"
+                  className="bg-gradient-to-r from-teal-600 to-cyan-600 h-3 rounded-full transition-all duration-300 ease-out"
                   style={{ width: `${progress}%` }}
                 ></div>
               </div>
@@ -1434,17 +1580,17 @@ const Questionnaire = () => {
                     <div
                       key={index}
                       className={`progress-step flex items-center ${
-                        index <= currentPage
-                          ? "text-purple-600"
-                          : "text-gray-400"
+                          index <= currentPage
+                            ? "text-teal-700"
+                            : "text-gray-400"
                       }`}
                     >
                       <div
                         className={`w-6 h-6 rounded-full border-2 flex items-center justify-center text-xs font-medium ${
                           index < currentPage
-                            ? "bg-purple-600 border-purple-600 text-white"
+                            ? "bg-teal-600 border-teal-600 text-white"
                             : index === currentPage
-                            ? "border-purple-600 bg-white text-purple-600"
+                            ? "border-teal-600 bg-white text-teal-700"
                             : "border-gray-300 bg-white text-gray-400"
                         }`}
                       >
@@ -1454,7 +1600,7 @@ const Questionnaire = () => {
                         <div
                           className={`flex-1 h-0.5 mx-2 ${
                             index < currentPage
-                              ? "bg-purple-600"
+                              ? "bg-teal-600"
                               : "bg-gray-300"
                           }`}
                         ></div>
@@ -1476,7 +1622,7 @@ const Questionnaire = () => {
             <Survey model={survey} />
           </div>
 
-          <div className="md:col-span-1">
+          {showDetailsPanel && <div className="lg:col-span-4">
             <div className="questionnaire-sidebar">
               <h3>Question Information</h3>
               <div className="guide-content">
@@ -1484,20 +1630,16 @@ const Questionnaire = () => {
                 <p>{sidebarText}</p>
               </div>
 
-              <div className="space-y-3 mt-6">
-                <h3 className="font-medium">Upcoming Questionnaires</h3>
-                <div className="p-3 border rounded-md">
-                  <p className="font-medium">Training Needs Assessment</p>
-                  <p className="text-xs text-gray-500">
-                    Available from: 06/15/2025
-                  </p>
-                </div>
-                <div className="p-3 border rounded-md">
-                  <p className="font-medium">Customer Satisfaction Survey</p>
-                  <p className="text-xs text-gray-500">
-                    Available from: 09/30/2025
-                  </p>
-                </div>
+              <div className="mt-6 p-3 border rounded-md bg-gray-50">
+                <p className="text-sm font-medium text-gray-800">Submission Status</p>
+                <p className="text-xs text-gray-600 mt-1">
+                  Required answered: {requiredAnsweredCount} / {requiredVisibleQuestions.length}
+                </p>
+                <p className="text-xs text-gray-600">
+                  {isReadyToSubmit
+                    ? "Ready to submit"
+                    : "Complete required fields on final page"}
+                </p>
               </div>
 
               {/* Show buttons only on final page */}
@@ -1508,17 +1650,19 @@ const Questionnaire = () => {
                   {/* Salva in Bozza Button */}
                   <button
                     onClick={handleSaveDraft}
-                    className="flex-1 px-4 py-2 border-2 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm"
+                    disabled={isSavingDraft || isSubmitting}
+                    className="flex-1 px-4 py-2 border-2 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm disabled:opacity-60 disabled:cursor-not-allowed"
                   >
-                    Save as Draft
+                    {isSavingDraft ? "Saving..." : "Save as Draft"}
                   </button>
 
                   {/* Submit Button */}
                   <button
                     onClick={handleSubmitQuestionnaire}
-                    className="flex-1 px-4 py-3 bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-lg hover:from-purple-600 hover:to-purple-700 transition-colors font-medium shadow-md"
+                    disabled={!isReadyToSubmit || isSubmitting || isSavingDraft}
+                    className="flex-1 px-4 py-3 bg-gradient-to-r from-teal-600 to-cyan-600 text-white rounded-lg hover:from-teal-700 hover:to-cyan-700 transition-colors font-medium shadow-md disabled:opacity-60 disabled:cursor-not-allowed"
                   >
-                    Submit
+                    {isSubmitting ? "Submitting..." : "Submit"}
                   </button>
                 </div>
 
@@ -1526,14 +1670,14 @@ const Questionnaire = () => {
                   <button
                     onClick={handleGenerateReport}
                     disabled={isGeneratingReport || !planId}
-                    className="w-full mt-4 px-4 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors font-medium shadow-md disabled:opacity-60 disabled:cursor-not-allowed"
+                    className="w-full mt-4 px-4 py-3 bg-slate-800 text-white rounded-lg hover:bg-slate-900 transition-colors font-medium shadow-md disabled:opacity-60 disabled:cursor-not-allowed"
                   >
                     {isGeneratingReport ? "Generating..." : "Generate report"}
                   </button>
                 )}
               </div>
             </div>
-          </div>
+          </div>}
         </div>
       </div>
 
@@ -1601,9 +1745,10 @@ const Questionnaire = () => {
             </button>
             <button
               onClick={handleConfirmSaveDraft}
-              className="px-6 py-2 bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-lg hover:from-purple-600 hover:to-purple-700 transition-colors"
+              disabled={isSavingDraft || isSubmitting}
+              className="px-6 py-2 bg-gradient-to-r from-teal-600 to-cyan-600 text-white rounded-lg hover:from-teal-700 hover:to-cyan-700 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
             >
-              Confirm save as draft
+              {isSavingDraft ? "Saving..." : "Confirm save as draft"}
             </button>
           </div>
         </div>
@@ -1642,9 +1787,12 @@ const Questionnaire = () => {
             </button>
             <button
               onClick={handleConfirmSubmit}
-              className="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium"
+              disabled={isSubmitting || isSavingDraft}
+              className="px-6 py-2 bg-teal-700 text-white rounded-lg hover:bg-teal-800 transition-colors font-medium disabled:opacity-60 disabled:cursor-not-allowed"
             >
-              Confirm final submission and receive the report
+              {isSubmitting
+                ? "Submitting..."
+                : "Confirm final submission and receive the report"}
             </button>
           </div>
         </div>

@@ -95,7 +95,7 @@ const PageEditorToolbar = ({
           ))}
           <Button variant="outline" size="sm" onClick={onInsertParagraph}>
             <Type className="mr-2 h-4 w-4" />
-            Paragrafo
+            Paragraph
           </Button>
         </div>
 
@@ -107,21 +107,21 @@ const PageEditorToolbar = ({
             <DialogTrigger asChild>
               <Button variant="outline" size="sm">
                 <Image className="mr-2 h-4 w-4" />
-                Immagine
+                Image
               </Button>
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>
-                <DialogTitle>Inserisci immagine</DialogTitle>
+                <DialogTitle>Insert image</DialogTitle>
               </DialogHeader>
               <ImageUploader onImageUpload={onInsertImage} />
             </DialogContent>
           </Dialog>
           <Button variant="outline" size="sm" onClick={() => onInsertLayout(2)}>
-            <Layout className="mr-2 h-4 w-4" />2 Colonne
+            <Layout className="mr-2 h-4 w-4" />2 Columns
           </Button>
           <Button variant="outline" size="sm" onClick={() => onInsertLayout(3)}>
-            <Layout className="mr-2 h-4 w-4" />3 Colonne
+            <Layout className="mr-2 h-4 w-4" />3 Columns
           </Button>
         </div>
 
@@ -251,7 +251,7 @@ const PageEditorToolbar = ({
           </Button>
           <Button onClick={onSave} className="ml-auto">
             <Save className="mr-2 h-4 w-4" />
-            Salva Modifiche
+            Save Changes
           </Button>
         </div>
       </div>

@@ -69,22 +69,22 @@ const AdvancedReportGenerator = () => {
       });
       
       if (!result.success) {
-        throw new Error(result.error || 'Si è verificato un errore durante la generazione del report.');
+        throw new Error(result.error || 'An error occurred while generating the report.');
       }
-      
+
       setReport(result.report);
-      
+
       toast({
-        title: 'Report generato',
-        description: 'Il report è stato generato con successo.',
+        title: 'Report generated',
+        description: 'The report has been generated successfully.',
       });
-      
+
       setGenerating(false);
     } catch (error) {
       console.error('Error generating report:', error);
       toast({
-        title: 'Errore',
-        description: error.message || 'Si è verificato un errore durante la generazione del report.',
+        title: 'Error',
+        description: error.message || 'An error occurred while generating the report.',
         variant: 'destructive'
       });
       
@@ -116,10 +116,10 @@ const AdvancedReportGenerator = () => {
       <Card>
         <CardContent className="p-6 text-center">
           <AlertTriangle className="h-12 w-12 mx-auto text-amber-500 mb-4" />
-          <h2 className="text-xl font-semibold mb-2">Questionario non trovato</h2>
-          <p className="mb-4">Il questionario richiesto non è stato trovato o non è accessibile.</p>
+          <h2 className="text-xl font-semibold mb-2">Questionnaire not found</h2>
+          <p className="mb-4">The requested questionnaire was not found or is not accessible.</p>
           <Button onClick={() => navigate('/dashboard')}>
-            Torna alla Dashboard
+            Back to Dashboard
           </Button>
         </CardContent>
       </Card>
@@ -131,23 +131,23 @@ const AdvancedReportGenerator = () => {
       {!report ? (
         <Card>
           <CardHeader>
-            <CardTitle>Genera Report AI</CardTitle>
+            <CardTitle>Generate AI Report</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
-              <h3 className="font-semibold mb-2">Questionario</h3>
-              <p>{questionnaireResponse.questionnaire_id ? questionnaireResponse.questionnaire_config?.title : 'Questionario senza titolo'}</p>
+              <h3 className="font-semibold mb-2">Questionnaire</h3>
+              <p>{questionnaireResponse.questionnaire_id ? questionnaireResponse.questionnaire_config?.title : 'Untitled questionnaire'}</p>
               <p className="text-sm text-muted-foreground">
-                Completato il: {new Date(questionnaireResponse.completed_at || questionnaireResponse.updated_at).toLocaleString('it-IT')}
+                Completed on: {new Date(questionnaireResponse.completed_at || questionnaireResponse.updated_at).toLocaleString('en-US')}
               </p>
             </div>
             
             {promptTemplate && (
               <div>
-                <h3 className="font-semibold mb-2">Template Selezionato</h3>
+                <h3 className="font-semibold mb-2">Selected Template</h3>
                 <p>{promptTemplate.title}</p>
                 <p className="text-sm text-muted-foreground">
-                  Questo template è stato selezionato automaticamente in base al tuo piano di abbonamento.
+                  This template was automatically selected based on your subscription plan.
                 </p>
               </div>
             )}
@@ -160,10 +160,10 @@ const AdvancedReportGenerator = () => {
               {generating ? (
                 <>
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                  Generazione in corso...
+                  Generating...
                 </>
               ) : (
-                <>Genera Report con AI</>
+                <>Generate Report with AI</>
               )}
             </Button>
           </CardContent>
@@ -172,22 +172,22 @@ const AdvancedReportGenerator = () => {
         <div className="space-y-6">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle>{report.title || "Report di Analisi"}</CardTitle>
+              <CardTitle>{report.title || "Analysis Report"}</CardTitle>
               <div className="flex space-x-2">
-                <Button 
-                  variant="outline" 
-                  size="sm" 
+                <Button
+                  variant="outline"
+                  size="sm"
                   onClick={() => navigate('/dashboard')}
                 >
-                  Torna alla Dashboard
+                  Back to Dashboard
                 </Button>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
+                <Button
+                  variant="outline"
+                  size="sm"
                   onClick={() => setReport(null)}
                 >
                   <RefreshCcw className="h-4 w-4 mr-1" />
-                  Rigenera
+                  Regenerate
                 </Button>
               </div>
             </CardHeader>
@@ -200,7 +200,7 @@ const AdvancedReportGenerator = () => {
                   </TabsTrigger>
                   <TabsTrigger value="charts">
                     <BarChart className="h-4 w-4 mr-2" />
-                    Grafici e Tabelle
+                    Charts and Tables
                   </TabsTrigger>
                 </TabsList>
                 
@@ -224,7 +224,7 @@ const AdvancedReportGenerator = () => {
                     ))
                   ) : (
                     <div className="text-center py-6">
-                      <p className="text-muted-foreground">Nessun contenuto testuale disponibile nel report.</p>
+                      <p className="text-muted-foreground">No text content available in the report.</p>
                     </div>
                   )}
                 </TabsContent>
@@ -249,7 +249,7 @@ const AdvancedReportGenerator = () => {
                     ))
                   ) : (
                     <div className="text-center py-6">
-                      <p className="text-muted-foreground">Nessun grafico o tabella disponibile nel report.</p>
+                      <p className="text-muted-foreground">No charts or tables available in the report.</p>
                     </div>
                   )}
                 </TabsContent>
@@ -258,17 +258,17 @@ const AdvancedReportGenerator = () => {
           </Card>
           
           <div className="flex justify-end">
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               className="mr-2"
               onClick={() => window.print()}
             >
-              Stampa Report
+              Print Report
             </Button>
-            <Button 
+            <Button
               onClick={() => navigate(`/report/${report.id}`)}
             >
-              Visualizza Report Completo
+              View Full Report
             </Button>
           </div>
         </div>

@@ -1,108 +1,35 @@
-import React, { useEffect, useState } from "react";
-import { renderToStaticMarkup } from "react-dom/server";
+import { useState } from "react";
 import Navbar from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { Mail, Phone, MapPin } from "lucide-react";
-import { fetchPageData, savePageData } from "@/services/pagesService";
+import { Mail, MapPin, Phone } from "lucide-react";
 import { useSettings } from "@/contexts/SettingsContext";
-
-// Define the Page type
-type Page = { id: string; title: string; content: string };
-
-// Static JSX content for the Contact page (without Navbar since it's rendered separately)
-// Note: This uses default values since it's rendered outside React context
-const staticContactData = (
-    <div
-      className="flex-grow py-16 px-4 bg-gradient-to-b from-white to-[var(--color-primary-100)]"
-      id="contactJSX"
-    >
-      <div className="max-w-7xl mx-auto">
-        <div className="text-center mb-16">
-          <h1 className="text-4xl font-bold mb-4">Contattaci</h1>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            Siamo qui per rispondere a tutte le tue domande e aiutarti a
-            ottenere il massimo dalla nostra piattaforma.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-          {/* Info di contatto */}
-          <div className="md:col-span-1 space-y-8">
-            <div className="bg-[#7c6cc4] p-6 rounded-xl shadow-sm hover:drop-shadow-md transition-all duration-300">
-              <div className="flex items-start">
-                <div className="bg-[var(--color-primary-100)] p-3 rounded-lg mr-4">
-                  <Mail className="h-6 w-6 text-[var(--color-primary)]" />
-                </div>
-                <div>
-                  <h3 className="font-medium text-lg mb-1">Email</h3>
-                  <p className="text-gray-600">info@simplyai.it</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-[#7c6cc4] p-6 rounded-xl shadow-sm hover:drop-shadow-md transition-all duration-300">
-              <div className="flex items-start">
-                <div className="bg-[var(--color-primary-100)] p-3 rounded-lg mr-4">
-                  <Phone className="h-6 w-6 text-[var(--color-primary)]" />
-                </div>
-                <div>
-                  <h3 className="font-medium text-lg mb-1">Telefono</h3>
-                  <p className="text-gray-600">+39 123 456 7890</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-[#7c6cc4] p-6 rounded-xl shadow-sm hover:drop-shadow-md transition-all duration-300">
-              <div className="flex items-start">
-                <div className="bg-[var(--color-primary-100)] p-3 rounded-lg mr-4">
-                  <MapPin className="h-6 w-6 text-[var(--color-primary)]" />
-                </div>
-                <div>
-                  <h3 className="font-medium text-lg mb-1">Indirizzo</h3>
-                  <p className="text-gray-600">
-                    Via Roma 123, 00100 Roma, Italy
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-        </div>
-      </div>
-    </div>
-  );
-
-const fallbackContent = renderToStaticMarkup(staticContactData);
 
 const Contact = () => {
   const { settings } = useSettings();
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     subject: "",
     message: "",
   });
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
-    const { name, value } = e.target;
+    const { name, value } = event.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = (event: React.FormEvent) => {
+    event.preventDefault();
     setIsSubmitting(true);
 
-    // Simula l'invio del form
     setTimeout(() => {
-      toast.success(
-        "Messaggio inviato con successo! Ti risponderemo al più presto."
-      );
+      toast.success("Message sent successfully. We will contact you soon.");
       setFormData({
         name: "",
         email: "",
@@ -110,124 +37,97 @@ const Contact = () => {
         message: "",
       });
       setIsSubmitting(false);
-    }, 1000);
+    }, 800);
   };
 
-  const [pageData, setPageData] = React.useState<Page>({
-    id: "contact",
-    title: "Contatti",
-    content: fallbackContent,
-  });
-
-  useEffect(() => {
-    const loadData = async () => {
-      try {
-        const data = await fetchPageData("contact");
-        if (data?.content) {
-          setPageData(data);
-        }
-      } catch (error) {
-        console.error("Failed to load contact page content", error);
-      }
-    };
-    loadData();
-  }, []);
-
-  // useEffect(() => {
-  //   const savePageDataDB = async () => {
-  //     const data = document.getElementById("contactJSX");
-  //     console.log(data);
-  //     const response = await savePageData({
-  //       id: "contact",
-  //       title: "Contatti",
-  //       content: data.innerHTML,
-  //     });
-  //   };
-  //   savePageDataDB();
-  // }, []);
-
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-cyan-50">
       <Navbar />
-      <div className="flex-grow py-16 px-4 bg-gradient-to-b from-white to-[var(--color-primary-100)] mt-12">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16">
-            <h1 className="text-4xl font-bold mb-4">Contattaci</h1>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Siamo qui per rispondere a tutte le tue domande e aiutarti a
-              ottenere il massimo dalla nostra piattaforma.
+      <main className="pt-24 pb-16 px-4">
+        <div className="mx-auto max-w-6xl">
+          <div className="text-center mb-12">
+            <h1 className="text-4xl md:text-5xl font-semibold tracking-tight text-slate-900">
+              Contact SimplyAI
+            </h1>
+            <p className="mt-4 text-slate-600 max-w-2xl mx-auto">
+              Reach out with questions, product requests, or onboarding help.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-            {/* Info di contatto */}
-            <div className="md:col-span-1 space-y-8">
-              <div className="bg-[#7c6cc4] p-6 rounded-xl shadow-sm hover:drop-shadow-md transition-all duration-300">
-                <div className="flex items-start">
-                  <div className="bg-[var(--color-primary-100)] p-3 rounded-lg mr-4">
-                    <Mail className="h-6 w-6 text-[var(--color-primary)]" />
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <section className="lg:col-span-4 space-y-4">
+              <article className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+                <div className="flex items-start gap-3">
+                  <div className="rounded-md bg-cyan-100 p-2 text-cyan-700">
+                    <Mail className="h-5 w-5" />
                   </div>
                   <div>
-                    <h3 className="font-medium text-lg mb-1">Email</h3>
-                    <p className="text-gray-600">{settings?.contact_email || 'info@simplyai.it'}</p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-[#7c6cc4] p-6 rounded-xl shadow-sm hover:drop-shadow-md transition-all duration-300">
-                <div className="flex items-start">
-                  <div className="bg-[var(--color-primary-100)] p-3 rounded-lg mr-4">
-                    <Phone className="h-6 w-6 text-[var(--color-primary)]" />
-                  </div>
-                  <div>
-                    <h3 className="font-medium text-lg mb-1">Telefono</h3>
-                    <p className="text-gray-600">+39 123 456 7890</p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-[#7c6cc4] p-6 rounded-xl shadow-sm hover:drop-shadow-md transition-all duration-300">
-                <div className="flex items-start">
-                  <div className="bg-[var(--color-primary-100)] p-3 rounded-lg mr-4">
-                    <MapPin className="h-6 w-6 text-[var(--color-primary)]" />
-                  </div>
-                  <div>
-                    <h3 className="font-medium text-lg mb-1">Indirizzo</h3>
-                    <p className="text-gray-600">
-                      Via Roma 123, 00100 Roma, Italy
+                    <h3 className="font-medium text-slate-900">Email</h3>
+                    <p className="text-sm text-slate-600 mt-1">
+                      {settings?.contact_email || "info@simplyai.it"}
                     </p>
                   </div>
                 </div>
-              </div>
-            </div>
+              </article>
 
-            {/* Form di contatto - rendered as React component */}
-            <div className="md:col-span-2 bg-[#7c6cc4] p-8 rounded-xl shadow-sm">
-              <h2 className="text-2xl font-semibold mb-6">
-                Inviaci un messaggio
-              </h2>
-              <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <article className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+                <div className="flex items-start gap-3">
+                  <div className="rounded-md bg-cyan-100 p-2 text-cyan-700">
+                    <Phone className="h-5 w-5" />
+                  </div>
                   <div>
+                    <h3 className="font-medium text-slate-900">Phone</h3>
+                    <p className="text-sm text-slate-600 mt-1">+39 123 456 7890</p>
+                  </div>
+                </div>
+              </article>
+
+              <article className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+                <div className="flex items-start gap-3">
+                  <div className="rounded-md bg-cyan-100 p-2 text-cyan-700">
+                    <MapPin className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <h3 className="font-medium text-slate-900">Address</h3>
+                    <p className="text-sm text-slate-600 mt-1">
+                      Via Roma 123, 00100 Rome, Italy
+                    </p>
+                  </div>
+                </div>
+              </article>
+            </section>
+
+            <section className="lg:col-span-8 rounded-2xl border border-slate-200 bg-white p-6 md:p-8 shadow-sm">
+              <h2 className="text-2xl font-semibold text-slate-900">
+                Send a message
+              </h2>
+              <p className="text-sm text-slate-600 mt-1 mb-6">
+                We usually respond within one business day.
+              </p>
+
+              <form onSubmit={handleSubmit} className="space-y-5">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
                     <label
                       htmlFor="name"
-                      className="block text-sm font-medium text-gray-700 mb-1"
+                      className="text-sm font-medium text-slate-700"
                     >
-                      Nome
+                      Name
                     </label>
                     <Input
                       id="name"
                       name="name"
                       value={formData.name}
                       onChange={handleChange}
-                      placeholder="Il tuo nome"
+                      placeholder="Your full name"
+                      className="h-11 rounded-lg border-slate-300 focus-visible:ring-cyan-600"
                       required
                     />
                   </div>
-                  <div>
+                  <div className="space-y-1.5">
                     <label
                       htmlFor="email"
-                      className="block text-sm font-medium text-gray-700 mb-1"
+                      className="text-sm font-medium text-slate-700"
                     >
                       Email
                     </label>
@@ -237,56 +137,62 @@ const Contact = () => {
                       type="email"
                       value={formData.email}
                       onChange={handleChange}
-                      placeholder="La tua email"
+                      placeholder="you@company.com"
+                      className="h-11 rounded-lg border-slate-300 focus-visible:ring-cyan-600"
                       required
                     />
                   </div>
                 </div>
-                <div>
+
+                <div className="space-y-1.5">
                   <label
                     htmlFor="subject"
-                    className="block text-sm font-medium text-gray-700 mb-1"
+                    className="text-sm font-medium text-slate-700"
                   >
-                    Oggetto
+                    Subject
                   </label>
                   <Input
                     id="subject"
                     name="subject"
                     value={formData.subject}
                     onChange={handleChange}
-                    placeholder="Oggetto del messaggio"
+                    placeholder="How can we help?"
+                    className="h-11 rounded-lg border-slate-300 focus-visible:ring-cyan-600"
                     required
                   />
                 </div>
-                <div>
+
+                <div className="space-y-1.5">
                   <label
                     htmlFor="message"
-                    className="block text-sm font-medium text-gray-700 mb-1"
+                    className="text-sm font-medium text-slate-700"
                   >
-                    Messaggio
+                    Message
                   </label>
                   <Textarea
                     id="message"
                     name="message"
                     value={formData.message}
                     onChange={handleChange}
-                    placeholder="Il tuo messaggio"
-                    rows={5}
+                    placeholder="Share your request..."
+                    rows={6}
+                    className="rounded-lg border-slate-300 focus-visible:ring-cyan-600"
                     required
                   />
                 </div>
+
                 <Button
                   type="submit"
-                  className="w-full py-6 rounded-full bg-[var(--color-primary)] hover:bg-[var(--color-primary-700)]"
                   disabled={isSubmitting}
+                  className="h-11 w-full sm:w-auto rounded-lg bg-cyan-700 hover:bg-cyan-800 text-white"
                 >
-                  {isSubmitting ? "Invio in corso..." : "Invia messaggio"}
+                  {isSubmitting ? "Sending..." : "Send message"}
                 </Button>
               </form>
-            </div>
+            </section>
           </div>
         </div>
-      </div>
+      </main>
     </div>
   );
 };

@@ -85,8 +85,12 @@ const App = () => {
   // useEffect for fetch color profiles
   useEffect(() => {
     const getColorProfiles = async () => {
-      const response = await fetchColorProfiles();
-      if (response) {
+      try {
+        const response = await fetchColorProfiles();
+        if (!response) {
+          return;
+        }
+
         document.documentElement.style.setProperty(
           "--color-primary",
           response.primary_color
@@ -99,6 +103,8 @@ const App = () => {
           "--color-accent",
           response.accent_color
         );
+      } catch (error) {
+        console.error("Failed to load color profiles:", error);
       }
     };
 

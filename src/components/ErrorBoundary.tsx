@@ -27,8 +27,13 @@ class ErrorBoundary extends Component<Props, State> {
     if (this.state.hasError) {
       return (
         <div className="flex items-center justify-center min-h-screen">
-          <div className="text-center">
+          <div className="text-center max-w-xl px-4">
             <h1 className="text-2xl font-bold mb-4">Something went wrong</h1>
+            {this.state.error?.message ? (
+              <p className="text-sm text-muted-foreground mb-4 break-words">
+                {this.state.error.message}
+              </p>
+            ) : null}
             <button
               onClick={() => window.location.reload()}
               className="px-4 py-2 bg-primary text-white rounded"

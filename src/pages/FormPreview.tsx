@@ -1,228 +1,288 @@
+import { useMemo, useState } from "react";
+import { useParams } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
+import { useToast } from "@/components/ui/use-toast";
 
-import React, { useState } from 'react';
-import { useParams } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Label } from '@/components/ui/label';
-import { useToast } from '@/components/ui/use-toast';
+type FieldOption = {
+  label: string;
+  value: string;
+};
 
-// Esempio di form per anteprima
-const sampleForm = {
-  id: 'form-1',
-  title: 'Valutazione del Servizio',
-  description: 'Aiutaci a migliorare il nostro servizio rispondendo a questo breve questionario.',
+type BaseField = {
+  id: string;
+  label: string;
+  required?: boolean;
+  placeholder?: string;
+};
+
+type TextField = BaseField & { type: "text" | "number" };
+type TextAreaField = BaseField & { type: "textarea" };
+type RadioField = BaseField & { type: "radio"; options: FieldOption[] };
+type CheckboxField = BaseField & { type: "checkbox"; options: FieldOption[] };
+type FormFieldType = TextField | TextAreaField | RadioField | CheckboxField;
+
+type FormValues = Record<string, string | boolean | string[]>;
+
+const sampleForm: {
+  id: string;
+  title: string;
+  description: string;
+  fields: FormFieldType[];
+} = {
+  id: "form-1",
+  title: "Service Experience Survey",
+  description: "Help us improve with quick and focused feedback.",
   fields: [
     {
-      id: 'field-1',
-      type: 'text',
-      label: 'Nome e Cognome',
+      id: "fullName",
+      type: "text",
+      label: "Full name",
       required: true,
-      placeholder: 'Inserisci il tuo nome e cognome'
+      placeholder: "John Smith",
     },
     {
-      id: 'field-2',
-      type: 'radio',
-      label: 'Come valuti il nostro servizio?',
+      id: "serviceRating",
+      type: "radio",
+      label: "How would you rate our service?",
       required: true,
       options: [
-        { label: 'Eccellente', value: '5' },
-        { label: 'Buono', value: '4' },
-        { label: 'Soddisfacente', value: '3' },
-        { label: 'Mediocre', value: '2' },
-        { label: 'Scarso', value: '1' }
-      ]
+        { label: "Excellent", value: "5" },
+        { label: "Good", value: "4" },
+        { label: "Average", value: "3" },
+        { label: "Poor", value: "2" },
+        { label: "Very poor", value: "1" },
+      ],
     },
     {
-      id: 'field-3',
-      type: 'checkbox',
-      label: 'Quali servizi hai utilizzato?',
-      required: false,
+      id: "usedServices",
+      type: "checkbox",
+      label: "Which services did you use?",
       options: [
-        { label: 'Consulenza', value: 'consultation' },
-        { label: 'Supporto Tecnico', value: 'support' },
-        { label: 'Formazione', value: 'training' },
-        { label: 'Altro', value: 'other' }
-      ]
+        { label: "Consulting", value: "consulting" },
+        { label: "Technical support", value: "support" },
+        { label: "Training", value: "training" },
+        { label: "Other", value: "other" },
+      ],
     },
     {
-      id: 'field-4',
-      type: 'textarea',
-      label: 'Hai suggerimenti per migliorare il nostro servizio?',
-      required: false,
-      placeholder: 'Inserisci qui i tuoi suggerimenti'
-    }
-  ]
+      id: "suggestions",
+      type: "textarea",
+      label: "Suggestions for improvement",
+      placeholder: "Tell us what we should improve next...",
+    },
+  ],
 };
 
 const FormPreview = () => {
   const { id } = useParams();
   const { toast } = useToast();
-  const [formValues, setFormValues] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formValues, setFormValues] = useState<FormValues>({});
 
-  // Nella versione reale, dovremmo caricare il form dal backend usando l'id
   const form = sampleForm;
+  const requiredCount = useMemo(
+    () => form.fields.filter((field) => field.required).length,
+    [form.fields]
+  );
 
-  const handleChange = (fieldId, value) => {
-    setFormValues(prev => ({
-      ...prev,
-      [fieldId]: value
-    }));
+  const handleChange = (fieldId: string, value: string | boolean | string[]) => {
+    setFormValues((prev) => ({ ...prev, [fieldId]: value }));
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    setIsSubmitting(true);
+  const getCheckboxValues = (fieldId: string): string[] => {
+    const value = formValues[fieldId];
+    return Array.isArray(value) ? value : [];
+  };
 
-    // Simuliamo l'invio del form
+  const isFieldValid = (field: FormFieldType) => {
+    if (!field.required) return true;
+    const value = formValues[field.id];
+    if (typeof value === "string") return value.trim().length > 0;
+    if (typeof value === "boolean") return value;
+    if (Array.isArray(value)) return value.length > 0;
+    return false;
+  };
+
+  const completedRequired = form.fields.filter(isFieldValid).length;
+
+  const handleSubmit = (event: React.FormEvent) => {
+    event.preventDefault();
+    const hasInvalidRequired = form.fields.some((field) => !isFieldValid(field));
+    if (hasInvalidRequired) {
+      toast({
+        variant: "destructive",
+        title: "Missing required fields",
+        description: "Please complete all required fields before submitting.",
+      });
+      return;
+    }
+
+    setIsSubmitting(true);
     setTimeout(() => {
-      console.log('Form submitted:', formValues);
+      console.log("Form submitted:", formValues);
       setIsSubmitting(false);
       setFormValues({});
       toast({
-        title: 'Form Inviato',
-        description: 'Grazie per aver compilato il form!',
+        title: "Form submitted",
+        description: "Your answers were submitted successfully.",
       });
-    }, 1000);
+    }, 700);
   };
 
-  const renderField = (field) => {
+  const renderField = (field: FormFieldType) => {
     const requiredIndicator = field.required ? (
-      <span className="text-red-500 ml-1">*</span>
+      <span className="text-rose-500 ml-1">*</span>
     ) : null;
 
-    switch (field.type) {
-      case 'text':
-        return (
-          <div key={field.id} className="space-y-2 mb-4">
-            <Label htmlFor={field.id}>
-              {field.label}
-              {requiredIndicator}
-            </Label>
-            <Input
-              id={field.id}
-              type="text"
-              placeholder={field.placeholder || ''}
-              value={formValues[field.id] || ''}
-              onChange={(e) => handleChange(field.id, e.target.value)}
-              required={field.required}
-            />
-          </div>
-        );
-      case 'textarea':
-        return (
-          <div key={field.id} className="space-y-2 mb-4">
-            <Label htmlFor={field.id}>
-              {field.label}
-              {requiredIndicator}
-            </Label>
-            <Textarea
-              id={field.id}
-              placeholder={field.placeholder || ''}
-              value={formValues[field.id] || ''}
-              onChange={(e) => handleChange(field.id, e.target.value)}
-              required={field.required}
-              rows={4}
-            />
-          </div>
-        );
-      case 'radio':
-        return (
-          <div key={field.id} className="space-y-3 mb-4">
-            <Label>
-              {field.label}
-              {requiredIndicator}
-            </Label>
-            <RadioGroup
-              value={formValues[field.id] || ''}
-              onValueChange={(value) => handleChange(field.id, value)}
-            >
-              {field.options?.map((option, index) => (
-                <div key={index} className="flex items-center space-x-2">
-                  <RadioGroupItem value={option.value} id={`${field.id}-${index}`} />
-                  <Label htmlFor={`${field.id}-${index}`} className="font-normal">
-                    {option.label}
-                  </Label>
-                </div>
-              ))}
-            </RadioGroup>
-          </div>
-        );
-      case 'checkbox':
-        return (
-          <div key={field.id} className="space-y-3 mb-4">
-            <Label>
-              {field.label}
-              {requiredIndicator}
-            </Label>
-            <div className="space-y-2">
-              {field.options?.map((option, index) => (
-                <div key={index} className="flex items-center space-x-2">
-                  <Checkbox
-                    id={`${field.id}-${index}`}
-                    checked={formValues[`${field.id}-${option.value}`] || false}
-                    onCheckedChange={(checked) => 
-                      handleChange(`${field.id}-${option.value}`, checked)
-                    }
-                  />
-                  <Label htmlFor={`${field.id}-${index}`} className="font-normal">
-                    {option.label}
-                  </Label>
-                </div>
-              ))}
-            </div>
-          </div>
-        );
-      case 'number':
-        return (
-          <div key={field.id} className="space-y-2 mb-4">
-            <Label htmlFor={field.id}>
-              {field.label}
-              {requiredIndicator}
-            </Label>
-            <Input
-              id={field.id}
-              type="number"
-              placeholder={field.placeholder || ''}
-              value={formValues[field.id] || ''}
-              onChange={(e) => handleChange(field.id, e.target.value)}
-              required={field.required}
-            />
-          </div>
-        );
-      default:
-        return null;
+    if (field.type === "text" || field.type === "number") {
+      return (
+        <div key={field.id} className="space-y-2">
+          <Label htmlFor={field.id} className="text-slate-800">
+            {field.label}
+            {requiredIndicator}
+          </Label>
+          <Input
+            id={field.id}
+            type={field.type}
+            placeholder={field.placeholder || ""}
+            value={(formValues[field.id] as string) || ""}
+            onChange={(e) => handleChange(field.id, e.target.value)}
+            className="h-11 rounded-lg border-slate-300 focus-visible:ring-teal-500"
+          />
+        </div>
+      );
     }
+
+    if (field.type === "textarea") {
+      return (
+        <div key={field.id} className="space-y-2">
+          <Label htmlFor={field.id} className="text-slate-800">
+            {field.label}
+            {requiredIndicator}
+          </Label>
+          <Textarea
+            id={field.id}
+            placeholder={field.placeholder || ""}
+            value={(formValues[field.id] as string) || ""}
+            onChange={(e) => handleChange(field.id, e.target.value)}
+            rows={5}
+            className="rounded-lg border-slate-300 focus-visible:ring-teal-500"
+          />
+        </div>
+      );
+    }
+
+    if (field.type === "radio") {
+      return (
+        <div key={field.id} className="space-y-3">
+          <Label className="text-slate-800">
+            {field.label}
+            {requiredIndicator}
+          </Label>
+          <RadioGroup
+            value={(formValues[field.id] as string) || ""}
+            onValueChange={(value) => handleChange(field.id, value)}
+            className="gap-2"
+          >
+            {field.options.map((option) => (
+              <label
+                key={option.value}
+                htmlFor={`${field.id}-${option.value}`}
+                className="flex items-center gap-3 rounded-lg border border-slate-200 px-3 py-2 hover:bg-slate-50 transition-colors"
+              >
+                <RadioGroupItem
+                  value={option.value}
+                  id={`${field.id}-${option.value}`}
+                />
+                <span className="text-sm text-slate-700">{option.label}</span>
+              </label>
+            ))}
+          </RadioGroup>
+        </div>
+      );
+    }
+
+    return (
+      <div key={field.id} className="space-y-3">
+        <Label className="text-slate-800">
+          {field.label}
+          {requiredIndicator}
+        </Label>
+        <div className="space-y-2">
+          {field.options.map((option) => {
+            const values = getCheckboxValues(field.id);
+            const isChecked = values.includes(option.value);
+            return (
+              <label
+                key={option.value}
+                htmlFor={`${field.id}-${option.value}`}
+                className="flex items-center gap-3 rounded-lg border border-slate-200 px-3 py-2 hover:bg-slate-50 transition-colors"
+              >
+                <Checkbox
+                  id={`${field.id}-${option.value}`}
+                  checked={isChecked}
+                  onCheckedChange={(checked) => {
+                    const nextValues = checked
+                      ? [...values, option.value]
+                      : values.filter((value) => value !== option.value);
+                    handleChange(field.id, nextValues);
+                  }}
+                />
+                <span className="text-sm text-slate-700">{option.label}</span>
+              </label>
+            );
+          })}
+        </div>
+      </div>
+    );
   };
 
-  if (!form) {
-    return <div>Form non trovato</div>;
-  }
-
   return (
-    <div className="container max-w-3xl mx-auto py-8">
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-2xl">{form.title}</CardTitle>
-          {form.description && (
-            <CardDescription>{form.description}</CardDescription>
-          )}
-        </CardHeader>
-        <form onSubmit={handleSubmit}>
-          <CardContent className="space-y-4">
-            {form.fields.map(renderField)}
-          </CardContent>
-          <CardFooter>
-            <Button type="submit" className="w-full" disabled={isSubmitting}>
-              {isSubmitting ? 'Invio in corso...' : 'Invia'}
-            </Button>
-          </CardFooter>
-        </form>
-      </Card>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-teal-50/60 px-4 py-10">
+      <div className="mx-auto max-w-4xl space-y-6">
+        <Card className="border-slate-200 shadow-sm">
+          <CardHeader className="space-y-3">
+            <div className="text-xs uppercase tracking-wide text-slate-500">
+              Preview ID: {id || form.id}
+            </div>
+            <CardTitle className="text-3xl text-slate-900">{form.title}</CardTitle>
+            <CardDescription className="text-base text-slate-600">
+              {form.description}
+            </CardDescription>
+            <div className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-600">
+              Required completed: {Math.min(completedRequired, requiredCount)} /{" "}
+              {requiredCount}
+            </div>
+          </CardHeader>
+          <form onSubmit={handleSubmit}>
+            <CardContent className="space-y-6">
+              {form.fields.map(renderField)}
+            </CardContent>
+            <CardFooter>
+              <Button
+                type="submit"
+                className="w-full h-11 rounded-lg bg-teal-700 hover:bg-teal-800 text-white"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? "Submitting..." : "Submit form"}
+              </Button>
+            </CardFooter>
+          </form>
+        </Card>
+      </div>
     </div>
   );
 };

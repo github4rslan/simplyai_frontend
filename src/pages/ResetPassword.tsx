@@ -102,12 +102,12 @@ const ResetPassword = () => {
   };
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen bg-gradient-to-br from-slate-50 via-white to-cyan-50">
       <Navbar />
-      <div className="flex-grow flex items-center justify-center p-4 bg-[#7c6cc4]">
-        <Card className="w-full max-w-md">
+      <div className="flex-grow flex items-center justify-center p-4 pt-24">
+        <Card className="w-full max-w-md border-slate-200 shadow-sm">
           <CardHeader>
-            <CardTitle className="text-2xl">Reset Password</CardTitle>
+            <CardTitle className="text-2xl text-slate-900">Reset Password</CardTitle>
             <CardDescription>
               Enter the new password for your account
             </CardDescription>
@@ -133,6 +133,7 @@ const ResetPassword = () => {
                           <Input
                             type="password"
                             placeholder="New password"
+                            className="h-11 rounded-lg border-slate-300 focus-visible:ring-cyan-600"
                             {...field}
                           />
                         </FormControl>
@@ -150,6 +151,7 @@ const ResetPassword = () => {
                           <Input
                             type="password"
                             placeholder="Confirm password"
+                            className="h-11 rounded-lg border-slate-300 focus-visible:ring-cyan-600"
                             {...field}
                           />
                         </FormControl>
@@ -159,7 +161,7 @@ const ResetPassword = () => {
                   />
                   <Button
                     type="submit"
-                    className="w-full bg-[var(--color-primary)] hover:bg-[var(--color-primary-700)]"
+                    className="w-full h-11 rounded-lg bg-cyan-700 hover:bg-cyan-800 text-white"
                     disabled={isLoading}
                   >
                     {isLoading ? (
@@ -180,7 +182,7 @@ const ResetPassword = () => {
               Back to{" "}
               <a
                 href="/login"
-                className="text-[var(--color-primary)] hover:text-[var(--color-primary-700)]"
+                className="text-cyan-700 hover:text-cyan-800"
               >
                 login
               </a>

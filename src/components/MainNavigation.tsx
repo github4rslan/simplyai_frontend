@@ -19,10 +19,10 @@ interface NavigationItem {
 
 const defaultNavItems: NavigationItem[] = [
   { id: "home", title: "Home", path: "/", inMainMenu: true },
-  { id: "about", title: "Chi Siamo", path: "/about", inMainMenu: true },
-  { id: "guide", title: "Guida", path: "/guide", inMainMenu: true },
-  { id: "pricing", title: "Prezzi", path: "/pricing", inMainMenu: true },
-  { id: "contact", title: "Contatti", path: "/contact", inMainMenu: true },
+  { id: "about", title: "About Us", path: "/about", inMainMenu: true },
+  { id: "guide", title: "Guide", path: "/guide", inMainMenu: true },
+  { id: "pricing", title: "Pricing", path: "/pricing", inMainMenu: true },
+  { id: "contact", title: "Contact", path: "/contact", inMainMenu: true },
 ];
 
 interface MainNavigationProps {
@@ -41,13 +41,10 @@ const MainNavigation: React.FC<MainNavigationProps> = ({
 
   const isActive = (path: string) => location.pathname === path;
 
-  // Logica per caricare le pagine dal backend
   useEffect(() => {
-    // In produzione, qui faresti una chiamata API per caricare le pagine
-    // Per ora usiamo i valori predefiniti
+    // Load pages from backend in production
   }, []);
 
-  // Gestisce diversi stili di navigazione in base alla variante
   const renderNavigationContent = () => {
     switch (variant) {
       case "dashboard":
@@ -67,17 +64,17 @@ const MainNavigation: React.FC<MainNavigationProps> = ({
             <div className="hidden md:flex items-center space-x-2">
               <Link to="/dashboard">
                 <Button variant="ghost" size="sm">
-                  I miei questionari
+                  My questionnaires
                 </Button>
               </Link>
               <Link to="/dashboard/reports">
                 <Button variant="ghost" size="sm">
-                  Report
+                  Reports
                 </Button>
               </Link>
               <Link to="/profile">
                 <Button variant="ghost" size="sm">
-                  Profilo
+                  Profile
                 </Button>
               </Link>
               <DropdownMenu>
@@ -89,12 +86,12 @@ const MainNavigation: React.FC<MainNavigationProps> = ({
                 <DropdownMenuContent align="end">
                   <DropdownMenuItem>
                     <Link to="/profile" className="w-full">
-                      Il mio profilo
+                      My profile
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem>
                     <Link to="/settings" className="w-full">
-                      Impostazioni
+                      Settings
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem>
@@ -119,7 +116,7 @@ const MainNavigation: React.FC<MainNavigationProps> = ({
                 SimplyAI
               </Link>
               <span className="mx-4 text-gray-300">|</span>
-              <h1 className="text-lg font-medium">{title || "Questionario"}</h1>
+              <h1 className="text-lg font-medium">{title || "Questionnaire"}</h1>
             </div>
 
             <div className="hidden md:flex items-center space-x-2">
@@ -127,23 +124,23 @@ const MainNavigation: React.FC<MainNavigationProps> = ({
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" size="sm">
                     <Menu className="h-5 w-5 mr-2" />
-                    Navigazione
+                    Navigation
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
                   <DropdownMenuItem>
                     <Link to="/dashboard" className="w-full">
-                      I miei questionari
+                      My questionnaires
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem>
                     <Link to="/dashboard/reports" className="w-full">
-                      Report
+                      Reports
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem>
                     <Link to="/profile" className="w-full">
-                      Profilo
+                      Profile
                     </Link>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
@@ -157,12 +154,12 @@ const MainNavigation: React.FC<MainNavigationProps> = ({
                 <DropdownMenuContent align="end">
                   <DropdownMenuItem>
                     <Link to="/profile" className="w-full">
-                      Il mio profilo
+                      My profile
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem>
                     <Link to="/settings" className="w-full">
-                      Impostazioni
+                      Settings
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem>
@@ -221,7 +218,7 @@ const MainNavigation: React.FC<MainNavigationProps> = ({
                     </DropdownMenuItem>
                     <DropdownMenuItem>
                       <Link to="/profile" className="w-full">
-                        Profilo
+                        Profile
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem>
@@ -235,7 +232,7 @@ const MainNavigation: React.FC<MainNavigationProps> = ({
                 <div className="flex space-x-2">
                   <Link to="/login">
                     <Button variant="ghost" size="sm">
-                      Accedi
+                      Login
                     </Button>
                   </Link>
                   <Link to="/pricing">
@@ -243,7 +240,7 @@ const MainNavigation: React.FC<MainNavigationProps> = ({
                       size="sm"
                       className="bg-simoly-purple hover:bg-simoly-purple-dark"
                     >
-                      Registrati
+                      Sign Up
                     </Button>
                   </Link>
                 </div>
@@ -272,7 +269,7 @@ const MainNavigation: React.FC<MainNavigationProps> = ({
         </div>
       </nav>
 
-      {/* Menu mobile */}
+      {/* Mobile menu */}
       {isMenuOpen && variant === "default" && (
         <div className="md:hidden fixed top-16 left-0 right-0 bg-white shadow-md p-4 z-50 flex flex-col space-y-2 animate-in fade-in slide-in-from-top">
           {navItems
@@ -305,7 +302,7 @@ const MainNavigation: React.FC<MainNavigationProps> = ({
                   className="px-4 py-2 rounded-lg block"
                   onClick={() => setIsMenuOpen(false)}
                 >
-                  Profilo
+                  Profile
                 </Link>
                 <Link
                   to="/logout"
@@ -322,14 +319,14 @@ const MainNavigation: React.FC<MainNavigationProps> = ({
                   className="px-4 py-2 rounded-lg block"
                   onClick={() => setIsMenuOpen(false)}
                 >
-                  Accedi
+                  Login
                 </Link>
                 <Link
                   to="/pricing"
                   className="px-4 py-2 rounded-lg bg-simoly-purple text-white block text-center"
                   onClick={() => setIsMenuOpen(false)}
                 >
-                  Registrati
+                  Sign Up
                 </Link>
               </div>
             )}

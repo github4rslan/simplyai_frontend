@@ -21,29 +21,29 @@ interface ReminderSettingsProps {
 }
 
 export const ReminderSettings = ({ reminders = [], onChange }: ReminderSettingsProps) => {
-  // Genera un ID univoco per i nuovi promemoria
+  // Generate a unique ID for new reminders
   const generateId = () => {
     return Date.now().toString();
   };
 
-  // Aggiunge un nuovo promemoria
+  // Add a new reminder
   const addReminder = () => {
     const newReminder: Reminder = {
       id: generateId(),
       daysBefore: 7,
       frequency: 'once',
-      message: 'È il momento di completare il tuo questionario! Accedi per continuare il tuo percorso.',
+      message: 'It\'s time to complete your questionnaire! Log in to continue your journey.',
     };
     
     onChange([...reminders, newReminder]);
   };
 
-  // Rimuove un promemoria esistente
+  // Remove an existing reminder
   const removeReminder = (id: string) => {
     onChange(reminders.filter(reminder => reminder.id !== id));
   };
 
-  // Aggiorna un campo specifico di un promemoria
+  // Update a specific field of a reminder
   const updateReminder = (id: string, field: keyof Reminder, value: any) => {
     onChange(
       reminders.map(reminder =>
@@ -58,21 +58,21 @@ export const ReminderSettings = ({ reminders = [], onChange }: ReminderSettingsP
         <CardTitle className="text-md font-medium">
           <div className="flex items-center">
             <Bell className="h-4 w-4 mr-2" />
-            Configurazione promemoria
+            Reminder configuration
           </div>
         </CardTitle>
         <Button variant="outline" size="sm" onClick={addReminder}>
           <Plus className="h-4 w-4 mr-1" />
-          Aggiungi promemoria
+          Add reminder
         </Button>
       </CardHeader>
       <CardContent>
         {reminders.length === 0 ? (
           <div className="text-center py-6 border-2 border-dashed rounded-md">
-            <p className="text-muted-foreground">Nessun promemoria configurato</p>
+            <p className="text-muted-foreground">No reminders configured</p>
             <Button variant="outline" className="mt-4" onClick={addReminder}>
               <Plus className="h-4 w-4 mr-1" />
-              Aggiungi il primo promemoria
+              Add the first reminder
             </Button>
           </div>
         ) : (
@@ -81,61 +81,61 @@ export const ReminderSettings = ({ reminders = [], onChange }: ReminderSettingsP
               <Card key={reminder.id} className="border-gray-200">
                 <CardContent className="p-4">
                   <div className="flex justify-between items-center mb-2">
-                    <h3 className="font-medium">Promemoria {index + 1}</h3>
-                    <Button 
-                      variant="ghost" 
-                      size="sm" 
+                    <h3 className="font-medium">Reminder {index + 1}</h3>
+                    <Button
+                      variant="ghost"
+                      size="sm"
                       onClick={() => removeReminder(reminder.id)}
                     >
                       <Trash2 className="h-4 w-4 text-red-500" />
                     </Button>
                   </div>
-                  
+
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                     <div>
                       <Label htmlFor={`daysBefore-${reminder.id}`}>
-                        Giorni prima della scadenza
+                        Days before deadline
                       </Label>
                       <Input
                         id={`daysBefore-${reminder.id}`}
                         type="number"
                         min={1}
                         value={reminder.daysBefore}
-                        onChange={(e) => 
+                        onChange={(e) =>
                           updateReminder(reminder.id, 'daysBefore', parseInt(e.target.value) || 7)
                         }
                       />
                     </div>
-                    
+
                     <div>
-                      <Label htmlFor={`frequency-${reminder.id}`}>Frequenza</Label>
+                      <Label htmlFor={`frequency-${reminder.id}`}>Frequency</Label>
                       <Select
                         value={reminder.frequency}
-                        onValueChange={(value) => 
+                        onValueChange={(value) =>
                           updateReminder(reminder.id, 'frequency', value)
                         }
                       >
                         <SelectTrigger id={`frequency-${reminder.id}`}>
-                          <SelectValue placeholder="Seleziona frequenza" />
+                          <SelectValue placeholder="Select frequency" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="once">Una sola volta</SelectItem>
-                          <SelectItem value="daily">Ogni giorno</SelectItem>
-                          <SelectItem value="weekly">Ogni settimana</SelectItem>
+                          <SelectItem value="once">Once</SelectItem>
+                          <SelectItem value="daily">Daily</SelectItem>
+                          <SelectItem value="weekly">Weekly</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
                   </div>
-                  
+
                   <div>
-                    <Label htmlFor={`message-${reminder.id}`}>Messaggio</Label>
+                    <Label htmlFor={`message-${reminder.id}`}>Message</Label>
                     <Textarea
                       id={`message-${reminder.id}`}
                       value={reminder.message}
-                      onChange={(e) => 
+                      onChange={(e) =>
                         updateReminder(reminder.id, 'message', e.target.value)
                       }
-                      placeholder="Inserisci il messaggio per il promemoria"
+                      placeholder="Enter the reminder message"
                       rows={2}
                     />
                   </div>

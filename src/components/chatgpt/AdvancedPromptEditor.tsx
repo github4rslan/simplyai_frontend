@@ -66,34 +66,34 @@ const AdvancedPromptEditor = () => {
   const [model, setModel] = useState('gpt-4o');
   const [temperature, setTemperature] = useState(0.7);
   const [maxTokens, setMaxTokens] = useState(2000);
-  const [systemPrompt, setSystemPrompt] = useState('Sei un assistente virtuale esperto di report aziendali.');
+  const [systemPrompt, setSystemPrompt] = useState('You are a virtual assistant specializing in business reports.');
   const { toast } = useToast();
-  const [title, setTitle] = useState('Nuovo Prompt');
-  
-  // Stati per le sezioni
+  const [title, setTitle] = useState('New Prompt');
+
+  // Section states
   const [textSections, setTextSections] = useState<ShortcodeItem[]>([
-    { id: '1', title: 'Analisi Generale', shortcode: 'analisi_generale', prompt: '' }
+    { id: '1', title: 'General Analysis', shortcode: 'analisi_generale', prompt: '' }
   ]);
-  
+
   const [chartSections, setChartSections] = useState<ShortcodeItem[]>([
-    { 
-      id: '1', 
-      title: 'Panoramica Risultati', 
-      shortcode: 'chart_overview', 
+    {
+      id: '1',
+      title: 'Results Overview',
+      shortcode: 'chart_overview',
       type: 'chart',
-      chartType: 'bar', 
+      chartType: 'bar',
       prompt: '',
       config: { ...defaultChartConfig }
     }
   ]);
-  
+
   const [tableSections, setTableSections] = useState<ShortcodeItem[]>([
-    { 
-      id: '1', 
-      title: 'Riepilogo Dati', 
-      shortcode: 'table_summary', 
+    {
+      id: '1',
+      title: 'Data Summary',
+      shortcode: 'table_summary',
       type: 'table',
-      tableType: 'simple', 
+      tableType: 'simple',
       prompt: '',
       config: { ...defaultTableConfig }
     }
@@ -161,8 +161,8 @@ const AdvancedPromptEditor = () => {
     console.log("Configurazione salvata:", configData);
     
     toast({
-      title: "Prompt salvato",
-      description: "Il prompt e le configurazioni sono stati salvati con successo"
+      title: "Prompt saved",
+      description: "The prompt and configurations have been saved successfully"
     });
   };
 
@@ -172,7 +172,7 @@ const AdvancedPromptEditor = () => {
     variables.forEach(variable => {
       if (variable.name) {
         const placeholder = `{${variable.name}}`;
-        previewPrompt = previewPrompt.replace(new RegExp(placeholder, 'g'), `[Valore per "${variable.name}"]`);
+        previewPrompt = previewPrompt.replace(new RegExp(placeholder, 'g'), `[Value for "${variable.name}"]`);
       }
     });
     return previewPrompt;
@@ -180,15 +180,15 @@ const AdvancedPromptEditor = () => {
 
   const testPrompt = () => {
     toast({
-      title: "Test avviato",
-      description: "Richiesta inviata all'API di OpenAI"
+      title: "Test started",
+      description: "Request sent to the OpenAI API"
     });
-    
-    // Simuliamo una risposta dopo un breve ritardo
+
+    // Simulate a response after a short delay
     setTimeout(() => {
       toast({
-        title: "Risposta ricevuta",
-        description: "Il test è stato completato con successo"
+        title: "Response received",
+        description: "The test completed successfully"
       });
     }, 2000);
   };
@@ -198,7 +198,7 @@ const AdvancedPromptEditor = () => {
     const newId = (textSections.length + 1).toString();
     const newSection = {
       id: newId,
-      title: `Nuova Sezione Testo ${newId}`,
+      title: `New Text Section ${newId}`,
       shortcode: `sezione_testo_${newId}`,
       prompt: ''
     };
@@ -209,7 +209,7 @@ const AdvancedPromptEditor = () => {
     const newId = (chartSections.length + 1).toString();
     const newSection = {
       id: newId,
-      title: `Nuovo Grafico ${newId}`,
+      title: `New Chart ${newId}`,
       shortcode: `chart_${newId}`,
       type: 'chart',
       chartType: 'bar',
@@ -230,7 +230,7 @@ const AdvancedPromptEditor = () => {
     const newId = (tableSections.length + 1).toString();
     const newSection = {
       id: newId,
-      title: `Nuova Tabella ${newId}`,
+      title: `New Table ${newId}`,
       shortcode: `table_${newId}`,
       type: 'table',
       tableType: 'simple',
@@ -371,8 +371,8 @@ const AdvancedPromptEditor = () => {
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
     toast({
-      title: "Copiato",
-      description: "Testo copiato negli appunti"
+      title: "Copied",
+      description: "Text copied to clipboard"
     });
   };
 
@@ -422,17 +422,17 @@ const AdvancedPromptEditor = () => {
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle>Configura il Prompt Generale per il questionario</CardTitle>
+          <CardTitle>Configure the General Prompt for the questionnaire</CardTitle>
           <CardDescription>
-            Imposta il prompt base utilizzato da ChatGPT per analizzare le risposte e generare il report
+            Set the base prompt used by ChatGPT to analyze responses and generate the report
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           <div>
-            <Label htmlFor="prompt-title">Titolo del Template</Label>
+            <Label htmlFor="prompt-title">Template Title</Label>
             <Input
               id="prompt-title"
-              placeholder="Es. Nuovo Prompt"
+              placeholder="E.g. New Prompt"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               className="mt-1"
@@ -443,29 +443,29 @@ const AdvancedPromptEditor = () => {
             <Label htmlFor="system-prompt">System Prompt</Label>
             <Textarea
               id="system-prompt"
-              placeholder="Sei un assistente esperto che analizza i dati dei questionari."
+              placeholder="You are an expert assistant that analyzes questionnaire data."
               value={systemPrompt}
               onChange={(e) => setSystemPrompt(e.target.value)}
               className="mt-1"
               rows={3}
             />
             <p className="text-sm text-muted-foreground mt-1">
-              Il system prompt definisce il comportamento generale dell'assistente AI
+              The system prompt defines the general behavior of the AI assistant
             </p>
           </div>
           
           <div>
-            <Label htmlFor="prompt-principale">Prompt Principale</Label>
+            <Label htmlFor="prompt-principale">Main Prompt</Label>
             <Textarea
               id="prompt-principale"
-              placeholder="Inserisci qui il contenuto del prompt generale con le variabili tra parentesi graffe, es: {nome_variabile}..."
+              placeholder="Enter the general prompt content here with variables in curly braces, e.g.: {variable_name}..."
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
               className="mt-1 font-mono"
               rows={8}
             />
             <p className="text-sm text-muted-foreground mt-1">
-              Questo è il prompt generale per tutto il report. I prompt specifici per ogni sezione possono essere definiti sotto.
+              This is the general prompt for the entire report. Specific prompts for each section can be defined below.
               Usa {'{questionnaire_data}'} per includere automaticamente i dati del questionario.
             </p>
           </div>
@@ -474,7 +474,7 @@ const AdvancedPromptEditor = () => {
             <div className="flex justify-between items-center">
               <Label>Variabili</Label>
               <Button variant="outline" size="sm" onClick={addVariable}>
-                <Plus className="h-4 w-4 mr-1" /> Aggiungi Variabile
+                <Plus className="h-4 w-4 mr-1" /> Add Variable
               </Button>
             </div>
             
@@ -484,12 +484,12 @@ const AdvancedPromptEditor = () => {
                   <Input
                     value={variable.name}
                     onChange={(e) => updateVariable(index, 'name', e.target.value)}
-                    placeholder="Nome variabile"
+                    placeholder="Variable name"
                   />
                   <Input
                     value={variable.description}
                     onChange={(e) => updateVariable(index, 'description', e.target.value)}
-                    placeholder="Descrizione"
+                    placeholder="Description"
                   />
                   <Button 
                     variant="ghost" 
@@ -501,19 +501,19 @@ const AdvancedPromptEditor = () => {
                 </div>
               ))}
               {variables.length === 0 && (
-                <p className="text-sm text-muted-foreground italic">Nessuna variabile definita</p>
+                <p className="text-sm text-muted-foreground italic">No variables defined</p>
               )}
             </div>
           </div>
         </CardContent>
       </Card>
 
-      {/* Sezioni di Testo */}
+      {/* Text Sections */}
       <div className="space-y-5">
         <div className="flex justify-between items-center">
-          <h2 className="text-xl font-bold">Sezioni di Testo</h2>
+          <h2 className="text-xl font-bold">Text Sections</h2>
           <Button variant="outline" onClick={addTextSection}>
-            <Plus className="h-4 w-4 mr-1" /> Aggiungi Sezione Testo
+            <Plus className="h-4 w-4 mr-1" /> Add Text Section
           </Button>
         </div>
 
@@ -522,7 +522,7 @@ const AdvancedPromptEditor = () => {
             <CardContent className="pt-6">
               <div className="grid grid-cols-1 md:grid-cols-[2fr_2fr_1fr] gap-3 mb-4">
                 <div>
-                  <Label htmlFor={`text-title-${index}`}>Titolo Sezione</Label>
+                  <Label htmlFor={`text-title-${index}`}>Section Title</Label>
                   <Input
                     id={`text-title-${index}`}
                     value={section.title}
@@ -549,7 +549,7 @@ const AdvancedPromptEditor = () => {
                     variant="outline"
                     onClick={() => openPromptDialog('text', section.id, section.title, section.prompt || '')}
                   >
-                    {section.prompt ? "Modifica Prompt" : "Aggiungi Prompt"}
+                    {section.prompt ? "Edit Prompt" : "Add Prompt"}
                   </Button>
                   <Button variant="ghost" size="sm" onClick={() => removeTextSection(index)}>
                     <Trash2 className="h-4 w-4" />
@@ -561,12 +561,12 @@ const AdvancedPromptEditor = () => {
         ))}
       </div>
 
-      {/* Grafici */}
+      {/* Charts */}
       <div className="space-y-5">
         <div className="flex justify-between items-center">
-          <h2 className="text-xl font-bold">Grafici</h2>
+          <h2 className="text-xl font-bold">Charts</h2>
           <Button variant="outline" onClick={addChartSection}>
-            <Plus className="h-4 w-4 mr-1" /> Aggiungi Grafico
+            <Plus className="h-4 w-4 mr-1" /> Add Chart
           </Button>
         </div>
 
@@ -575,7 +575,7 @@ const AdvancedPromptEditor = () => {
             <CardContent className="pt-6">
               <div className="grid grid-cols-1 md:grid-cols-[2fr_1fr_2fr_1fr] gap-3 mb-4">
                 <div>
-                  <Label htmlFor={`chart-title-${index}`}>Titolo Grafico</Label>
+                  <Label htmlFor={`chart-title-${index}`}>Chart Title</Label>
                   <Input
                     id={`chart-title-${index}`}
                     value={section.title}
@@ -584,13 +584,13 @@ const AdvancedPromptEditor = () => {
                   />
                 </div>
                 <div>
-                  <Label htmlFor={`chart-type-${index}`}>Tipo di Grafico</Label>
+                  <Label htmlFor={`chart-type-${index}`}>Chart Type</Label>
                   <Select
                     value={section.chartType || 'bar'}
                     onValueChange={(value) => updateChartSection(index, 'chartType', value)}
                   >
                     <SelectTrigger id={`chart-type-${index}`} className="mt-1">
-                      <SelectValue placeholder="Seleziona tipo" />
+                      <SelectValue placeholder="Select type" />
                     </SelectTrigger>
                     <SelectContent>
                       {Object.entries(chartTypeOptions.reduce((groups: Record<string, typeof chartTypeOptions>, option) => {
@@ -658,12 +658,12 @@ const AdvancedPromptEditor = () => {
         ))}
       </div>
 
-      {/* Tabelle */}
+      {/* Tables */}
       <div className="space-y-5">
         <div className="flex justify-between items-center">
-          <h2 className="text-xl font-bold">Tabelle</h2>
+          <h2 className="text-xl font-bold">Tables</h2>
           <Button variant="outline" onClick={addTableSection}>
-            <Plus className="h-4 w-4 mr-1" /> Aggiungi Tabella
+            <Plus className="h-4 w-4 mr-1" /> Add Table
           </Button>
         </div>
 
@@ -672,7 +672,7 @@ const AdvancedPromptEditor = () => {
             <CardContent className="pt-6">
               <div className="grid grid-cols-1 md:grid-cols-[2fr_1fr_2fr_1fr] gap-3 mb-4">
                 <div>
-                  <Label htmlFor={`table-title-${index}`}>Titolo Tabella</Label>
+                  <Label htmlFor={`table-title-${index}`}>Table Title</Label>
                   <Input
                     id={`table-title-${index}`}
                     value={section.title}
@@ -681,13 +681,13 @@ const AdvancedPromptEditor = () => {
                   />
                 </div>
                 <div>
-                  <Label htmlFor={`table-type-${index}`}>Tipo di Tabella</Label>
+                  <Label htmlFor={`table-type-${index}`}>Table Type</Label>
                   <Select
                     value={section.tableType || 'simple'}
                     onValueChange={(value) => updateTableSection(index, 'tableType', value)}
                   >
                     <SelectTrigger id={`table-type-${index}`} className="mt-1">
-                      <SelectValue placeholder="Seleziona tipo" />
+                      <SelectValue placeholder="Select type" />
                     </SelectTrigger>
                     <SelectContent>
                       {tableTypeOptions.map((option) => (
@@ -745,25 +745,25 @@ const AdvancedPromptEditor = () => {
         ))}
       </div>
 
-      {/* Dialog per modifica prompt specifico */}
+      {/* Dialog for editing specific prompt */}
       {currentEditSection && (
         <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center">
           <div className="bg-background border rounded-lg shadow-lg w-full max-w-3xl max-h-[90vh] overflow-auto">
             <div className="p-6">
-              <h2 className="text-xl font-bold mb-4">Prompt specifico per: {currentEditSection.title}</h2>
+              <h2 className="text-xl font-bold mb-4">Specific prompt for: {currentEditSection.title}</h2>
               <p className="text-sm text-muted-foreground mb-4">
-                Questo prompt verrà utilizzato da ChatGPT per generare specificamente questa sezione del report
+                This prompt will be used by ChatGPT to generate specifically this section of the report
               </p>
               <Textarea
                 value={currentEditSection.prompt}
                 onChange={(e) => setCurrentEditSection({...currentEditSection, prompt: e.target.value})}
-                placeholder="Inserisci il prompt specifico per questa sezione..."
+                placeholder="Enter the specific prompt for this section..."
                 rows={10}
                 className="mb-4 font-mono"
               />
               <div className="flex justify-end gap-2">
-                <Button variant="outline" onClick={closePromptDialog}>Annulla</Button>
-                <Button onClick={saveSpecificPrompt}>Salva Prompt</Button>
+                <Button variant="outline" onClick={closePromptDialog}>Cancel</Button>
+                <Button onClick={saveSpecificPrompt}>Save Prompt</Button>
               </div>
             </div>
           </div>
@@ -772,7 +772,7 @@ const AdvancedPromptEditor = () => {
 
       <div className="flex justify-end">
         <Button onClick={handleSave} size="lg">
-          Salva Configurazione
+          Save Configuration
         </Button>
       </div>
     </div>

@@ -26,7 +26,7 @@ const TextSectionsManager = ({
 }) => {
   const addSection = () => {
     const newShortcode = `text_section_${sections.length + 1}`;
-    onSectionsChange([...sections, { title: 'Nuova Sezione', shortcode: newShortcode }]);
+    onSectionsChange([...sections, { title: 'New Section', shortcode: newShortcode }]);
   };
 
   const updateSection = (index: number, field: 'title' | 'shortcode', value: string) => {
@@ -44,16 +44,16 @@ const TextSectionsManager = ({
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
-        <h3 className="text-lg font-medium">Sezioni di Testo</h3>
+        <h3 className="text-lg font-medium">Text Sections</h3>
         <Button variant="outline" size="sm" onClick={addSection}>
           <Plus className="h-4 w-4 mr-2" />
-          Aggiungi Sezione
+          Add Section
         </Button>
       </div>
-      
+
       {sections.length === 0 && (
         <p className="text-sm text-muted-foreground py-3">
-          Nessuna sezione di testo definita. Aggiungi sezioni per strutturare il tuo report.
+          No text sections defined. Add sections to structure your report.
         </p>
       )}
       
@@ -63,7 +63,7 @@ const TextSectionsManager = ({
             <Input
               value={section.title}
               onChange={(e) => updateSection(index, 'title', e.target.value)}
-              placeholder="Titolo sezione"
+              placeholder="Section title"
               className="mb-2"
             />
             <div className="flex items-center bg-gray-50 rounded p-2 text-sm">
@@ -89,15 +89,15 @@ const ChartSectionsManager = ({
   onSectionsChange: (sections: { title: string; shortcode: string; chartType: string; config: ChartConfig }[]) => void;
 }) => {
   const chartTypes = [
-    { value: 'bar', label: 'Barre' },
-    { value: 'line', label: 'Linea' },
-    { value: 'pie', label: 'Torta' },
+    { value: 'bar', label: 'Bar' },
+    { value: 'line', label: 'Line' },
+    { value: 'pie', label: 'Pie' },
     { value: 'radar', label: 'Radar' },
     { value: 'area', label: 'Area' },
-    { value: 'column', label: 'Colonna' },
-    { value: 'scatter', label: 'Dispersione' },
-    { value: 'heatmap', label: 'Mappa di calore' },
-    { value: 'bubble', label: 'Bolla' }
+    { value: 'column', label: 'Column' },
+    { value: 'scatter', label: 'Scatter' },
+    { value: 'heatmap', label: 'Heat map' },
+    { value: 'bubble', label: 'Bubble' }
   ];
 
   const addChart = () => {
@@ -105,7 +105,7 @@ const ChartSectionsManager = ({
     onSectionsChange([
       ...sections, 
       { 
-        title: 'Nuovo Grafico', 
+        title: 'New Chart',
         shortcode: newShortcode, 
         chartType: 'bar',
         config: {
@@ -141,16 +141,16 @@ const ChartSectionsManager = ({
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
-        <h3 className="text-lg font-medium">Grafici</h3>
+        <h3 className="text-lg font-medium">Charts</h3>
         <Button variant="outline" size="sm" onClick={addChart}>
           <Plus className="h-4 w-4 mr-2" />
-          Aggiungi Grafico
+          Add Chart
         </Button>
       </div>
-      
+
       {sections.length === 0 && (
         <p className="text-sm text-muted-foreground py-3">
-          Nessun grafico definito. Aggiungi grafici per visualizzare dati nel report.
+          No charts defined. Add charts to display data in the report.
         </p>
       )}
       
@@ -161,7 +161,7 @@ const ChartSectionsManager = ({
               <Input
                 value={section.title}
                 onChange={(e) => updateChart(index, 'title', e.target.value)}
-                placeholder="Titolo grafico"
+                placeholder="Chart title"
                 className="mb-2"
               />
               <div className="flex items-center bg-gray-50 rounded p-2 text-sm">
@@ -176,7 +176,7 @@ const ChartSectionsManager = ({
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <div>
-              <Label htmlFor={`chart-type-${index}`}>Tipo di Grafico</Label>
+              <Label htmlFor={`chart-type-${index}`}>Chart Type</Label>
               <select
                 id={`chart-type-${index}`}
                 className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
@@ -192,7 +192,7 @@ const ChartSectionsManager = ({
             </div>
             
             <div>
-              <Label htmlFor={`chart-height-${index}`}>Altezza (px)</Label>
+              <Label htmlFor={`chart-height-${index}`}>Height (px)</Label>
               <Input
                 id={`chart-height-${index}`}
                 type="number"

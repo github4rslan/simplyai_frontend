@@ -29,14 +29,14 @@ export const QuestionnaireProgressionSettings = ({
           {isPeriodic && <RotateCcw className="h-4 w-4 mr-2 text-blue-500" />}
           {isVerification && <Clock className="h-4 w-4 mr-2 text-amber-500" />}
           {isProgression && <CheckSquare className="h-4 w-4 mr-2 text-purple-500" />}
-          Impostazioni avanzate
+          Advanced settings
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         {(isPeriodic || isVerification) && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="periodicity">Periodicità (giorni)</Label>
+              <Label htmlFor="periodicity">Periodicity (days)</Label>
               <Input
                 id="periodicity"
                 type="number"
@@ -48,7 +48,7 @@ export const QuestionnaireProgressionSettings = ({
             
             {isPeriodic && (
               <div>
-                <Label htmlFor="repetitions">Numero ripetizioni</Label>
+                <Label htmlFor="repetitions">Number of repetitions</Label>
                 <Input
                   id="repetitions"
                   type="number"
@@ -64,10 +64,10 @@ export const QuestionnaireProgressionSettings = ({
         {isProgression && (
           <div>
             <p className="text-sm text-muted-foreground mb-4">
-              Il percorso di apprendimento progressivo permette all'utente di progredire attraverso una sequenza di questionari, ciascuno disponibile solo dopo il completamento del precedente.
+              The progressive learning path allows the user to progress through a sequence of questionnaires, each available only after completing the previous one.
             </p>
             <div className="bg-purple-50 border border-purple-200 rounded-md p-3 text-sm text-purple-800">
-              Nell'elenco dei questionari puoi specificare la sequenza per ciascun questionario. Il numero di sequenza determina l'ordine in cui i questionari saranno presentati all'utente.
+              In the questionnaire list you can specify the sequence for each questionnaire. The sequence number determines the order in which the questionnaires will be presented to the user.
             </div>
           </div>
         )}

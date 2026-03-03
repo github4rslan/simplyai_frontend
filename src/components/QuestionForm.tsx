@@ -60,8 +60,8 @@ const QuestionForm = ({ questions, onComplete, onSaveDraft }: QuestionFormProps)
     
     if (unansweredRequiredQuestions.length > 0) {
       toast({
-        title: "Domande obbligatorie",
-        description: "Per favore, rispondi a tutte le domande obbligatorie prima di continuare.",
+        title: "Required questions",
+        description: "Please answer all required questions before continuing.",
         variant: "destructive",
       });
       return;
@@ -83,8 +83,8 @@ const QuestionForm = ({ questions, onComplete, onSaveDraft }: QuestionFormProps)
   const handleSaveDraft = () => {
     onSaveDraft(answers);
     toast({
-      title: "Bozza salvata",
-      description: "Puoi continuare a compilare il questionario in un secondo momento.",
+      title: "Draft saved",
+      description: "You can continue filling out the questionnaire later.",
     });
   };
   
@@ -96,8 +96,8 @@ const QuestionForm = ({ questions, onComplete, onSaveDraft }: QuestionFormProps)
     
     if (unansweredRequiredQuestions.length > 0) {
       toast({
-        title: "Domande obbligatorie",
-        description: "Per favore, rispondi a tutte le domande obbligatorie prima di continuare.",
+        title: "Required questions",
+        description: "Please answer all required questions before continuing.",
         variant: "destructive",
       });
       return;
@@ -111,8 +111,8 @@ const QuestionForm = ({ questions, onComplete, onSaveDraft }: QuestionFormProps)
       
       if (allUnansweredRequired.length > 0) {
         toast({
-          title: "Questionario incompleto",
-          description: `Ci sono ${allUnansweredRequired.length} domande obbligatorie non risposte.`,
+          title: "Incomplete questionnaire",
+          description: `There are ${allUnansweredRequired.length} required questions that have not been answered.`,
           variant: "destructive",
         });
         return;
@@ -179,8 +179,8 @@ const QuestionForm = ({ questions, onComplete, onSaveDraft }: QuestionFormProps)
         return (
           <div className="py-4">
             <div className="flex justify-between mb-2">
-              <span className="text-sm">{question.minLabel || "Minimo"}</span>
-              <span className="text-sm">{question.maxLabel || "Massimo"}</span>
+              <span className="text-sm">{question.minLabel || "Minimum"}</span>
+              <span className="text-sm">{question.maxLabel || "Maximum"}</span>
             </div>
             <div className="flex justify-between space-x-4">
               {Array.from({ length: (question.maxScale || 5) - (question.minScale || 1) + 1 }).map((_, idx) => {
@@ -214,7 +214,7 @@ const QuestionForm = ({ questions, onComplete, onSaveDraft }: QuestionFormProps)
             className="w-full h-32 p-4 border-2 border-simoly-gray-light rounded-xl focus:border-simoly-purple focus:ring-simoly-purple"
             value={answers[question.id] || ''}
             onChange={(e) => handleAnswer(question.id, e.target.value)}
-            placeholder="Scrivi la tua risposta qui..."
+            placeholder="Write your answer here..."
           ></textarea>
         );
         
@@ -228,10 +228,10 @@ const QuestionForm = ({ questions, onComplete, onSaveDraft }: QuestionFormProps)
       <div className="mb-8">
         <div className="flex justify-between items-center mb-2">
           <p className="text-sm text-simoly-gray-dark">
-            Pagina {currentPage + 1} di {totalPages}
+            Page {currentPage + 1} of {totalPages}
           </p>
           <p className="text-sm text-simoly-gray-dark">
-            {Math.min((currentPage + 1) * questionsPerPage, questions.length)} di {questions.length} domande
+            {Math.min((currentPage + 1) * questionsPerPage, questions.length)} of {questions.length} questions
           </p>
         </div>
         <div className="h-2 bg-simoly-gray-light rounded-full overflow-hidden">
@@ -256,7 +256,7 @@ const QuestionForm = ({ questions, onComplete, onSaveDraft }: QuestionFormProps)
                 </div>
                 {hoverTooltip === question.id && (
                   <div className="tooltip-container">
-                    <h4 className="font-medium mb-1">Guida</h4>
+                    <h4 className="font-medium mb-1">Guide</h4>
                     <p className="text-sm text-simoly-gray-dark">{question.guide}</p>
                   </div>
                 )}
@@ -283,7 +283,7 @@ const QuestionForm = ({ questions, onComplete, onSaveDraft }: QuestionFormProps)
             onClick={handlePreviousPage}
             disabled={currentPage === 0}
           >
-            <ArrowLeft className="mr-2 h-4 w-4" /> Indietro
+            <ArrowLeft className="mr-2 h-4 w-4" /> Back
           </Button>
         </div>
         
@@ -293,7 +293,7 @@ const QuestionForm = ({ questions, onComplete, onSaveDraft }: QuestionFormProps)
             className="rounded-full"
             onClick={handleSaveDraft}
           >
-            <Save className="mr-2 h-4 w-4" /> Salva bozza
+            <Save className="mr-2 h-4 w-4" /> Save Draft
           </Button>
           
           <Button
@@ -302,11 +302,11 @@ const QuestionForm = ({ questions, onComplete, onSaveDraft }: QuestionFormProps)
           >
             {currentPage === totalPages - 1 ? (
               <>
-                <Send className="mr-2 h-4 w-4" /> Invio definitivo
+                <Send className="mr-2 h-4 w-4" /> Final Submit
               </>
             ) : (
               <>
-                Avanti <ArrowRight className="ml-2 h-4 w-4" />
+                Next <ArrowRight className="ml-2 h-4 w-4" />
               </>
             )}
           </Button>

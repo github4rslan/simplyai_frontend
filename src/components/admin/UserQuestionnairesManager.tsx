@@ -66,8 +66,8 @@ const UserQuestionnairesManager = ({ userId }: UserQuestionnairesManagerProps) =
       } catch (error) {
         console.error("Error loading user data:", error);
         toast({
-          title: "Errore",
-          description: "Impossibile caricare i dati dell'utente",
+          title: "Error",
+          description: "Could not load user data",
           variant: "destructive"
         });
       } finally {
@@ -96,8 +96,8 @@ const UserQuestionnairesManager = ({ userId }: UserQuestionnairesManagerProps) =
       }
       
       toast({
-        title: "Questionario sbloccato",
-        description: "L'utente potrà ora compilare nuovamente il questionario",
+        title: "Questionnaire unlocked",
+        description: "The user can now fill in the questionnaire again",
       });
       
       // Aggiorniamo lo stato locale
@@ -111,8 +111,8 @@ const UserQuestionnairesManager = ({ userId }: UserQuestionnairesManagerProps) =
     } catch (error) {
       console.error("Error unlocking questionnaire:", error);
       toast({
-        title: "Errore",
-        description: "Impossibile sbloccare il questionario",
+        title: "Error",
+        description: "Could not unlock the questionnaire",
         variant: "destructive"
       });
     }
@@ -121,20 +121,20 @@ const UserQuestionnairesManager = ({ userId }: UserQuestionnairesManagerProps) =
   const getStatusBadge = (status: string) => {
     switch(status) {
       case 'completed':
-        return <Badge className="bg-green-100 text-green-800 hover:bg-green-200">Completato</Badge>;
+        return <Badge className="bg-green-100 text-green-800 hover:bg-green-200">Completed</Badge>;
       case 'draft':
-        return <Badge className="bg-blue-100 text-blue-800 hover:bg-blue-200">In bozza</Badge>;
+        return <Badge className="bg-blue-100 text-blue-800 hover:bg-blue-200">In draft</Badge>;
       default:
-        return <Badge className="bg-gray-100 text-gray-800 hover:bg-gray-200">Stato sconosciuto</Badge>;
+        return <Badge className="bg-gray-100 text-gray-800 hover:bg-gray-200">Unknown status</Badge>;
     }
   };
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Gestione Questionari Utente</CardTitle>
+        <CardTitle>User Questionnaires Management</CardTitle>
         <CardDescription>
-          Gestisci i questionari compilati dall'utente
+          Manage the questionnaires filled in by the user
           {userProfile && (
             <span className="font-medium block mt-1">
               {userProfile.first_name} {userProfile.last_name}
@@ -161,7 +161,7 @@ const UserQuestionnairesManager = ({ userId }: UserQuestionnairesManagerProps) =
                         {getStatusBadge(response.status)}
                         {response.completed_at && (
                           <span className="text-xs text-gray-500">
-                            Completato il: {new Date(response.completed_at).toLocaleDateString('it-IT')}
+                            Completed on: {new Date(response.completed_at).toLocaleDateString('en-US')}
                           </span>
                         )}
                       </div>
@@ -175,7 +175,7 @@ const UserQuestionnairesManager = ({ userId }: UserQuestionnairesManagerProps) =
                         className="flex items-center gap-2"
                       >
                         <Unlock className="h-3.5 w-3.5" />
-                        Sblocca
+                        Unlock
                       </Button>
                     )}
                   </div>
@@ -186,7 +186,7 @@ const UserQuestionnairesManager = ({ userId }: UserQuestionnairesManagerProps) =
         ) : (
           <div className="text-center py-8 border-2 border-dashed rounded-md">
             <CheckSquare className="h-12 w-12 mx-auto text-gray-300 mb-2" />
-            <p className="mb-2">L'utente non ha ancora compilato nessun questionario</p>
+            <p className="mb-2">The user has not filled in any questionnaire yet</p>
           </div>
         )}
       </CardContent>

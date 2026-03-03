@@ -78,12 +78,14 @@ const ForgotPassword = () => {
   };
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen bg-gradient-to-br from-slate-50 via-white to-cyan-50">
       <Navbar />
-      <div className="flex-grow flex items-center justify-center p-4 bg-gradient-to-b from-white to-purple-50">
-        <Card className="w-full max-w-md">
+      <div className="flex-grow flex items-center justify-center p-4 pt-24">
+        <Card className="w-full max-w-md border-slate-200 shadow-sm">
           <CardHeader>
-            <CardTitle className="text-2xl">Recover your password</CardTitle>
+            <CardTitle className="text-2xl text-slate-900">
+              Recover your password
+            </CardTitle>
             <CardDescription>
               Enter your email to receive the reset link
             </CardDescription>
@@ -104,6 +106,7 @@ const ForgotPassword = () => {
                         <Input
                           type="email"
                           placeholder="name@example.com"
+                          className="h-11 rounded-lg border-slate-300 focus-visible:ring-cyan-600"
                           {...field}
                         />
                       </FormControl>
@@ -113,7 +116,7 @@ const ForgotPassword = () => {
                 />
                 <Button
                   type="submit"
-                  className="w-full bg-purple-600 hover:bg-purple-700"
+                  className="w-full h-11 rounded-lg bg-cyan-700 hover:bg-cyan-800 text-white"
                   disabled={isLoading}
                 >
                   {isLoading ? (
@@ -133,7 +136,7 @@ const ForgotPassword = () => {
               Back to{" "}
               <Link
                 to="/login"
-                className="text-purple-600 hover:text-purple-800"
+                className="text-cyan-700 hover:text-cyan-800"
               >
                 login
               </Link>

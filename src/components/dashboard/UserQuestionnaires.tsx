@@ -57,15 +57,15 @@ export const UserQuestionnaires = () => {
           toast({
             variant: 'default',
             title: 'Info',
-            description: result.message || 'Nessun questionario disponibile per il tuo piano',
+            description: result.message || 'No questionnaires available for your plan',
           });
         }
       } catch (error) {
         console.error('Errore nel caricamento dei questionari:', error);
         toast({
           variant: 'destructive',
-          title: 'Errore',
-          description: 'Non è stato possibile caricare i questionari per il tuo piano',
+          title: 'Error',
+          description: 'Could not load the questionnaires for your plan',
         });
         setQuestionnaires([]);
       } finally {
@@ -82,7 +82,7 @@ export const UserQuestionnaires = () => {
     } else {
       toast({
         variant: 'default',
-        title: 'Accesso non disponibile',
+        title: 'Access unavailable',
         description: questionnaire.reason,
       });
     }
@@ -91,17 +91,17 @@ export const UserQuestionnaires = () => {
   const getStatusBadge = (status: string) => {
     switch(status) {
       case 'completed':
-        return <span className="px-2 py-1 rounded-full bg-green-100 text-green-800 text-xs font-medium">Completato</span>;
+        return <span className="px-2 py-1 rounded-full bg-green-100 text-green-800 text-xs font-medium">Completed</span>;
       case 'in_progress':
-        return <span className="px-2 py-1 rounded-full bg-yellow-100 text-yellow-800 text-xs font-medium">In corso</span>;
+        return <span className="px-2 py-1 rounded-full bg-yellow-100 text-yellow-800 text-xs font-medium">In progress</span>;
       case 'available':
-        return <span className="px-2 py-1 rounded-full bg-blue-100 text-blue-800 text-xs font-medium">Disponibile</span>;
+        return <span className="px-2 py-1 rounded-full bg-blue-100 text-blue-800 text-xs font-medium">Available</span>;
       case 'locked':
-        return <span className="px-2 py-1 rounded-full bg-gray-100 text-gray-800 text-xs font-medium">Bloccato</span>;
+        return <span className="px-2 py-1 rounded-full bg-gray-100 text-gray-800 text-xs font-medium">Locked</span>;
       case 'waiting':
-        return <span className="px-2 py-1 rounded-full bg-purple-100 text-purple-800 text-xs font-medium">In attesa</span>;
+        return <span className="px-2 py-1 rounded-full bg-purple-100 text-purple-800 text-xs font-medium">Waiting</span>;
       default:
-        return <span className="px-2 py-1 rounded-full bg-gray-100 text-gray-800 text-xs font-medium">Non iniziato</span>;
+        return <span className="px-2 py-1 rounded-full bg-gray-100 text-gray-800 text-xs font-medium">Not started</span>;
     }
   };
   
@@ -109,24 +109,24 @@ export const UserQuestionnaires = () => {
     if (!questionnaire.canAccess) {
       switch(questionnaire.status) {
         case 'waiting':
-          return questionnaire.nextAvailableDate ? `Disponibile ${questionnaire.nextAvailableDate}` : 'In attesa';
+          return questionnaire.nextAvailableDate ? `Available ${questionnaire.nextAvailableDate}` : 'Waiting';
         case 'locked':
-          return 'Non disponibile';
+          return 'Unavailable';
         default:
-          return 'Non disponibile';
+          return 'Unavailable';
       }
     }
     
     switch(questionnaire.status) {
       case 'completed':
-        return questionnaire.completionCount > 1 ? `Completato (${questionnaire.completionCount}x)` : 'Completato';
+        return questionnaire.completionCount > 1 ? `Completed (${questionnaire.completionCount}x)` : 'Completed';
       case 'available':
-        return questionnaire.completionCount > 0 ? 'Ripeti' : 'Inizia';
+        return questionnaire.completionCount > 0 ? 'Repeat' : 'Start';
       default:
-        return 'Inizia';
+        return 'Start';
     }
   };
-  
+
   const isButtonDisabled = (questionnaire: Questionnaire) => {
     return !questionnaire.canAccess;
   };
@@ -171,9 +171,9 @@ export const UserQuestionnaires = () => {
         <CardContent className="py-10">
           <div className="text-center">
             <CheckSquare className="h-12 w-12 mx-auto text-gray-300 mb-2" />
-            <p className="mb-4">Non hai ancora questionari disponibili</p>
+            <p className="mb-4">You have no questionnaires available yet</p>
             <p className="text-sm text-gray-500">
-              Controlla più tardi o contatta l'assistenza per maggiori informazioni
+              Check back later or contact support for more information
             </p>
           </div>
         </CardContent>
@@ -198,7 +198,7 @@ export const UserQuestionnaires = () => {
                 )}
                 {questionnaire.completionCount > 0 && (
                   <span className="text-xs bg-green-100 text-green-600 px-2 py-1 rounded">
-                    {questionnaire.completionCount} completati
+                    {questionnaire.completionCount} completed
                   </span>
                 )}
               </div>
