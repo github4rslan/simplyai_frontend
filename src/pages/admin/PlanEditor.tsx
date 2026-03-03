@@ -105,7 +105,7 @@ const PlanEditor = () => {
       reminderDaysBefore: 7,
       reminderFrequency: "once",
       reminderMessage:
-        "È il momento di completare il tuo questionario! Accedi per continuare il tuo percorso.",
+        "It's time to complete your questionnaire! Log in to continue your journey.",
       reminderCount: 1,
       // Default value for progression learning condition
       minWaitingPeriod: 7,
@@ -181,7 +181,7 @@ const PlanEditor = () => {
                   reminderDaysBefore: 7,
                   reminderFrequency: "once",
                   reminderMessage:
-                    "È il momento di completare il tuo questionario! Accedi per continuare il tuo percorso.",
+                    "It's time to complete your questionnaire! Log in to continue your journey.",
                   reminderCount: 1,
                   minWaitingPeriod: 7,
                 };
@@ -205,23 +205,23 @@ const PlanEditor = () => {
         } catch (error) {
           console.error("Errore nel caricamento del piano:", error);
           toast({
-            title: "Errore",
-            description: "Impossibile caricare il piano richiesto",
+            title: "Error",
+            description: "Unable to load the requested plan",
             variant: "destructive",
           });
 
           setPlan({
             id: id || "", // Ensure id is set from URL param
-            name: "Piano Premium",
-            description: "Piano avanzato con accesso a tutti i questionari",
+            name: "Premium Plan",
+            description: "Advanced plan with access to all questionnaires",
             price: 9999,
             is_free: false,
             features: [
-              "Accesso a tutti i questionari",
-              "Verifiche periodiche",
-              "Tracciamento dei progressi",
-              "Report personalizzati",
-              "Consulenza dedicata",
+              "Access to all questionnaires",
+              "Periodic verifications",
+              "Progress tracking",
+              "Personalized reports",
+              "Dedicated consultation",
             ],
             options: {
               singleQuestionnaire: false,
@@ -235,7 +235,7 @@ const PlanEditor = () => {
               reminderDaysBefore: 7,
               reminderFrequency: "once",
               reminderMessage:
-                "È il momento di completare il tuo questionario! Accedi per continuare il tuo percorso.",
+                "It's time to complete your questionnaire! Log in to continue your journey.",
               reminderCount: 1,
               minWaitingPeriod: 7,
             },
@@ -248,8 +248,8 @@ const PlanEditor = () => {
       } else {
         setPlan({
           id: id ? id : uuidv4(), // Always set id from URL param if present
-          name: "Nuovo Piano",
-          description: "Descrizione del nuovo piano",
+          name: "New Plan",
+          description: "Description of the new plan",
           price: 0,
           is_free: true,
           features: [""],
@@ -263,7 +263,7 @@ const PlanEditor = () => {
             reminderDaysBefore: 7,
             reminderFrequency: "once",
             reminderMessage:
-              "È il momento di completare il tuo questionario! Accedi per continuare il tuo percorso.",
+              "It's time to complete your questionnaire! Log in to continue your journey.",
             reminderCount: 1,
             minWaitingPeriod: 7,
           },
@@ -331,18 +331,18 @@ const PlanEditor = () => {
       }
 
       toast({
-        title: "Piano salvato",
+        title: "Plan saved",
         description: isEditMode
-          ? "Il piano è stato aggiornato con successo"
-          : "Il piano è stato creato con successo",
+          ? "The plan has been updated successfully"
+          : "The plan has been created successfully",
       });
 
       navigate("/admin/plans");
     } catch (error) {
-      console.error("Errore durante il salvataggio:", error);
+      console.error("Error during save:", error);
       toast({
-        title: "Errore",
-        description: "Si è verificato un errore durante il salvataggio",
+        title: "Error",
+        description: "An error occurred during saving",
         variant: "destructive",
       });
     } finally {
@@ -388,9 +388,9 @@ const PlanEditor = () => {
   const addQuestionnaire = () => {
     if (plan.options.singleQuestionnaire && plan.questionnaires.length > 0) {
       toast({
-        title: "Avviso",
+        title: "Warning",
         description:
-          "Il piano con questionario singolo può avere un solo questionario",
+          "A single questionnaire plan can only have one questionnaire",
         variant: "default",
       });
       return;
@@ -419,8 +419,8 @@ const PlanEditor = () => {
       ]);
     } else {
       toast({
-        title: "Attenzione",
-        description: "Tutti i questionari disponibili sono già stati aggiunti",
+        title: "Warning",
+        description: "All available questionnaires have already been added",
         variant: "destructive",
       });
     }
@@ -456,7 +456,7 @@ const PlanEditor = () => {
 
   const getQuestionnaireTitle = (id: string) => {
     const questionnaire = availableQuestionnaires.find((q) => q.id === id);
-    return questionnaire ? questionnaire.title : "Questionario non trovato";
+    return questionnaire ? questionnaire.title : "Questionnaire not found";
   };
 
   const handlePlanTypeChange = (type: string) => {
@@ -498,7 +498,7 @@ const PlanEditor = () => {
       toast({
         title: "Avviso",
         description:
-          "Il piano con questionario singolo può avere un solo questionario. Gli altri questionari sono stati rimossi.",
+          "A single questionnaire plan can only have one questionnaire. The other questionnaires have been removed.",
       });
     }
 
@@ -556,52 +556,52 @@ const PlanEditor = () => {
         <div className="flex items-center gap-4">
           <Button variant="ghost" onClick={handleBack}>
             <ArrowLeft className="h-4 w-4 mr-2" />
-            Indietro
+            Back
           </Button>
           <h1 className="text-3xl font-bold">
-            {isEditMode ? "Modifica Piano" : "Crea Nuovo Piano"}
+            {isEditMode ? "Edit Plan" : "Create New Plan"}
           </h1>
         </div>
 
         <Button onClick={handleSave} disabled={isLoading}>
           <Save className="h-4 w-4 mr-2" />
-          {isLoading ? "Salvando..." : "Salva Piano"}
+          {isLoading ? "Saving..." : "Save Plan"}
         </Button>
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="mb-4">
-          <TabsTrigger value="details">Dettagli Piano</TabsTrigger>
-          <TabsTrigger value="options">Opzioni</TabsTrigger>
-          <TabsTrigger value="questionnaires">Questionari</TabsTrigger>
-          <TabsTrigger value="notifications">Notifiche</TabsTrigger>
+          <TabsTrigger value="details">Plan Details</TabsTrigger>
+          <TabsTrigger value="options">Options</TabsTrigger>
+          <TabsTrigger value="questionnaires">Questionnaires</TabsTrigger>
+          <TabsTrigger value="notifications">Notifications</TabsTrigger>
         </TabsList>
 
         <TabsContent value="details">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <Card className="col-span-1 md:col-span-2">
               <CardHeader>
-                <CardTitle>Informazioni Base</CardTitle>
+                <CardTitle>Basic Information</CardTitle>
                 <CardDescription>
-                  Inserisci le informazioni di base per il piano
+                  Enter the basic information for the plan
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="name">Nome Piano</Label>
+                    <Label htmlFor="name">Plan Name</Label>
                     <Input
                       id="name"
                       value={plan.name}
                       onChange={(e) => handleChange("name", e.target.value)}
-                      placeholder="Es. Piano Base"
+                      placeholder="E.g. Basic Plan"
                     />
                   </div>
 
                   <div>
                     <div className="flex items-end gap-4">
                       <div className="flex-1">
-                        <Label htmlFor="price">Prezzo (€)</Label>
+                        <Label htmlFor="price">Price (€)</Label>
                         <Input
                           id="price"
                           type="number"
@@ -625,30 +625,30 @@ const PlanEditor = () => {
                             handleChange("is_free", checked)
                           }
                         />
-                        <Label htmlFor="is_free">Gratuito</Label>
+                        <Label htmlFor="is_free">Free</Label>
                       </div>
                     </div>
                   </div>
                 </div>
 
                 <div>
-                  <Label htmlFor="description">Descrizione</Label>
+                  <Label htmlFor="description">Description</Label>
                   <Textarea
                     id="description"
                     value={plan.description || ""}
                     onChange={(e) =>
                       handleChange("description", e.target.value)
                     }
-                    placeholder="Descrivi brevemente questo piano"
+                    placeholder="Briefly describe this plan"
                     rows={3}
                   />
                 </div>
 
                 <div>
                   <div className="flex items-center justify-between mb-2">
-                    <Label>Caratteristiche</Label>
+                    <Label>Features</Label>
                     <Button variant="outline" size="sm" onClick={addFeature}>
-                      <Plus className="h-4 w-4 mr-1" /> Aggiungi
+                      <Plus className="h-4 w-4 mr-1" /> Add
                     </Button>
                   </div>
 
@@ -657,7 +657,7 @@ const PlanEditor = () => {
                       <Input
                         value={feature}
                         onChange={(e) => updateFeature(index, e.target.value)}
-                        placeholder="Es. Accesso a tutti i questionari"
+                        placeholder="E.g. Access to all questionnaires"
                         className="flex-1"
                       />
                       <Button
@@ -679,7 +679,7 @@ const PlanEditor = () => {
                       }
                     />
                     <Label htmlFor="plan-active" className="ml-2">
-                      Piano attivo e visibile agli utenti
+                      Plan active and visible to users
                     </Label>
                   </div>
                 </div>
@@ -691,50 +691,50 @@ const PlanEditor = () => {
         <TabsContent value="options">
           <Card>
             <CardHeader>
-              <CardTitle>Tipo di Piano</CardTitle>
+              <CardTitle>Plan Type</CardTitle>
               <CardDescription>
-                Seleziona il tipo di piano e configura le relative opzioni
+                Select the plan type and configure the related options
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div>
-                <Label htmlFor="plan-type">Tipo di Piano</Label>
+                <Label htmlFor="plan-type">Plan Type</Label>
                 <Select
                   value={getPlanType()}
                   onValueChange={handlePlanTypeChange}
                 >
                   <SelectTrigger id="plan-type">
-                    <SelectValue placeholder="Seleziona tipo piano" />
+                    <SelectValue placeholder="Select plan type" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="single">
                       <div className="flex items-center">
                         <CheckSquare className="h-4 w-4 mr-2 text-gray-500" />
-                        <span>Questionario Singolo</span>
+                        <span>Single Questionnaire</span>
                       </div>
                     </SelectItem>
                     <SelectItem value="verification">
                       <div className="flex items-center">
                         <Clock className="h-4 w-4 mr-2 text-amber-500" />
-                        <span>Verifica dopo periodo</span>
+                        <span>Verification after period</span>
                       </div>
                     </SelectItem>
                     <SelectItem value="periodic">
                       <div className="flex items-center">
                         <RotateCcw className="h-4 w-4 mr-2 text-blue-500" />
-                        <span>Questionari periodici</span>
+                        <span>Periodic questionnaires</span>
                       </div>
                     </SelectItem>
                     <SelectItem value="multiple">
                       <div className="flex items-center">
                         <Copy className="h-4 w-4 mr-2 text-green-500" />
-                        <span>Questionari multipli</span>
+                        <span>Multiple questionnaires</span>
                       </div>
                     </SelectItem>
                     <SelectItem value="progress">
                       <div className="flex items-center">
                         <CheckSquare className="h-4 w-4 mr-2 text-purple-500" />
-                        <span>Progressione di apprendimento</span>
+                        <span>Learning progression</span>
                       </div>
                     </SelectItem>
                   </SelectContent>
@@ -743,39 +743,39 @@ const PlanEditor = () => {
 
               <div className="bg-muted p-4 rounded-md">
                 <h3 className="font-medium mb-2">
-                  Descrizione del tipo selezionato
+                  Description of the selected type
                 </h3>
                 {plan.options.singleQuestionnaire && (
                   <p className="text-sm text-muted-foreground">
-                    Questo piano permette all'utente di compilare un singolo
-                    questionario una sola volta.
+                    This plan allows the user to complete a single
+                    questionnaire only once.
                   </p>
                 )}
                 {plan.options.verificationAfter && (
                   <p className="text-sm text-muted-foreground">
-                    Questo piano permette all'utente di compilare un
-                    questionario e poi di ricompilarlo dopo un periodo
-                    specificato per una verifica dei progressi.
+                    This plan allows the user to complete a
+                    questionnaire and then redo it after a specified period
+                    for a progress verification.
                   </p>
                 )}
                 {plan.options.periodicQuestionnaires && (
                   <p className="text-sm text-muted-foreground">
-                    Questo piano permette all'utente di compilare lo stesso
-                    questionario periodicamente per monitorare i progressi nel
-                    tempo.
+                    This plan allows the user to complete the same
+                    questionnaire periodically to monitor progress over
+                    time.
                   </p>
                 )}
                 {plan.options.multipleQuestionnaires && (
                   <p className="text-sm text-muted-foreground">
-                    Questo piano permette all'utente di compilare più
-                    questionari diversi quando lo desidera, senza limitazioni.
+                    This plan allows the user to complete multiple
+                    different questionnaires whenever they wish, without limitations.
                   </p>
                 )}
                 {plan.options.progressQuestionnaires && (
                   <p className="text-sm text-muted-foreground">
-                    Questo piano permette un percorso di apprendimento
-                    progressivo con questionari in sequenza, ciascuno
-                    disponibile dopo il completamento del precedente.
+                    This plan enables a progressive learning path
+                    with sequential questionnaires, each one available
+                    after completing the previous one.
                   </p>
                 )}
               </div>
@@ -784,7 +784,7 @@ const PlanEditor = () => {
                 {plan.options.verificationAfter && (
                   <div>
                     <Label htmlFor="verification-period">
-                      Periodo di verifica (giorni)
+                      Verification period (days)
                     </Label>
                     <Input
                       id="verification-period"
@@ -804,11 +804,11 @@ const PlanEditor = () => {
                 {plan.options.progressQuestionnaires && (
                   <div className="space-y-4">
                     <h4 className="font-medium text-sm">
-                      Condizioni per la progressione
+                      Progression conditions
                     </h4>
                     <div>
                       <Label htmlFor="min-waiting-period">
-                        Periodo di attesa minimo tra questionari (giorni)
+                        Minimum waiting period between questionnaires (days)
                       </Label>
                       <Input
                         id="min-waiting-period"
@@ -823,8 +823,8 @@ const PlanEditor = () => {
                         }
                       />
                       <p className="text-xs text-muted-foreground mt-1">
-                        Tempo minimo che l'utente deve attendere prima di poter
-                        accedere al questionario successivo
+                        Minimum time the user must wait before being able
+                        to access the next questionnaire
                       </p>
                     </div>
                   </div>
@@ -833,7 +833,7 @@ const PlanEditor = () => {
                 {plan.options.periodicQuestionnaires && (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <Label htmlFor="periodicity">Periodicità (giorni)</Label>
+                      <Label htmlFor="periodicity">Periodicity (days)</Label>
                       <Input
                         id="periodicity"
                         type="number"
@@ -849,7 +849,7 @@ const PlanEditor = () => {
                     </div>
                     <div>
                       <Label htmlFor="max-repetitions">
-                        Numero massimo di ripetizioni
+                        Maximum number of repetitions
                       </Label>
                       <Input
                         id="max-repetitions"
@@ -876,9 +876,9 @@ const PlanEditor = () => {
             <CardHeader>
               <div className="flex justify-between items-center">
                 <div>
-                  <CardTitle>Questionari</CardTitle>
+                  <CardTitle>Questionnaires</CardTitle>
                   <CardDescription>
-                    Seleziona i questionari da includere nel piano
+                    Select the questionnaires to include in the plan
                   </CardDescription>
                 </div>
                 <Button
@@ -890,7 +890,7 @@ const PlanEditor = () => {
                     plan.questionnaires.length > 0
                   }
                 >
-                  <Plus className="h-4 w-4 mr-1" /> Aggiungi Questionario
+                  <Plus className="h-4 w-4 mr-1" /> Add Questionnaire
                 </Button>
               </div>
             </CardHeader>
@@ -898,7 +898,7 @@ const PlanEditor = () => {
               {plan.questionnaires.length === 0 ? (
                 <div className="text-center py-10 border-2 border-dashed rounded-md">
                   <p className="text-muted-foreground">
-                    Nessun questionario aggiunto
+                    No questionnaire added
                   </p>
                   <Button
                     variant="outline"
@@ -910,7 +910,7 @@ const PlanEditor = () => {
                       plan.questionnaires.length > 0
                     }
                   >
-                    Aggiungi Questionario
+                    Add Questionnaire
                   </Button>
                 </div>
               ) : (
@@ -935,7 +935,7 @@ const PlanEditor = () => {
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                           <div>
                             <Label htmlFor={`questionnaire-${index}`}>
-                              Questionario
+                              Questionnaire
                             </Label>
                             <Select
                               value={questionnaire.id}
@@ -944,7 +944,7 @@ const PlanEditor = () => {
                               }
                             >
                               <SelectTrigger id={`questionnaire-${index}`}>
-                                <SelectValue placeholder="Seleziona questionario" />
+                                <SelectValue placeholder="Select questionnaire" />
                               </SelectTrigger>
                               <SelectContent>
                                 {availableQuestionnaires.map((q) => (
@@ -959,7 +959,7 @@ const PlanEditor = () => {
                           {plan.options.progressQuestionnaires && (
                             <div>
                               <Label htmlFor={`sequence-${index}`}>
-                                Sequenza
+                                Sequence
                               </Label>
                               <Input
                                 id={`sequence-${index}`}
@@ -982,7 +982,7 @@ const PlanEditor = () => {
                             <>
                               <div>
                                 <Label htmlFor={`periodicity-${index}`}>
-                                  Periodicità (giorni)
+                                  Periodicity (days)
                                 </Label>
                                 <Input
                                   id={`periodicity-${index}`}
@@ -1001,7 +1001,7 @@ const PlanEditor = () => {
 
                               <div>
                                 <Label htmlFor={`repetitions-${index}`}>
-                                  Ripetizioni
+                                  Repetitions
                                 </Label>
                                 <Input
                                   id={`repetitions-${index}`}
@@ -1033,9 +1033,9 @@ const PlanEditor = () => {
         <TabsContent value="notifications">
           <Card>
             <CardHeader>
-              <CardTitle>Configurazione Notifiche</CardTitle>
+              <CardTitle>Notification Configuration</CardTitle>
               <CardDescription>
-                Configura le notifiche per questo piano
+                Configure notifications for this plan
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
@@ -1048,7 +1048,7 @@ const PlanEditor = () => {
                       handleOptionChange("emailNotifications", checked)
                     }
                   />
-                  <Label htmlFor="email-notifications">Notifiche Email</Label>
+                  <Label htmlFor="email-notifications">Email Notifications</Label>
                 </div>
 
                 <div className="flex items-center space-x-2">
@@ -1059,7 +1059,7 @@ const PlanEditor = () => {
                       handleOptionChange("smsNotifications", checked)
                     }
                   />
-                  <Label htmlFor="sms-notifications">Notifiche SMS</Label>
+                  <Label htmlFor="sms-notifications">SMS Notifications</Label>
                 </div>
 
                 <div className="flex items-center space-x-2">
@@ -1071,7 +1071,7 @@ const PlanEditor = () => {
                     }
                   />
                   <Label htmlFor="whatsapp-notifications">
-                    Notifiche WhatsApp
+                    WhatsApp Notifications
                   </Label>
                 </div>
               </div>
@@ -1082,13 +1082,13 @@ const PlanEditor = () => {
                 <div className="space-y-4 pt-4 border-t">
                   <h3 className="font-medium flex items-center gap-2">
                     <Bell className="h-4 w-4" />
-                    Configurazione promemoria
+                    Reminder configuration
                   </h3>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <Label htmlFor="reminder-days">
-                        Giorni prima della scadenza
+                        Days before expiry
                       </Label>
                       <Input
                         id="reminder-days"
@@ -1106,7 +1106,7 @@ const PlanEditor = () => {
 
                     <div>
                       <Label htmlFor="reminder-count">
-                        Numero di promemoria
+                        Number of reminders
                       </Label>
                       <Input
                         id="reminder-count"
@@ -1126,7 +1126,7 @@ const PlanEditor = () => {
 
                   <div>
                     <Label htmlFor="reminder-frequency">
-                      Frequenza dei promemoria
+                      Reminder frequency
                     </Label>
                     <Select
                       value={plan.options.reminderFrequency || "once"}
@@ -1135,30 +1135,30 @@ const PlanEditor = () => {
                       }
                     >
                       <SelectTrigger id="reminder-frequency">
-                        <SelectValue placeholder="Seleziona frequenza" />
+                        <SelectValue placeholder="Select frequency" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="once">Una sola volta</SelectItem>
-                        <SelectItem value="daily">Ogni giorno</SelectItem>
-                        <SelectItem value="weekly">Ogni settimana</SelectItem>
+                        <SelectItem value="once">Only once</SelectItem>
+                        <SelectItem value="daily">Every day</SelectItem>
+                        <SelectItem value="weekly">Every week</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
 
                   <div>
                     <Label htmlFor="reminder-message">
-                      Messaggio di promemoria
+                      Reminder message
                     </Label>
                     <Textarea
                       id="reminder-message"
                       value={
                         plan.options.reminderMessage ||
-                        "È il momento di completare il tuo questionario! Accedi per continuare il tuo percorso."
+                        "It's time to complete your questionnaire! Log in to continue your journey."
                       }
                       onChange={(e) =>
                         handleOptionChange("reminderMessage", e.target.value)
                       }
-                      placeholder="Inserisci il messaggio per il promemoria"
+                      placeholder="Enter the reminder message"
                       rows={3}
                     />
                   </div>

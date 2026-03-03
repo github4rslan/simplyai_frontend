@@ -40,43 +40,43 @@ var allPages = [
     title: "Home",
     menuTitle: "Home",
     content:
-      "<h1>Benvenuti in SimplyAI</h1><p>La piattaforma intelligente per l'analisi dei dati aziendali</p>",
+      "<h1>Welcome to SimplyAI</h1><p>The intelligent platform for business data analysis</p>",
     inMainMenu: true,
     order: 1,
   },
   {
     id: "about",
-    title: "Chi Siamo",
-    menuTitle: "Chi Siamo",
+    title: "About Us",
+    menuTitle: "About Us",
     content:
-      "<h1>Chi Siamo</h1><p>SimplyAI è una piattaforma innovativa che utilizza l'intelligenza artificiale per analizzare i dati della tua azienda e fornire report dettagliati e insights preziosi.</p>",
+      "<h1>About Us</h1><p>SimplyAI is an innovative platform that uses artificial intelligence to analyse your company's data and provide detailed reports and valuable insights.</p>",
     inMainMenu: true,
     order: 2,
   },
   {
     id: "guide",
-    title: "Guida",
-    menuTitle: "Guida",
+    title: "Guide",
+    menuTitle: "Guide",
     content:
-      "<h1>Guida all'uso</h1><p>Benvenuti alla guida per l'utilizzo della piattaforma SimplyAI.</p>",
+      "<h1>User Guide</h1><p>Welcome to the guide for using the SimplyAI platform.</p>",
     inMainMenu: true,
     order: 3,
   },
   {
     id: "contact",
-    title: "Contatti",
-    menuTitle: "Contatti",
+    title: "Contact",
+    menuTitle: "Contact",
     content:
-      "<h1>Contattaci</h1><p>Siamo qui per aiutarti. Compila il modulo sottostante per metterti in contatto con noi.</p>",
+      "<h1>Contact Us</h1><p>We are here to help you. Fill in the form below to get in touch with us.</p>",
     inMainMenu: true,
     order: 4,
   },
   {
     id: "pricing",
-    title: "Prezzi",
-    menuTitle: "Prezzi",
+    title: "Pricing",
+    menuTitle: "Pricing",
     content:
-      "<h1>I nostri piani</h1><p>Scegli il piano più adatto alle tue esigenze.</p>",
+      "<h1>Our plans</h1><p>Choose the plan that best suits your needs.</p>",
     inMainMenu: true,
     order: 5,
   },
@@ -143,8 +143,8 @@ const PageEditor = () => {
     savePageDataDB(currentPage.id, currentPage.title, editorContent);
 
     toast({
-      title: "Pagina salvata",
-      description: `La pagina "${currentPage.title}" è stata salvata con successo.`,
+      title: "Page saved",
+      description: `The page "${currentPage.title}" has been saved successfully.`,
     });
   };
 
@@ -164,8 +164,8 @@ const PageEditor = () => {
     savePageDataDB(currentPage.id, currentPage.title, "");
 
     toast({
-      title: "Contenuto resettato",
-      description: `La pagina "${currentPage.title}" è tornata al contenuto predefinito.`,
+      title: "Content reset",
+      description: `The page "${currentPage.title}" has been restored to its default content.`,
     });
   };
 
@@ -269,8 +269,8 @@ const PageEditor = () => {
   const handleAddPage = () => {
     if (!newPageTitle.trim()) {
       toast({
-        title: "Errore",
-        description: "Il titolo della pagina non può essere vuoto",
+        title: "Error",
+        description: "The page title cannot be empty",
         variant: "destructive",
       });
       return;
@@ -279,8 +279,8 @@ const PageEditor = () => {
     const newId = newPageTitle.toLowerCase().replace(/\s+/g, "-");
     if (pages.some((page) => page.id === newId)) {
       toast({
-        title: "Errore",
-        description: "Esiste già una pagina con questo titolo",
+        title: "Error",
+        description: "A page with this title already exists",
         variant: "destructive",
       });
       return;
@@ -290,7 +290,7 @@ const PageEditor = () => {
       id: newId,
       title: newPageTitle,
       menuTitle: newPageTitle,
-      content: `<h1>${newPageTitle}</h1><p>Contenuto della pagina ${newPageTitle}</p>`,
+      content: `<h1>${newPageTitle}</h1><p>Content of the ${newPageTitle} page</p>`,
       inMainMenu: true,
       order: pages.length + 1,
     };
@@ -301,8 +301,8 @@ const PageEditor = () => {
     setNewPageDialog(false);
 
     toast({
-      title: "Pagina creata",
-      description: `La pagina "${newPageTitle}" è stata creata con successo.`,
+      title: "Page created",
+      description: `The page "${newPageTitle}" has been created successfully.`,
     });
   };
 
@@ -311,7 +311,7 @@ const PageEditor = () => {
     const url = `${baseUrl}${imageUrl}`;
 
     const imgHtml = `<figure class="image-container">
-    <img src="${url}" alt="Immagine caricata" class="max-w-full h-auto" />
+    <img src="${url}" alt="Uploaded image" class="max-w-full h-auto" />
   </figure>`;
 
     const editor = document.getElementById(`wysiwyg-editor-${currentPage.id}`);
@@ -331,7 +331,7 @@ const PageEditor = () => {
 
     // Create heading element
     const el = document.createElement(`h${level}`);
-    el.textContent = `Nuovo titolo ${level}`;
+    el.textContent = `New heading ${level}`;
 
     // Optional Tailwind styling (different sizes for H1–H6)
     switch (level) {
@@ -381,7 +381,7 @@ const PageEditor = () => {
 
     // Create paragraph element
     const el = document.createElement("p");
-    el.textContent = "Nuovo paragrafo";
+    el.textContent = "New paragraph";
 
     // Optional Tailwind styling
     el.className = "text-base my-2";
@@ -405,7 +405,7 @@ const PageEditor = () => {
     if (editor) {
       let layout = '<div class="grid grid-cols-' + columns + ' gap-4">';
       for (let i = 0; i < columns; i++) {
-        layout += '<div class="col"><p>Colonna ' + (i + 1) + "</p></div>";
+        layout += '<div class="col"><p>Column ' + (i + 1) + "</p></div>";
       }
       layout += "</div>";
       editor.innerHTML += layout;
@@ -414,8 +414,8 @@ const PageEditor = () => {
   const handleDeletePage = (pageId: string) => {
     if (pages.length <= 1) {
       toast({
-        title: "Errore",
-        description: "Non puoi eliminare l'unica pagina rimasta",
+        title: "Error",
+        description: "You cannot delete the only remaining page",
         variant: "destructive",
       });
       return;
@@ -427,8 +427,8 @@ const PageEditor = () => {
     }
 
     toast({
-      title: "Pagina eliminata",
-      description: "La pagina è stata eliminata con successo",
+      title: "Page deleted",
+      description: "The page has been deleted successfully",
     });
   };
 
@@ -440,12 +440,12 @@ const PageEditor = () => {
     );
 
     toast({
-      title: "Menu aggiornato",
-      description: `La pagina è stata ${
+      title: "Menu updated",
+      description: `The page has been ${
         pages.find((p) => p.id === pageId)?.inMainMenu
-          ? "rimossa dal"
-          : "aggiunta al"
-      } menu principale.`,
+          ? "removed from the"
+          : "added to the"
+      } main menu.`,
     });
   };
 
@@ -539,18 +539,18 @@ const PageEditor = () => {
   const onNewSection = () => {
     const parentBlock = getParentBlock();
     if (!parentBlock) {
-      console.warn("Nessun blocco trovato: nuova sezione aggiunta alla fine");
+      console.warn("No block found: new section added at the end");
       const editor = document.getElementById(
         `wysiwyg-editor-${currentPage.id}`
       );
       if (editor) {
-        editor.innerHTML += `<section class="py-8"><p>Nuova sezione</p></section>`;
+        editor.innerHTML += `<section class="py-8"><p>New section</p></section>`;
       }
       return;
     }
 
     const newSection = document.createElement("section");
-    newSection.innerHTML = "<p>Nuova sezione</p>";
+    newSection.innerHTML = "<p>New section</p>";
 
     if (parentBlock.parentNode) {
       parentBlock.parentNode.insertBefore(newSection, parentBlock.nextSibling);
@@ -566,7 +566,7 @@ const PageEditor = () => {
 
   if (loading) {
     return (
-      <div className="flex justify-center p-10">Caricamento editor...</div>
+      <div className="flex justify-center p-10">Loading editor...</div>
     );
   }
 
@@ -574,14 +574,14 @@ const PageEditor = () => {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold">Editor Pagine</h1>
+          <h1 className="text-3xl font-bold">Page Editor</h1>
           <p className="text-muted-foreground mt-2">
-            Modifica i contenuti delle pagine del sito
+            Edit the content of the site pages
           </p>
         </div>
         <div className="flex space-x-2">
           <div className="flex items-center space-x-2">
-            <Label htmlFor="filter-main-menu">Solo menu principale</Label>
+            <Label htmlFor="filter-main-menu">Main menu only</Label>
             <Switch
               id="filter-main-menu"
               checked={filterMainMenu}
@@ -591,21 +591,21 @@ const PageEditor = () => {
           <Dialog open={newPageDialog} onOpenChange={setNewPageDialog}>
             <DialogTrigger asChild>
               <Button>
-                <Plus className="mr-2 h-4 w-4" /> Nuova Pagina
+                <Plus className="mr-2 h-4 w-4" /> New Page
               </Button>
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>
-                <DialogTitle>Crea nuova pagina</DialogTitle>
+                <DialogTitle>Create new page</DialogTitle>
               </DialogHeader>
               <div className="grid gap-4 py-4">
                 <div className="grid gap-2">
-                  <Label htmlFor="page-title">Titolo della pagina</Label>
+                  <Label htmlFor="page-title">Page title</Label>
                   <Input
                     id="page-title"
                     value={newPageTitle}
                     onChange={(e) => setNewPageTitle(e.target.value)}
-                    placeholder="Inserisci il titolo della pagina"
+                    placeholder="Enter the page title"
                   />
                 </div>
               </div>
@@ -614,9 +614,9 @@ const PageEditor = () => {
                   variant="outline"
                   onClick={() => setNewPageDialog(false)}
                 >
-                  Annulla
+                  Cancel
                 </Button>
-                <Button onClick={handleAddPage}>Crea Pagina</Button>
+                <Button onClick={handleAddPage}>Create Page</Button>
               </DialogFooter>
             </DialogContent>
           </Dialog>
@@ -627,7 +627,7 @@ const PageEditor = () => {
         <div className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Anteprima della Pagina</CardTitle>
+              <CardTitle>Page Preview</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="bg-gray-100 p-4 rounded-md font-mono text-sm overflow-x-auto">
@@ -695,8 +695,8 @@ const PageEditor = () => {
                         onClick={() => handleToggleMainMenu(page.id)}
                       >
                         {page.inMainMenu
-                          ? "Rimuovi dal Menu"
-                          : "Aggiungi al Menu"}
+                          ? "Remove from Menu"
+                          : "Add to Menu"}
                       </Button>
                       <Button
                         variant="destructive"
@@ -708,10 +708,10 @@ const PageEditor = () => {
                     </div>
                   </div>
                   <CardDescription>
-                    ID: {page.id} - Modifica il contenuto della pagina
+                    ID: {page.id} - Edit page content
                     {page.inMainMenu && (
                       <div className="mt-2 flex items-center space-x-2">
-                        <span>Posizione nel menu:</span>
+                        <span>Menu position:</span>
                         <Button
                           variant="outline"
                           size="sm"
@@ -766,11 +766,11 @@ const PageEditor = () => {
                       <div className="flex gap-2">
                         <Button variant="secondary" size="sm" onClick={handleClear}>
                           <Eraser className="h-4 w-4 mr-2" />
-                          Svuota pagina
+                          Clear page
                         </Button>
                         <Button variant="default" size="sm" onClick={handleSave}>
                           <Save className="h-4 w-4 mr-2" />
-                          Salva Modifiche
+                          Save Changes
                         </Button>
                       </div>
                     </div>
@@ -797,15 +797,15 @@ const PageEditor = () => {
                       }
                     >
                       <Eye className="h-4 w-4 mr-2" />
-                      Anteprima
+                      Preview
                     </Button>
                     <Button onClick={handleSave}>
                       <Save className="h-4 w-4 mr-2" />
-                      Salva Pagina
+                      Save Page
                     </Button>
                   </div>
                   <div className="space-x-2 flex items-center">
-                    <Label>Titolo nel menu:</Label>
+                    <Label>Menu title:</Label>
                     <Input
                       value={page.menuTitle}
                       onChange={(e) => {
@@ -829,9 +829,9 @@ const PageEditor = () => {
 
       <Card>
         <CardHeader>
-          <CardTitle>Shortcode della Pagina</CardTitle>
+          <CardTitle>Page Shortcode</CardTitle>
           <CardDescription>
-            Usa questo shortcode per includere questa pagina in un'altra pagina
+            Use this shortcode to include this page in another page
           </CardDescription>
         </CardHeader>
         <CardContent>

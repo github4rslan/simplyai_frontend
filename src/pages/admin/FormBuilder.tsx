@@ -72,16 +72,16 @@ const FormBuilder = () => {
     setError(null);
     try {
       const res = await fetch(`${API_BASE_URL}/forms`);
-      if (!res.ok) throw new Error("Errore nel recupero dei forms");
+      if (!res.ok) throw new Error("Error fetching forms");
       const result = await res.json();
 
       if (result.success) {
         setForms(result.data || []);
       } else {
-        throw new Error(result.message || "Errore nel recupero dei forms");
+        throw new Error(result.message || "Error fetching forms");
       }
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Errore sconosciuto");
+      setError(err instanceof Error ? err.message : "Unknown error");
     } finally {
       setLoading(false);
     }
@@ -122,14 +122,14 @@ const FormBuilder = () => {
       const newForm = {
         ...formToDuplicate,
         id: (formsArray.length + 1).toString(),
-        title: `${formToDuplicate.title} (Copia)`,
+        title: `${formToDuplicate.title} (Copy)`,
         createdAt: new Date().toISOString().split("T")[0],
       };
 
       setForms([...formsArray, newForm]);
       toast({
-        title: "Form duplicato",
-        description: `"${formToDuplicate.title}" è stato duplicato con successo.`,
+        title: "Form duplicated",
+        description: `"${formToDuplicate.title}" has been duplicated successfully.`,
       });
     }
   };
@@ -169,10 +169,10 @@ const FormBuilder = () => {
         setDeleteFormId(null);
 
         toast({
-          title: "Form eliminato",
-          description: `Il form "${
-            result.data?.title || "senza nome"
-          }" è stato eliminato con successo.`,
+          title: "Form deleted",
+          description: `The form "${
+            result.data?.title || "unnamed"
+          }" has been deleted successfully.`,
         });
 
         console.log(
@@ -185,11 +185,11 @@ const FormBuilder = () => {
       console.error("❌ Error deleting form:", error);
 
       toast({
-        title: "Errore durante l'eliminazione",
+        title: "Error deleting form",
         description:
           error instanceof Error
             ? error.message
-            : "Si è verificato un errore durante l'eliminazione del form.",
+            : "An error occurred while deleting the form.",
         variant: "destructive",
       });
 
@@ -236,21 +236,21 @@ const FormBuilder = () => {
         );
 
         toast({
-          title: "Stato aggiornato",
-          description: `Il form "${form.title}" è ora ${
-            newStatus === "published" ? "attivo" : "inattivo"
+          title: "Status updated",
+          description: `The form "${form.title}" is now ${
+            newStatus === "published" ? "active" : "inactive"
           }.`,
         });
       } else {
         throw new Error(
-          result.message || "Errore durante l'aggiornamento dello stato"
+          result.message || "Error updating status"
         );
       }
     } catch (error) {
       console.error("Error toggling form status:", error);
       toast({
-        title: "Errore",
-        description: "Errore durante l'aggiornamento dello stato del form",
+        title: "Error",
+        description: "Error updating form status",
         variant: "destructive",
       });
     }
@@ -264,9 +264,9 @@ const FormBuilder = () => {
   const handleEditPageLayout = (formId: string) => {
     navigate(`/admin/form-builder/page-layout/${formId}`);
     toast({
-      title: "Editor layout pagina",
+      title: "Page layout editor",
       description:
-        "Modifica la descrizione e il layout della pagina che visualizza il form",
+        "Edit the description and layout of the page that displays the form",
     });
   };
 
@@ -281,7 +281,7 @@ const FormBuilder = () => {
         <div>
           <h1 className="text-3xl font-bold">Form Builder</h1>
           <p className="text-muted-foreground mt-2">
-            Gestisci i tuoi form e questionari
+            Manage your forms and questionnaires
           </p>
         </div>
         <div className="flex gap-2">
@@ -291,7 +291,7 @@ const FormBuilder = () => {
           </Button>
           <Button onClick={handleCreateNew}>
             <Plus className="mr-2 h-4 w-4" />
-            Crea Nuovo Form
+            Create New Form
           </Button>
         </div>
       </div>
@@ -300,7 +300,7 @@ const FormBuilder = () => {
         <div className="relative w-full md:w-1/3">
           <Input
             type="search"
-            placeholder="Cerca form..."
+            placeholder="Search forms..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="pr-10"
@@ -309,7 +309,7 @@ const FormBuilder = () => {
 
         <div className="flex items-center space-x-2">
           <Label htmlFor="show-inactive" className="text-sm font-medium">
-            Mostra solo inattivi
+            Show inactive only
           </Label>
           <Switch
             id="show-inactive"
@@ -321,7 +321,7 @@ const FormBuilder = () => {
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {loading ? (
-          <div className="col-span-full text-center p-10">Caricamento...</div>
+          <div className="col-span-full text-center p-10">Loading...</div>
         ) : error ? (
           <div className="col-span-full text-center text-red-500 p-10">
             {error}
@@ -341,12 +341,12 @@ const FormBuilder = () => {
                       </span>
                       {form.status === "draft" && (
                         <span className="ml-2 text-xs bg-gray-200 px-2 py-0.5 rounded-full text-gray-600 whitespace-nowrap">
-                          Inattivo
+                          Inactive
                         </span>
                       )}
                       {form.status === "published" && (
                         <span className="ml-2 text-xs bg-green-200 px-2 py-0.5 rounded-full text-green-700 whitespace-nowrap">
-                          Attivo
+                          Active
                         </span>
                       )}
                     </CardTitle>
@@ -367,7 +367,7 @@ const FormBuilder = () => {
                     <DropdownMenuContent align="end" className="w-[200px]">
                       <DropdownMenuItem onClick={() => handleEdit(form.id)}>
                         <Edit className="mr-2 h-4 w-4" />
-                        <span className="truncate">Modifica Form</span>
+                        <span className="truncate">Edit Form</span>
                       </DropdownMenuItem>
                       <DropdownMenuItem
                         onClick={() =>
@@ -384,13 +384,13 @@ const FormBuilder = () => {
                         onClick={() => handleEditPageLayout(form.id)}
                       >
                         <Layout className="mr-2 h-4 w-4" />
-                        <span className="truncate">Editor Pagina Form</span>
+                        <span className="truncate">Form Page Editor</span>
                       </DropdownMenuItem>
                       <DropdownMenuItem
                         onClick={() => handleDuplicate(form.id)}
                       >
                         <Copy className="mr-2 h-4 w-4" />
-                        <span className="truncate">Duplica</span>
+                        <span className="truncate">Duplicate</span>
                       </DropdownMenuItem>
                       <DropdownMenuItem
                         onClick={() => handleShowShortcode(form.id)}
@@ -406,7 +406,7 @@ const FormBuilder = () => {
                           className="mr-2"
                         />
                         <span className="truncate">
-                          {form.status === "published" ? "Disattiva" : "Attiva"}
+                          {form.status === "published" ? "Deactivate" : "Activate"}
                         </span>
                       </DropdownMenuItem>
                       <DropdownMenuItem
@@ -414,7 +414,7 @@ const FormBuilder = () => {
                         onClick={() => handleDelete(form.id)}
                       >
                         <Trash2 className="mr-2 h-4 w-4" />
-                        <span className="truncate">Elimina</span>
+                        <span className="truncate">Delete</span>
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
@@ -423,7 +423,7 @@ const FormBuilder = () => {
               <CardContent className="pb-2">
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground truncate">
-                    Domande:{" "}
+                    Questions:{" "}
                     {Array.isArray(form.questions)
                       ? form.questions.reduce(
                           (acc, page) => acc + (page.fields?.length || 0),
@@ -432,7 +432,7 @@ const FormBuilder = () => {
                       : 0}
                   </span>
                   <span className="text-muted-foreground truncate">
-                    Creato: {form.createdAt}
+                    Created: {form.createdAt}
                   </span>
                 </div>
               </CardContent>
@@ -444,7 +444,7 @@ const FormBuilder = () => {
                   onClick={() => handleEdit(form.id)}
                 >
                   <Edit className="h-4 w-4" />
-                  <span className="font-medium">Modifica Form</span>
+                  <span className="font-medium">Edit Form</span>
                 </Button>
                 <Button
                   variant="outline"
@@ -453,7 +453,7 @@ const FormBuilder = () => {
                   onClick={() => handleEditPageLayout(form.id)}
                 >
                   <Layout className="h-4 w-4" />
-                  <span className="font-medium">Editor Pagina</span>
+                  <span className="font-medium">Page Editor</span>
                 </Button>
               </CardFooter>
             </Card>
@@ -463,10 +463,10 @@ const FormBuilder = () => {
 
       {filteredForms.length === 0 && !loading && (
         <div className="text-center p-10 border rounded-md">
-          <p className="text-muted-foreground">Nessun form trovato</p>
+          <p className="text-muted-foreground">No forms found</p>
           {searchTerm && (
             <p className="text-sm mt-2">
-              Prova a modificare i criteri di ricerca
+              Try adjusting the search criteria
             </p>
           )}
         </div>
@@ -475,10 +475,10 @@ const FormBuilder = () => {
       <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Conferma eliminazione</DialogTitle>
+            <DialogTitle>Confirm deletion</DialogTitle>
             <DialogDescription>
-              Sei sicuro di voler eliminare questo form? Questa azione non può
-              essere annullata.
+              Are you sure you want to delete this form? This action cannot
+              be undone.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
@@ -486,10 +486,10 @@ const FormBuilder = () => {
               variant="outline"
               onClick={() => setDeleteDialogOpen(false)}
             >
-              Annulla
+              Cancel
             </Button>
             <Button variant="destructive" onClick={confirmDelete}>
-              Elimina
+              Delete
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -498,17 +498,17 @@ const FormBuilder = () => {
       <Dialog open={shortcodeDialogOpen} onOpenChange={setShortcodeDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Shortcode del Form</DialogTitle>
+            <DialogTitle>Form Shortcode</DialogTitle>
             <DialogDescription>
-              Copia questo shortcode per inserire il form in una pagina
+              Copy this shortcode to embed the form in a page
             </DialogDescription>
           </DialogHeader>
           <div className="bg-gray-100 p-4 rounded-md font-mono text-sm overflow-x-auto my-4">
             [simoly_form id="{shortcodeFormId}"]
           </div>
           <p className="text-sm text-muted-foreground">
-            Aggiungi questo shortcode in qualsiasi pagina per mostrare il form
-            ai visitatori. Solo gli utenti autenticati potranno compilarlo.
+            Add this shortcode to any page to display the form to visitors.
+            Only authenticated users will be able to fill it out.
           </p>
           <DialogFooter>
             <Button
@@ -517,13 +517,13 @@ const FormBuilder = () => {
                   `[simoly_form id="${shortcodeFormId}"]`
                 );
                 toast({
-                  title: "Shortcode copiato",
-                  description: "Lo shortcode è stato copiato negli appunti.",
+                  title: "Shortcode copied",
+                  description: "The shortcode has been copied to the clipboard.",
                 });
                 setShortcodeDialogOpen(false);
               }}
             >
-              Copia Shortcode
+              Copy Shortcode
             </Button>
           </DialogFooter>
         </DialogContent>

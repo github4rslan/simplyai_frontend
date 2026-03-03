@@ -34,21 +34,21 @@ const formSchema = z
   .object({
     firstName: z
       .string()
-      .min(2, { message: "Il nome deve contenere almeno 2 caratteri" }),
+      .min(2, { message: "First name must be at least 2 characters" }),
     lastName: z
       .string()
-      .min(2, { message: "Il cognome deve contenere almeno 2 caratteri" }),
-    email: z.string().email({ message: "Inserisci un indirizzo email valido" }),
+      .min(2, { message: "Last name must be at least 2 characters" }),
+    email: z.string().email({ message: "Please enter a valid email address" }),
     phone: z.string().optional(),
     password: z
       .string()
-      .min(6, { message: "La password deve contenere almeno 6 caratteri" }),
+      .min(6, { message: "Password must be at least 6 characters" }),
     confirmPassword: z
       .string()
-      .min(6, { message: "La password deve contenere almeno 6 caratteri" }),
+      .min(6, { message: "Password must be at least 6 characters" }),
   })
   .refine((data) => data.password === data.confirmPassword, {
-    message: "Le password non corrispondono",
+    message: "Passwords do not match",
     path: ["confirmPassword"],
   });
 
@@ -84,7 +84,7 @@ const Register = () => {
         const emailCheck = await checkEmailExists(values.email);
         if (emailCheck.exists) {
           setEmailError(
-            "Questa email è già registrata. Prova ad accedere o usa un'altra email."
+            "This email is already registered. Try logging in or use a different email."
           );
           setIsLoading(false);
           return;
@@ -148,9 +148,9 @@ const Register = () => {
       if (!registerRes.success) {
         toast({
           variant: "destructive",
-          title: "Errore di registrazione",
+          title: "Registration error",
           description:
-            registerRes.message || "Errore durante la registrazione. Riprova.",
+            registerRes.message || "An error occurred during registration. Please try again.",
         });
         setIsLoading(false);
         return;
@@ -164,16 +164,16 @@ const Register = () => {
         freePlan ||
         ({
           id: null,
-          name: "Piano Gratuito",
+          name: "Free Plan",
           price: 0,
           is_free: true,
         } as const);
       localStorage.setItem("registered_plan", JSON.stringify(storedPlan));
 
       toast({
-        title: "Registrazione completata!",
+        title: "Registration complete!",
         description:
-          "Il tuo account gratuito è stato creato. Ora puoi selezionare un piano premium.",
+          "Your free account has been created. You can now select a premium plan.",
       });
 
       // ✅ Auto-login the user
@@ -186,8 +186,8 @@ const Register = () => {
         console.error("❌ Auto-login failed:", loginError);
 
         toast({
-          title: "Account creato!",
-          description: "Accedi con le tue credenziali per continuare.",
+          title: "Account created!",
+          description: "Log in with your credentials to continue.",
         });
 
         navigate("/login");
@@ -196,10 +196,10 @@ const Register = () => {
       console.error("Errore durante la registrazione:", error);
       toast({
         variant: "destructive",
-        title: "Errore di registrazione",
+        title: "Registration error",
         description:
           error.message ||
-          "Si è verificato un errore durante la registrazione. Riprova.",
+          "An error occurred during registration. Please try again.",
       });
     } finally {
       setIsLoading(false);
@@ -221,10 +221,9 @@ const Register = () => {
       <div className="flex-grow flex items-center justify-center p-4 bg-[#7c6cc4]">
         <Card className="w-full max-w-md">
           <CardHeader>
-            <CardTitle className="text-2xl">Crea il tuo account</CardTitle>
+            <CardTitle className="text-2xl">Create your account</CardTitle>
             <CardDescription>
-              Crea il tuo account gratuito. Potrai scegliere un piano premium in
-              seguito.
+              Create your free account. You can choose a premium plan later.
             </CardDescription>
           </CardHeader>
 
@@ -256,7 +255,7 @@ const Register = () => {
                     d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
                   />
                 </svg>
-                Continua con Google
+                Continue with Google
               </Button>
 
               <Button
@@ -272,7 +271,7 @@ const Register = () => {
                     d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"
                   />
                 </svg>
-                Continua con Facebook
+                Continue with Facebook
               </Button>
             </div>
 
@@ -282,7 +281,7 @@ const Register = () => {
               </div>
               <div className="relative flex justify-center text-xs uppercase">
                 <span className="bg-white px-2 text-muted-foreground">
-                  O continua con
+                  Or continue with
                 </span>
               </div>
             </div>
@@ -298,9 +297,9 @@ const Register = () => {
                     name="firstName"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Nome</FormLabel>
+                        <FormLabel>First Name</FormLabel>
                         <FormControl>
-                          <Input placeholder="Mario" {...field} />
+                          <Input placeholder="John" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -312,9 +311,9 @@ const Register = () => {
                     name="lastName"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Cognome</FormLabel>
+                        <FormLabel>Last Name</FormLabel>
                         <FormControl>
-                          <Input placeholder="Rossi" {...field} />
+                          <Input placeholder="Smith" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -331,7 +330,7 @@ const Register = () => {
                       <FormControl>
                         <Input
                           type="email"
-                          placeholder="nome@esempio.it"
+                          placeholder="name@example.com"
                           {...field}
                         />
                       </FormControl>
@@ -351,21 +350,20 @@ const Register = () => {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>
-                        Telefono{" "}
+                        Phone{" "}
                         <span className="text-xs text-gray-500">
-                          (opzionale)
+                          (optional)
                         </span>
                       </FormLabel>
                       <FormControl>
                         <Input
                           type="tel"
-                          placeholder="+39 123 456 7890"
+                          placeholder="+1 123 456 7890"
                           {...field}
                         />
                       </FormControl>
                       <FormDescription>
-                        Utile per notifiche SMS o WhatsApp se previste dal tuo
-                        piano.
+                        Useful for SMS or WhatsApp notifications if included in your plan.
                       </FormDescription>
                       <FormMessage />
                     </FormItem>
@@ -448,10 +446,10 @@ const Register = () => {
                   {isLoading ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Registrazione in corso...
+                      Creating account...
                     </>
                   ) : (
-                    <span>Crea account gratuito</span>
+                    <span>Create free account</span>
                   )}
                 </Button>
               </form>
@@ -460,23 +458,23 @@ const Register = () => {
 
           <CardFooter className="flex flex-col space-y-2 items-center">
             <p className="text-sm text-gray-500">
-              Hai già un account?{" "}
+              Already have an account?{" "}
               <a
                 href="/login"
                 className="text-[var(--color-primary)] hover:text-[var(--color-primary-700)]"
               >
-                Accedi
+                Log In
               </a>
             </p>
             <p className="text-xs text-gray-400 text-center">
-              Registrandoti accetti i nostri{" "}
+              By registering you agree to our{" "}
               <a
                 href="/terms-of-service"
                 className="text-[var(--color-primary)] hover:text-[var(--color-primary-700)]"
               >
-                Termini di Servizio
+                Terms of Service
               </a>{" "}
-              e la{" "}
+              and{" "}
               <a
                 href="/privacy-policy"
                 className="text-[var(--color-primary)] hover:text-[var(--color-primary-700)]"

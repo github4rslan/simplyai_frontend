@@ -110,7 +110,7 @@ const PromptEditor = () => {
       title: "",
       content: "",
       system_prompt:
-        "Sei un assistente esperto che analizza i dati dei questionari.",
+        "You are an expert assistant that analyses questionnaire data.",
       variables: [],
       sequence_index: 0,
       created_at: new Date().toISOString(),
@@ -167,13 +167,13 @@ const PromptEditor = () => {
                     : [
                         {
                           id: "1",
-                          title: "Introduzione",
+                          title: "Introduction",
                           shortcode: "intro",
                           prompt: "",
                         },
                         {
                           id: "2",
-                          title: "Analisi Generale",
+                          title: "General Analysis",
                           shortcode: "analisi_generale",
                           prompt: "",
                         },
@@ -186,7 +186,7 @@ const PromptEditor = () => {
                     : [
                         {
                           id: "1",
-                          title: "Panoramica Risultati",
+                          title: "Results Overview",
                           shortcode: "chart_overview",
                           type: "bar",
                           prompt: "",
@@ -200,7 +200,7 @@ const PromptEditor = () => {
                     : [
                         {
                           id: "1",
-                          title: "Riepilogo Dati",
+                          title: "Data Summary",
                           shortcode: "table_summary",
                           type: "simple",
                           prompt: "",
@@ -237,7 +237,7 @@ const PromptEditor = () => {
                 content: template.content || "",
                 system_prompt:
                   template.system_prompt ||
-                  "Sei un assistente esperto che analizza i dati dei questionari.",
+                  "You are an expert assistant that analyses questionnaire data.",
                 variables: Array.isArray(template.variables)
                   ? template.variables
                   : [],
@@ -253,20 +253,20 @@ const PromptEditor = () => {
               setSelectedSequenceIndex(template.sequence_index || 0);
             } else {
               toast({
-                title: "Errore",
-                description: "Template non trovato",
+                title: "Error",
+                description: "Template not found",
                 variant: "destructive",
               });
               navigate(`/admin/plans/${planId}/prompts`);
             }
           } else if (state?.duplicate && state.template) {
-            // Duplica un template esistente
+            // Duplicate an existing template
             const { id, ...rest } = state.template;
 
             setPromptTemplate({
               ...rest,
               id: "",
-              title: `Copia di ${rest.title}`,
+              title: `Copy of ${rest.title}`,
               created_at: new Date().toISOString(),
               updated_at: new Date().toISOString(),
               variables: Array.isArray(rest.variables) ? rest.variables : [],
@@ -274,15 +274,15 @@ const PromptEditor = () => {
             setSelectedQuestionnaireId(rest.questionnaire_id);
             setSelectedSequenceIndex(rest.sequence_index);
           } else {
-            // Template di default per nuovi prompt
+            // Default template for new prompts
             setPromptTemplate({
               id: "",
               plan_id: planId || "",
               questionnaire_id: state?.questionnaireId || "",
-              title: "Nuovo Prompt",
+              title: "New Prompt",
               content: "",
               system_prompt:
-                "Sei un assistente esperto che analizza i dati dei questionari.",
+                "You are an expert assistant that analyses questionnaire data.",
               variables: [],
               sequence_index: 0,
               created_at: new Date().toISOString(),
@@ -292,13 +292,13 @@ const PromptEditor = () => {
                 text: [
                   {
                     id: "1",
-                    title: "Introduzione",
+                    title: "Introduction",
                     shortcode: "intro",
                     prompt: "",
                   },
                   {
                     id: "2",
-                    title: "Analisi Generale",
+                    title: "General Analysis",
                     shortcode: "analisi_generale",
                     prompt: "",
                   },
@@ -306,7 +306,7 @@ const PromptEditor = () => {
                 charts: [
                   {
                     id: "1",
-                    title: "Panoramica Risultati",
+                    title: "Results Overview",
                     shortcode: "chart_overview",
                     type: "bar",
                     prompt: "",
@@ -315,7 +315,7 @@ const PromptEditor = () => {
                 tables: [
                   {
                     id: "1",
-                    title: "Riepilogo Dati",
+                    title: "Data Summary",
                     shortcode: "table_summary",
                     type: "simple",
                     prompt: "",

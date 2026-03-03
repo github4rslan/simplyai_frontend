@@ -31,11 +31,11 @@ const formSchema = z
   .object({
     password: z
       .string()
-      .min(8, { message: "La password deve essere di almeno 8 caratteri" }),
+      .min(8, { message: "Password must be at least 8 characters" }),
     confirmPassword: z.string(),
   })
   .refine((data) => data.password === data.confirmPassword, {
-    message: "Le password non coincidono",
+    message: "Passwords do not match",
     path: ["confirmPassword"],
   });
 
@@ -63,8 +63,8 @@ const ResetPassword = () => {
     if (!token || !userId) {
       toast({
         variant: "destructive",
-        title: "Errore",
-        description: "Link non valido o mancante",
+        title: "Error",
+        description: "Invalid or missing link",
       });
       return;
     }
@@ -79,22 +79,22 @@ const ResetPassword = () => {
       if (data.success) {
         setSuccess(true);
         toast({
-          title: "Password aggiornata",
-          description: "Ora puoi accedere con la nuova password.",
+          title: "Password updated",
+          description: "You can now log in with your new password.",
         });
         setTimeout(() => navigate("/login"), 2000);
       } else {
         toast({
           variant: "destructive",
-          title: "Errore",
-          description: data.message || "Impossibile aggiornare la password.",
+          title: "Error",
+          description: data.message || "Could not update the password.",
         });
       }
     } catch (error) {
       toast({
         variant: "destructive",
-        title: "Errore",
-        description: error.message || "Si è verificato un errore. Riprova.",
+        title: "Error",
+        description: error.message || "An error occurred. Please try again.",
       });
     } finally {
       setIsLoading(false);
@@ -109,13 +109,13 @@ const ResetPassword = () => {
           <CardHeader>
             <CardTitle className="text-2xl">Reset Password</CardTitle>
             <CardDescription>
-              Inserisci la nuova password per il tuo account
+              Enter the new password for your account
             </CardDescription>
           </CardHeader>
           <CardContent>
             {success ? (
               <div className="text-green-600 text-center font-semibold py-4">
-                Password aggiornata con successo! Reindirizzamento al login...
+                Password updated successfully! Redirecting to login...
               </div>
             ) : (
               <Form {...form}>
@@ -128,11 +128,11 @@ const ResetPassword = () => {
                     name="password"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Nuova Password</FormLabel>
+                        <FormLabel>New Password</FormLabel>
                         <FormControl>
                           <Input
                             type="password"
-                            placeholder="Nuova password"
+                            placeholder="New password"
                             {...field}
                           />
                         </FormControl>
@@ -145,11 +145,11 @@ const ResetPassword = () => {
                     name="confirmPassword"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Conferma Password</FormLabel>
+                        <FormLabel>Confirm Password</FormLabel>
                         <FormControl>
                           <Input
                             type="password"
-                            placeholder="Conferma password"
+                            placeholder="Confirm password"
                             {...field}
                           />
                         </FormControl>
@@ -165,10 +165,10 @@ const ResetPassword = () => {
                     {isLoading ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Aggiornamento...
+                        Updating...
                       </>
                     ) : (
-                      <>Aggiorna password</>
+                      <>Update password</>
                     )}
                   </Button>
                 </form>
@@ -177,7 +177,7 @@ const ResetPassword = () => {
           </CardContent>
           <CardFooter className="flex justify-center">
             <p className="text-sm text-gray-500">
-              Torna al{" "}
+              Back to{" "}
               <a
                 href="/login"
                 className="text-[var(--color-primary)] hover:text-[var(--color-primary-700)]"

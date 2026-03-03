@@ -175,16 +175,16 @@ const AdminUserManagement = () => {
   // Export to CSV functionality
   const exportToCSV = () => {
     const headers = [
-      "Nome",
+      "Name",
       "Email",
-      "Ruolo",
-      "Stato",
-      "Piano Completamento %",
-      "Questionari Completati",
-      "Questionari Totali",
-      "Nome Piano",
-      "Data Registrazione",
-      "Ultima Attività",
+      "Role",
+      "Status",
+      "Plan Completion %",
+      "Completed Questionnaires",
+      "Total Questionnaires",
+      "Plan Name",
+      "Registration Date",
+      "Last Activity",
     ];
 
     const csvData = filteredUsers.map((user) => {
@@ -195,15 +195,15 @@ const AdminUserManagement = () => {
           "N/A",
         user.email,
         user.role,
-        user.last_login ? "Attivo" : "Inattivo",
+        user.last_login ? "Active" : "Inactive",
         progress ? progress.percentage.toFixed(0) : "0",
         progress ? progress.completedQuestionnaires : "0",
         progress ? progress.totalQuestionnaires : "0",
-        progress?.planName || "Nessun piano",
-        new Date(user.created_at).toLocaleDateString("it-IT"),
+        progress?.planName || "No plan",
+        new Date(user.created_at).toLocaleDateString("en-US"),
         user.last_login
-          ? new Date(user.last_login).toLocaleDateString("it-IT")
-          : "Mai",
+          ? new Date(user.last_login).toLocaleDateString("en-US")
+          : "Never",
       ];
     });
 
@@ -226,8 +226,8 @@ const AdminUserManagement = () => {
     document.body.removeChild(link);
 
     toast({
-      title: "Export completato",
-      description: `${filteredUsers.length} utenti esportati con successo.`,
+      title: "Export completed",
+      description: `${filteredUsers.length} users exported successfully.`,
     });
   };
 
@@ -246,15 +246,15 @@ const AdminUserManagement = () => {
 
       if (usersWithDeadlines.length === 0) {
         toast({
-          title: "Nessun utente trovato",
-          description: "Non ci sono utenti con piani incompleti.",
+          title: "No users found",
+          description: "There are no users with incomplete plans.",
         });
         return;
       }
 
       toast({
-        title: "Email in invio...",
-        description: `Invio promemoria a ${usersWithDeadlines.length} utenti.`,
+        title: "Sending emails...",
+        description: `Sending reminders to ${usersWithDeadlines.length} users.`,
       });
 
       // Call the service function
@@ -267,15 +267,15 @@ const AdminUserManagement = () => {
       }
 
       toast({
-        title: "Email inviate",
-        description: `Promemoria inviati a ${result.data.emailsSent} utenti con successo.`,
+        title: "Emails sent",
+        description: `Reminders sent to ${result.data.emailsSent} users successfully.`,
       });
       setEmailDialogOpen(false);
     } catch (error) {
       console.error("Error sending emails:", error);
       toast({
-        title: "Errore",
-        description: "Impossibile inviare le email di promemoria.",
+        title: "Error",
+        description: "Unable to send reminder emails.",
         variant: "destructive",
       });
     }
@@ -305,8 +305,8 @@ const AdminUserManagement = () => {
         );
         setUsers(updatedUsers);
         toast({
-          title: "Ruolo aggiornato",
-          description: `Il ruolo di ${selectedUserForRole.email} è stato cambiato in ${newRole}.`,
+          title: "Role updated",
+          description: `The role of ${selectedUserForRole.email} has been changed to ${newRole}.`,
         });
         setRoleDialogOpen(false);
         setSelectedUserForRole(null);
@@ -314,8 +314,8 @@ const AdminUserManagement = () => {
       } catch (error) {
         console.error("Error updating role:", error);
         toast({
-          title: "Errore",
-          description: "Impossibile aggiornare il ruolo dell'utente.",
+          title: "Error",
+          description: "Unable to update the user's role.",
           variant: "destructive",
         });
       }
@@ -331,16 +331,16 @@ const AdminUserManagement = () => {
         );
         setUsers(updatedUsers);
         toast({
-          title: "Utente eliminato",
-          description: `${selectedUserForDelete.email} è stato eliminato con successo.`,
+          title: "User deleted",
+          description: `${selectedUserForDelete.email} has been deleted successfully.`,
         });
         setDeleteDialogOpen(false);
         setSelectedUserForDelete(null);
       } catch (error) {
         console.error("Error deleting user:", error);
         toast({
-          title: "Errore",
-          description: "Impossibile eliminare l'utente.",
+          title: "Error",
+          description: "Unable to delete the user.",
           variant: "destructive",
         });
       }
@@ -356,8 +356,8 @@ const AdminUserManagement = () => {
         !newUserData.lastName
       ) {
         toast({
-          title: "Errore",
-          description: "Tutti i campi sono obbligatori.",
+          title: "Error",
+          description: "All fields are required.",
           variant: "destructive",
         });
         return;
@@ -370,8 +370,8 @@ const AdminUserManagement = () => {
         searchInputRef.current.value = "";
       }
       toast({
-        title: "Utente creato",
-        description: `${createdUser.email} è stato creato con successo.`,
+        title: "User created",
+        description: `${createdUser.email} has been created successfully.`,
       });
       setCreateUserDialogOpen(false);
       setNewUserData({
@@ -384,8 +384,8 @@ const AdminUserManagement = () => {
     } catch (error) {
       console.error("Error creating user:", error);
       toast({
-        title: "Errore",
-        description: "Impossibile creare l'utente.",
+        title: "Error",
+        description: "Unable to create the user.",
         variant: "destructive",
       });
     }
@@ -411,11 +411,11 @@ const AdminUserManagement = () => {
   const getRoleDisplayName = (role: string) => {
     switch (role) {
       case "administrator":
-        return "Amministratore";
+        return "Administrator";
       case "premium_user":
-        return "Utente Premium";
+        return "Premium User";
       case "user":
-        return "Utente";
+        return "User";
       default:
         return role;
     }
@@ -425,7 +425,7 @@ const AdminUserManagement = () => {
     if (!planStatus || planStatus.totalQuestionnaires === 0) {
       return (
         <div className="text-center">
-          <span className="text-gray-500 text-sm">Nessun piano</span>
+          <span className="text-gray-500 text-sm">No plan</span>
         </div>
       );
     }
@@ -472,7 +472,7 @@ const AdminUserManagement = () => {
     return (
       <div className="flex justify-center items-center min-h-[400px]">
         <Loader2 className="h-8 w-8 animate-spin" />
-        <span className="ml-2">Caricamento utenti...</span>
+        <span className="ml-2">Loading users...</span>
       </div>
     );
   }
@@ -489,9 +489,9 @@ const AdminUserManagement = () => {
       {/* Header Section */}
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold">Gestione Utenti</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold">User Management</h1>
           <p className="text-sm sm:text-base text-muted-foreground">
-            Gestisci gli utenti della piattaforma ({filteredUsers.length} di{" "}
+            Manage platform users ({filteredUsers.length} of{" "}
             {users.length})
           </p>
         </div>
@@ -502,15 +502,14 @@ const AdminUserManagement = () => {
           <DialogTrigger asChild>
             <Button className="bg-purple-600 hover:bg-purple-700 w-full sm:w-auto">
               <UserPlus className="h-4 w-4 mr-2" />
-              Aggiungi Utente
+              Add User
             </Button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-[425px] max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle>Crea Nuovo Utente</DialogTitle>
+              <DialogTitle>Create New User</DialogTitle>
               <DialogDescription>
-                Inserisci i dettagli del nuovo utente. Tutti i campi sono
-                obbligatori.
+                Enter the new user's details. All fields are required.
               </DialogDescription>
             </DialogHeader>
             <div className="grid gap-4 py-4">
@@ -519,7 +518,7 @@ const AdminUserManagement = () => {
                   htmlFor="newUserFirstName"
                   className="sm:text-right font-medium"
                 >
-                  Nome
+                  First Name
                 </label>
                 <Input
                   id="newUserFirstName"
@@ -531,7 +530,7 @@ const AdminUserManagement = () => {
                     })
                   }
                   className="sm:col-span-3"
-                  placeholder="Nome"
+                  placeholder="First Name"
                 />
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-4 items-center gap-2 sm:gap-4">
@@ -539,7 +538,7 @@ const AdminUserManagement = () => {
                   htmlFor="newUserLastName"
                   className="sm:text-right font-medium"
                 >
-                  Cognome
+                  Last Name
                 </label>
                 <Input
                   id="newUserLastName"
@@ -548,7 +547,7 @@ const AdminUserManagement = () => {
                     setNewUserData({ ...newUserData, lastName: e.target.value })
                   }
                   className="sm:col-span-3"
-                  placeholder="Cognome"
+                  placeholder="Last Name"
                 />
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-4 items-center gap-2 sm:gap-4">
@@ -566,7 +565,7 @@ const AdminUserManagement = () => {
                     setNewUserData({ ...newUserData, email: e.target.value })
                   }
                   className="sm:col-span-3"
-                  placeholder="email@esempio.com"
+                  placeholder="email@example.com"
                 />
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-4 items-center gap-2 sm:gap-4">
@@ -592,7 +591,7 @@ const AdminUserManagement = () => {
                   htmlFor="newUserRole"
                   className="sm:text-right font-medium"
                 >
-                  Ruolo
+                  Role
                 </label>
                 <Select
                   value={newUserData.role}
@@ -604,13 +603,13 @@ const AdminUserManagement = () => {
                   }
                 >
                   <SelectTrigger className="sm:col-span-3">
-                    <SelectValue placeholder="Seleziona ruolo" />
+                    <SelectValue placeholder="Select role" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="user">Utente</SelectItem>
-                    <SelectItem value="premium_user">Utente Premium</SelectItem>
+                    <SelectItem value="user">User</SelectItem>
+                    <SelectItem value="premium_user">Premium User</SelectItem>
                     <SelectItem value="administrator">
-                      Amministratore
+                      Administrator
                     </SelectItem>
                   </SelectContent>
                 </Select>
@@ -622,13 +621,13 @@ const AdminUserManagement = () => {
                 onClick={() => setCreateUserDialogOpen(false)}
                 className="w-full sm:w-auto"
               >
-                Annulla
+                Cancel
               </Button>
               <Button
                 onClick={handleCreateUser}
                 className="bg-purple-600 hover:bg-purple-700 w-full sm:w-auto"
               >
-                Crea Utente
+                Create User
               </Button>
             </DialogFooter>
           </DialogContent>
@@ -643,7 +642,7 @@ const AdminUserManagement = () => {
           className="w-full sm:w-auto"
         >
           <Download className="h-4 w-4 mr-2" />
-          Esporta CSV ({filteredUsers.length})
+          Export CSV ({filteredUsers.length})
         </Button>
 
         <Dialog open={emailDialogOpen} onOpenChange={setEmailDialogOpen}>
@@ -654,22 +653,21 @@ const AdminUserManagement = () => {
               disabled={usersWithIncompletePlans.length === 0}
             >
               <Mail className="h-4 w-4 mr-2" />
-              Invia Promemoria ({usersWithIncompletePlans.length})
+              Send Reminder ({usersWithIncompletePlans.length})
             </Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Invia Promemoria Scadenza</DialogTitle>
+              <DialogTitle>Send Deadline Reminder</DialogTitle>
               <DialogDescription>
-                Invia un'email di promemoria a {usersWithIncompletePlans.length}{" "}
-                utenti con piani incompleti.
+                Send a reminder email to {usersWithIncompletePlans.length}{" "}
+                users with incomplete plans.
               </DialogDescription>
             </DialogHeader>
             <div className="py-4">
               <p className="text-sm text-gray-600">
-                Verrà inviata un'email automatica agli utenti che hanno
-                questionari non completati per ricordare loro di completare il
-                piano.
+                An automatic email will be sent to users who have incomplete
+                questionnaires to remind them to complete their plan.
               </p>
             </div>
             <DialogFooter>
@@ -677,11 +675,11 @@ const AdminUserManagement = () => {
                 variant="outline"
                 onClick={() => setEmailDialogOpen(false)}
               >
-                Annulla
+                Cancel
               </Button>
               <Button onClick={sendDeadlineEmails}>
                 <Mail className="h-4 w-4 mr-2" />
-                Invia Email
+                Send Email
               </Button>
             </DialogFooter>
           </DialogContent>
@@ -693,7 +691,7 @@ const AdminUserManagement = () => {
           className="w-full sm:w-auto"
         >
           <Filter className="h-4 w-4 mr-2" />
-          Filtri
+          Filters
           {activeFiltersCount > 0 && (
             <Badge className="ml-2 bg-purple-600">{activeFiltersCount}</Badge>
           )}
@@ -706,7 +704,7 @@ const AdminUserManagement = () => {
             className="w-full sm:w-auto"
           >
             <X className="h-4 w-4 mr-2" />
-            Cancella Filtri
+            Clear Filters
           </Button>
         )}
       </div>
@@ -714,42 +712,42 @@ const AdminUserManagement = () => {
       {/* Filters Panel */}
       {showFilters && (
         <div className="bg-gray-50 p-4 rounded-lg border space-y-4">
-          <h3 className="font-semibold">Filtri Avanzati</h3>
+          <h3 className="font-semibold">Advanced Filters</h3>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
-              <label className="block text-sm font-medium mb-2">Ruolo</label>
+              <label className="block text-sm font-medium mb-2">Role</label>
               <Select value={roleFilter} onValueChange={setRoleFilter}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">Tutti i ruoli</SelectItem>
-                  <SelectItem value="administrator">Amministratore</SelectItem>
-                  <SelectItem value="premium_user">Utente Premium</SelectItem>
-                  <SelectItem value="user">Utente</SelectItem>
+                  <SelectItem value="all">All roles</SelectItem>
+                  <SelectItem value="administrator">Administrator</SelectItem>
+                  <SelectItem value="premium_user">Premium User</SelectItem>
+                  <SelectItem value="user">User</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
             <div>
               <label className="block text-sm font-medium mb-2">
-                Stato Account
+                Account Status
               </label>
               <Select value={statusFilter} onValueChange={setStatusFilter}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">Tutti gli stati</SelectItem>
-                  <SelectItem value="active">Attivi</SelectItem>
-                  <SelectItem value="inactive">Inattivi</SelectItem>
+                  <SelectItem value="all">All statuses</SelectItem>
+                  <SelectItem value="active">Active</SelectItem>
+                  <SelectItem value="inactive">Inactive</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
             <div>
               <label className="block text-sm font-medium mb-2">
-                Stato Piano
+                Plan Status
               </label>
               <Select
                 value={planStatusFilter}
@@ -759,11 +757,11 @@ const AdminUserManagement = () => {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">Tutti i piani</SelectItem>
-                  <SelectItem value="completed">Completati</SelectItem>
-                  <SelectItem value="in_progress">In corso</SelectItem>
-                  <SelectItem value="not_started">Non iniziati</SelectItem>
-                  <SelectItem value="no_plan">Nessun piano</SelectItem>
+                  <SelectItem value="all">All plans</SelectItem>
+                  <SelectItem value="completed">Completed</SelectItem>
+                  <SelectItem value="in_progress">In progress</SelectItem>
+                  <SelectItem value="not_started">Not started</SelectItem>
+                  <SelectItem value="no_plan">No plan</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -776,7 +774,7 @@ const AdminUserManagement = () => {
         <Input
           key={searchKey}
           ref={searchInputRef}
-          placeholder="Cerca utenti per email, nome o ruolo..."
+          placeholder="Search users by email, name or role..."
           value={search || ""}
           onChange={(e) => setSearch(e.target.value)}
           className="w-full sm:max-w-md"
@@ -790,33 +788,33 @@ const AdminUserManagement = () => {
         <div className="overflow-x-auto">
           <Table className="min-w-full">
             <TableCaption className="py-4 text-gray-500">
-              Lista degli utenti registrati
+              List of registered users
             </TableCaption>
             <TableHeader>
               <TableRow className="bg-gray-50">
                 <TableHead className="font-semibold text-gray-700 min-w-[120px]">
-                  Nome
+                  Name
                 </TableHead>
                 <TableHead className="font-semibold text-gray-700 min-w-[200px]">
                   Email
                 </TableHead>
                 <TableHead className="font-semibold text-gray-700 min-w-[80px]">
-                  Stato
+                  Status
                 </TableHead>
                 <TableHead className="font-semibold text-gray-700 min-w-[120px]">
-                  Ruolo
+                  Role
                 </TableHead>
                 <TableHead className="font-semibold text-gray-700 min-w-[180px]">
-                  Stato Piano
+                  Plan Status
                 </TableHead>
                 <TableHead className="font-semibold text-gray-700 min-w-[140px]">
-                  Data Registrazione
+                  Registration Date
                 </TableHead>
                 <TableHead className="font-semibold text-gray-700 min-w-[140px]">
-                  Ultima Attività
+                  Last Activity
                 </TableHead>
                 <TableHead className="font-semibold text-gray-700 text-right min-w-[200px]">
-                  Azioni
+                  Actions
                 </TableHead>
               </TableRow>
             </TableHeader>
@@ -845,7 +843,7 @@ const AdminUserManagement = () => {
                             : "bg-gray-100 text-gray-800"
                         }`}
                       >
-                        {user.last_login ? "Attivo" : "Inattivo"}
+                        {user.last_login ? "Active" : "Inactive"}
                       </span>
                     </TableCell>
                     <TableCell>
@@ -869,12 +867,12 @@ const AdminUserManagement = () => {
                       {renderPlanStatus(user.planStatus)}
                     </TableCell>
                     <TableCell>
-                      {new Date(user.created_at).toLocaleDateString("it-IT")}
+                      {new Date(user.created_at).toLocaleDateString("en-US")}
                     </TableCell>
                     <TableCell>
                       {user.last_login
-                        ? new Date(user.last_login).toLocaleDateString("it-IT")
-                        : "Mai"}
+                        ? new Date(user.last_login).toLocaleDateString("en-US")
+                        : "Never"}
                     </TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end gap-2">
@@ -884,7 +882,7 @@ const AdminUserManagement = () => {
                           onClick={() => goToUserDetails(user.id)}
                           className="whitespace-nowrap"
                         >
-                          Dettagli
+                          Details
                         </Button>
                         <Dialog
                           open={
@@ -903,14 +901,14 @@ const AdminUserManagement = () => {
                               }}
                               className="whitespace-nowrap"
                             >
-                              Cambia Ruolo
+                              Change Role
                             </Button>
                           </DialogTrigger>
                           <DialogContent>
                             <DialogHeader>
-                              <DialogTitle>Cambia Ruolo Utente</DialogTitle>
+                              <DialogTitle>Change User Role</DialogTitle>
                               <DialogDescription>
-                                Seleziona il nuovo ruolo per {user.email}
+                                Select the new role for {user.email}
                               </DialogDescription>
                             </DialogHeader>
                             <div className="py-4">
@@ -919,15 +917,15 @@ const AdminUserManagement = () => {
                                 onValueChange={setNewRole}
                               >
                                 <SelectTrigger>
-                                  <SelectValue placeholder="Seleziona un ruolo" />
+                                  <SelectValue placeholder="Select a role" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                  <SelectItem value="user">Utente</SelectItem>
+                                  <SelectItem value="user">User</SelectItem>
                                   <SelectItem value="premium_user">
-                                    Utente Premium
+                                    Premium User
                                   </SelectItem>
                                   <SelectItem value="administrator">
-                                    Amministratore
+                                    Administrator
                                   </SelectItem>
                                 </SelectContent>
                               </Select>
@@ -937,10 +935,10 @@ const AdminUserManagement = () => {
                                 variant="outline"
                                 onClick={() => setRoleDialogOpen(false)}
                               >
-                                Annulla
+                                Cancel
                               </Button>
                               <Button onClick={handleRoleChange}>
-                                Aggiorna Ruolo
+                                Update Role
                               </Button>
                             </DialogFooter>
                           </DialogContent>
@@ -965,11 +963,11 @@ const AdminUserManagement = () => {
                           </DialogTrigger>
                           <DialogContent>
                             <DialogHeader>
-                              <DialogTitle>Conferma Eliminazione</DialogTitle>
+                              <DialogTitle>Confirm Deletion</DialogTitle>
                               <DialogDescription>
-                                Sei sicuro di voler eliminare l'utente{" "}
-                                {selectedUserForDelete?.email}? Questa azione
-                                non può essere annullata.
+                                Are you sure you want to delete the user{" "}
+                                {selectedUserForDelete?.email}? This action
+                                cannot be undone.
                               </DialogDescription>
                             </DialogHeader>
                             <DialogFooter>
@@ -977,13 +975,13 @@ const AdminUserManagement = () => {
                                 variant="outline"
                                 onClick={() => setDeleteDialogOpen(false)}
                               >
-                                Annulla
+                                Cancel
                               </Button>
                               <Button
                                 variant="destructive"
                                 onClick={handleDeleteUser}
                               >
-                                Elimina
+                                Delete
                               </Button>
                             </DialogFooter>
                           </DialogContent>
@@ -998,7 +996,7 @@ const AdminUserManagement = () => {
                     colSpan={8}
                     className="text-center py-8 text-gray-500"
                   >
-                    Nessun utente trovato
+                    No users found
                   </TableCell>
                 </TableRow>
               )}
@@ -1058,23 +1056,23 @@ const AdminUserManagement = () => {
               </div>
 
               <div>
-                <p className="text-xs text-gray-500 mb-1">Stato Piano</p>
+                <p className="text-xs text-gray-500 mb-1">Plan Status</p>
                 {renderPlanStatus(user.planStatus)}
               </div>
 
               <div className="grid grid-cols-2 gap-2 text-sm">
                 <div>
-                  <p className="text-xs text-gray-500">Registrazione</p>
+                  <p className="text-xs text-gray-500">Registration</p>
                   <p className="font-medium">
-                    {new Date(user.created_at).toLocaleDateString("it-IT")}
+                    {new Date(user.created_at).toLocaleDateString("en-US")}
                   </p>
                 </div>
                 <div>
-                  <p className="text-xs text-gray-500">Ultima Attività</p>
+                  <p className="text-xs text-gray-500">Last Activity</p>
                   <p className="font-medium">
                     {user.last_login
-                      ? new Date(user.last_login).toLocaleDateString("it-IT")
-                      : "Mai"}
+                      ? new Date(user.last_login).toLocaleDateString("en-US")
+                      : "Never"}
                   </p>
                 </div>
               </div>
@@ -1086,7 +1084,7 @@ const AdminUserManagement = () => {
                   onClick={() => goToUserDetails(user.id)}
                   className="w-full sm:flex-1"
                 >
-                  Dettagli
+                  Details
                 </Button>
                 <Dialog
                   open={roleDialogOpen && selectedUserForRole?.id === user.id}
@@ -1102,28 +1100,28 @@ const AdminUserManagement = () => {
                       }}
                       className="w-full sm:flex-1"
                     >
-                      Cambia Ruolo
+                      Change Role
                     </Button>
                   </DialogTrigger>
                   <DialogContent className="max-w-[90vw] sm:max-w-[425px]">
                     <DialogHeader>
-                      <DialogTitle>Cambia Ruolo Utente</DialogTitle>
+                      <DialogTitle>Change User Role</DialogTitle>
                       <DialogDescription className="break-words">
-                        Seleziona il nuovo ruolo per {user.email}
+                        Select the new role for {user.email}
                       </DialogDescription>
                     </DialogHeader>
                     <div className="py-4">
                       <Select value={newRole} onValueChange={setNewRole}>
                         <SelectTrigger>
-                          <SelectValue placeholder="Seleziona un ruolo" />
+                          <SelectValue placeholder="Select a role" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="user">Utente</SelectItem>
+                          <SelectItem value="user">User</SelectItem>
                           <SelectItem value="premium_user">
-                            Utente Premium
+                            Premium User
                           </SelectItem>
                           <SelectItem value="administrator">
-                            Amministratore
+                            Administrator
                           </SelectItem>
                         </SelectContent>
                       </Select>
@@ -1134,13 +1132,13 @@ const AdminUserManagement = () => {
                         onClick={() => setRoleDialogOpen(false)}
                         className="w-full sm:w-auto"
                       >
-                        Annulla
+                        Cancel
                       </Button>
                       <Button
                         onClick={handleRoleChange}
                         className="w-full sm:w-auto"
                       >
-                        Aggiorna Ruolo
+                        Update Role
                       </Button>
                     </DialogFooter>
                   </DialogContent>
@@ -1159,16 +1157,16 @@ const AdminUserManagement = () => {
                       onClick={() => setSelectedUserForDelete(user)}
                       className="w-full sm:flex-1"
                     >
-                      Elimina
+                      Delete
                     </Button>
                   </DialogTrigger>
                   <DialogContent className="max-w-[90vw] sm:max-w-[425px]">
                     <DialogHeader>
-                      <DialogTitle>Conferma Eliminazione</DialogTitle>
+                      <DialogTitle>Confirm Deletion</DialogTitle>
                       <DialogDescription className="break-words">
-                        Sei sicuro di voler eliminare l'utente{" "}
-                        {selectedUserForDelete?.email}? Questa azione non può
-                        essere annullata.
+                        Are you sure you want to delete the user{" "}
+                        {selectedUserForDelete?.email}? This action cannot be
+                        undone.
                       </DialogDescription>
                     </DialogHeader>
                     <DialogFooter className="flex-col sm:flex-row gap-2">
@@ -1177,14 +1175,14 @@ const AdminUserManagement = () => {
                         onClick={() => setDeleteDialogOpen(false)}
                         className="w-full sm:w-auto"
                       >
-                        Annulla
+                        Cancel
                       </Button>
                       <Button
                         variant="destructive"
                         onClick={handleDeleteUser}
                         className="w-full sm:w-auto"
                       >
-                        Elimina
+                        Delete
                       </Button>
                     </DialogFooter>
                   </DialogContent>
@@ -1194,7 +1192,7 @@ const AdminUserManagement = () => {
           ))
         ) : (
           <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-8 text-center text-gray-500">
-            Nessun utente trovato
+            No users found
           </div>
         )}
       </div>

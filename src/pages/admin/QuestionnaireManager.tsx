@@ -97,15 +97,15 @@ const QuestionnaireManager = () => {
       if (result) {
         setConfig(result);
         toast({
-          title: 'Pubblicato',
-          description: 'Il questionario è stato pubblicato con successo',
+          title: 'Published',
+          description: 'The questionnaire has been published successfully',
         });
       }
     } catch (error) {
       console.error('Error publishing questionnaire:', error);
       toast({
-        title: 'Errore',
-        description: 'Impossibile pubblicare il questionario',
+        title: 'Error',
+        description: 'Unable to publish the questionnaire',
         variant: 'destructive',
       });
     }
@@ -116,7 +116,7 @@ const QuestionnaireManager = () => {
     
     const newQuestion: Question = {
       id: `q${Date.now()}`,
-      text: 'Nuova domanda',
+      text: 'New question',
       type: 'text',
       required: false,
     };
@@ -364,7 +364,7 @@ const QuestionnaireManager = () => {
             </CardHeader>
             <CardContent>
               {/* Implementa impostazioni del questionario qui */}
-              <p>Funzionalità in sviluppo</p>
+              <p>Feature in development</p>
             </CardContent>
           </Card>
         </TabsContent>
@@ -379,7 +379,7 @@ const QuestionnaireManager = () => {
             </CardHeader>
             <CardContent>
               {/* Implementa configurazione AI qui */}
-              <p>Funzionalità in sviluppo</p>
+              <p>Feature in development</p>
             </CardContent>
           </Card>
         </TabsContent>

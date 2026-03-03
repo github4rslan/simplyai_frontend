@@ -10,7 +10,7 @@ const Footer = () => {
           <img src="/favicon.ico" alt="SimplyAI Logo" className="h-8" />
           <span className="font-semibold text-gray-700">SimplyAI</span>
         </div>
-        <div className="text-gray-500 text-sm">&copy; {new Date().getFullYear()} SimplyAI. Tutti i diritti riservati.</div>
+        <div className="text-gray-500 text-sm">&copy; {new Date().getFullYear()} SimplyAI. All rights reserved.</div>
         <div className="flex gap-4">
           {settings?.site_url ? (
             <a 

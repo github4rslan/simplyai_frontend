@@ -24,20 +24,20 @@ import {
 import { Loader2, KeyRound } from "lucide-react";
 
 const profileSchema = z.object({
-  firstName: z.string().min(2, "Il nome deve contenere almeno 2 caratteri"),
-  lastName: z.string().min(2, "Il cognome deve contenere almeno 2 caratteri"),
-  email: z.string().email("Inserisci un indirizzo email valido").optional(),
+  firstName: z.string().min(2, "First name must be at least 2 characters"),
+  lastName: z.string().min(2, "Last name must be at least 2 characters"),
+  email: z.string().email("Please enter a valid email address").optional(),
 });
 
 const passwordSchema = z
   .object({
     password: z
       .string()
-      .min(6, "La password deve contenere almeno 6 caratteri"),
+      .min(6, "Password must be at least 6 characters"),
     confirmPassword: z.string(),
   })
   .refine((data) => data.password === data.confirmPassword, {
-    message: "Le password non coincidono",
+    message: "Passwords do not match",
     path: ["confirmPassword"],
   });
 
@@ -82,12 +82,12 @@ export const UserProfile = () => {
         });
 
         if (!response.ok) {
-          throw new Error("Errore nel caricamento del profilo");
+          throw new Error("Error loading profile");
         }
 
         const data = await response.json();
 
-        if (data.success) {
+        if (data.success && data.data) {
           form.setValue("firstName", data.data.firstName || "");
           form.setValue("lastName", data.data.lastName || "");
           form.setValue("email", data.data.email || "");
@@ -96,8 +96,8 @@ export const UserProfile = () => {
         console.error("Errore nel caricamento del profilo:", error);
         toast({
           variant: "destructive",
-          title: "Errore",
-          description: "Non è stato possibile caricare i dati del profilo",
+          title: "Error",
+          description: "Could not load profile data",
         });
       } finally {
         setIsLoading(false);
@@ -124,24 +124,24 @@ export const UserProfile = () => {
       });
 
       if (!response.ok) {
-        throw new Error("Errore nell'aggiornamento del profilo");
+        throw new Error("Error updating profile");
       }
 
       const data = await response.json();
 
       if (data.success) {
         toast({
-          title: "Profilo aggiornato",
+          title: "Profile updated",
           description:
-            "Le informazioni del profilo sono state aggiornate con successo",
+            "Your profile information has been updated successfully",
         });
       }
     } catch (error) {
       console.error("Errore nell'aggiornamento del profilo:", error);
       toast({
         variant: "destructive",
-        title: "Errore",
-        description: "Non è stato possibile aggiornare il profilo",
+        title: "Error",
+        description: "Could not update the profile",
       });
     } finally {
       setIsLoading(false);
@@ -164,15 +164,15 @@ export const UserProfile = () => {
       });
 
       if (!response.ok) {
-        throw new Error("Errore nell'aggiornamento della password");
+        throw new Error("Error updating password");
       }
 
       const data = await response.json();
 
       if (data.success) {
         toast({
-          title: "Password aggiornata",
-          description: "La tua password è stata aggiornata con successo",
+          title: "Password updated",
+          description: "Your password has been updated successfully",
         });
 
         passwordForm.reset();
@@ -181,8 +181,8 @@ export const UserProfile = () => {
       console.error("Errore nell'aggiornamento della password:", error);
       toast({
         variant: "destructive",
-        title: "Errore",
-        description: "Non è stato possibile aggiornare la password",
+        title: "Error",
+        description: "Could not update the password",
       });
     } finally {
       setIsPasswordLoading(false);
@@ -193,9 +193,9 @@ export const UserProfile = () => {
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle>Profilo Utente</CardTitle>
+          <CardTitle>User Profile</CardTitle>
           <CardDescription>
-            Gestisci le informazioni del tuo profilo
+            Manage your profile information
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -215,10 +215,10 @@ export const UserProfile = () => {
                     name="firstName"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Nome</FormLabel>
+                        <FormLabel>First Name</FormLabel>
                         <FormControl>
                           <Input
-                            placeholder="Inserisci il tuo nome"
+                            placeholder="Enter your first name"
                             {...field}
                           />
                         </FormControl>
@@ -231,10 +231,10 @@ export const UserProfile = () => {
                     name="lastName"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Cognome</FormLabel>
+                        <FormLabel>Last Name</FormLabel>
                         <FormControl>
                           <Input
-                            placeholder="Inserisci il tuo cognome"
+                            placeholder="Enter your last name"
                             {...field}
                           />
                         </FormControl>
@@ -266,10 +266,10 @@ export const UserProfile = () => {
                   {isLoading ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Salvataggio...
+                      Saving...
                     </>
                   ) : (
-                    "Salva Modifiche"
+                    "Save Changes"
                   )}
                 </Button>
               </form>
@@ -282,9 +282,9 @@ export const UserProfile = () => {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <KeyRound className="h-5 w-5" />
-            Cambio Password
+            Change Password
           </CardTitle>
-          <CardDescription>Modifica la tua password di accesso</CardDescription>
+          <CardDescription>Update your login password</CardDescription>
         </CardHeader>
         <CardContent>
           <Form {...passwordForm}>
@@ -297,11 +297,11 @@ export const UserProfile = () => {
                 name="password"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Nuova Password</FormLabel>
+                    <FormLabel>New Password</FormLabel>
                     <FormControl>
                       <Input
                         type="password"
-                        placeholder="Inserisci la nuova password"
+                        placeholder="Enter new password"
                         {...field}
                       />
                     </FormControl>
@@ -315,11 +315,11 @@ export const UserProfile = () => {
                 name="confirmPassword"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Conferma Password</FormLabel>
+                    <FormLabel>Confirm Password</FormLabel>
                     <FormControl>
                       <Input
                         type="password"
-                        placeholder="Conferma la nuova password"
+                        placeholder="Confirm new password"
                         {...field}
                       />
                     </FormControl>
@@ -336,10 +336,10 @@ export const UserProfile = () => {
                 {isPasswordLoading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Aggiornamento Password...
+                    Updating Password...
                   </>
                 ) : (
-                  "Aggiorna Password"
+                  "Update Password"
                 )}
               </Button>
             </form>

@@ -364,8 +364,8 @@ const Payment = () => {
               // This ensures the states are properly set before attempting registration
 
               toast({
-                title: "Piano Gratuito Rilevato!",
-                description: `Stiamo attivando il tuo piano gratuito ${response.data.name}...`,
+                title: "Free Plan Detected!",
+                description: `We are activating your free plan ${response.data.name}...`,
               });
             }
           }
@@ -602,7 +602,7 @@ const Payment = () => {
 
         // Prepare payment information for authenticated user
         const paymentInfo = {
-          method: paymentMethod === "card" ? "Carta di Credito" : "PayPal",
+          method: paymentMethod === "card" ? "Credit Card" : "PayPal",
           amount: selectedPlanPrice,
         };
 
@@ -611,7 +611,7 @@ const Payment = () => {
           id: selectedPlanId,
           name: planName,
           price: selectedPlanPrice,
-          type: "Mensile",
+          type: "Monthly",
         };
 
         // If plan ID is missing from URL, try to get it from localStorage (recent registration)
@@ -631,7 +631,7 @@ const Payment = () => {
             console.log("✅ Found recent plan data in localStorage");
             planInfo = {
               id: recentPlanId,
-              name: recentPlanName || "Piano selezionato",
+              name: recentPlanName || "Selected plan",
               price: parseInt(recentPlanPrice || "0"),
               type: "Mensile",
             };
@@ -657,9 +657,9 @@ const Payment = () => {
           console.error("❌ Missing user.id");
           toast({
             variant: "destructive",
-            title: "Errore di autenticazione",
+            title: "Authentication error",
             description:
-              "ID utente mancante. Prova a effettuare nuovamente il login.",
+              "User ID missing. Please try logging in again.",
           });
           return;
         }
@@ -668,9 +668,9 @@ const Payment = () => {
           console.error("❌ Missing userInfo.email");
           toast({
             variant: "destructive",
-            title: "Errore dati utente",
+            title: "User data error",
             description:
-              "Email utente mancante. Prova a effettuare nuovamente il login.",
+              "User email missing. Please try logging in again.",
           });
           return;
         }
@@ -679,8 +679,8 @@ const Payment = () => {
           console.error("❌ Missing paymentInfo.method");
           toast({
             variant: "destructive",
-            title: "Errore metodo pagamento",
-            description: "Metodo di pagamento mancante.",
+            title: "Payment method error",
+            description: "Payment method missing.",
           });
           return;
         }
@@ -692,9 +692,9 @@ const Payment = () => {
           console.error("🔍 Current URL:", window.location.href);
           toast({
             variant: "destructive",
-            title: "Errore piano",
+            title: "Plan error",
             description:
-              "ID piano mancante. Riprova selezionando un piano dalla pagina principale.",
+              "Plan ID missing. Please try selecting a plan from the main page.",
           });
           // Redirect to pricing page to select a plan
           setTimeout(() => {
@@ -725,8 +725,8 @@ const Payment = () => {
           localStorage.removeItem("user_selected_plan_name");
 
           toast({
-            title: "Pagamento completato!",
-            description: `Grazie ${userInfo.firstName}! Il tuo pagamento è stato processato e una email di conferma è stata inviata.`,
+            title: "Payment completed!",
+            description: `Thank you ${userInfo.firstName}! Your payment has been processed and a confirmation email has been sent.`,
           });
 
           console.log("✅ Authenticated user payment processed successfully");
@@ -754,7 +754,7 @@ const Payment = () => {
 
         // Prepare payment information for existing user
         const paymentInfo = {
-          method: paymentMethod === "card" ? "Carta di Credito" : "PayPal",
+          method: paymentMethod === "card" ? "Credit Card" : "PayPal",
           amount: selectedPlanPrice,
         };
 
@@ -763,7 +763,7 @@ const Payment = () => {
           id: selectedPlanId,
           name: planName,
           price: selectedPlanPrice,
-          type: "Mensile",
+          type: "Monthly",
         };
 
         const userInfo = {
@@ -787,8 +787,8 @@ const Payment = () => {
 
         if (response.success) {
           toast({
-            title: "Pagamento completato!",
-            description: `Grazie ${userInfo.firstName}! Il tuo pagamento è stato processato e una email di conferma è stata inviata.`,
+            title: "Payment completed!",
+            description: `Thank you ${userInfo.firstName}! Your payment has been processed and a confirmation email has been sent.`,
           });
 
           console.log("✅ Legacy OAuth payment processed successfully");
@@ -873,8 +873,8 @@ const Payment = () => {
         ) {
           toast({
             variant: "destructive",
-            title: "Dati mancanti",
-            description: "Per favore compila tutti i campi obbligatori.",
+            title: "Missing data",
+            description: "Please fill in all required fields.",
           });
           return;
         }
@@ -897,7 +897,7 @@ const Payment = () => {
 
         // Prepare payment information
         const paymentInfo = {
-          method: paymentMethod === "card" ? "Carta di Credito" : "PayPal",
+          method: paymentMethod === "card" ? "Credit Card" : "PayPal",
           amount: selectedPlanPrice,
           cardName: formData.get("cardName") || undefined,
           cardNumber: formData.get("cardNumber")
@@ -910,7 +910,7 @@ const Payment = () => {
           id: selectedPlanId,
           name: planName,
           price: selectedPlanPrice,
-          type: "Mensile",
+          type: "Monthly",
         };
 
         console.log("🚀 Processing regular payment...");
@@ -938,8 +938,8 @@ const Payment = () => {
             localStorage.removeItem("temp_user_data"); // Clean up new temp data
 
             toast({
-              title: "Registrazione e pagamento completati!",
-              description: `Benvenuto ${tempUserData.firstName}! Il tuo account è stato creato con successo.`,
+              title: "Registration and payment completed!",
+              description: `Welcome ${tempUserData.firstName}! Your account has been created successfully.`,
             });
 
             console.log("✅ New temp user registration completed successfully");
@@ -978,8 +978,8 @@ const Payment = () => {
             }
 
             toast({
-              title: "Pagamento completato!",
-              description: `Benvenuto ${userInfo.firstName}! Il tuo account è stato creato e una email di conferma è stata inviata.`,
+              title: "Payment completed!",
+              description: `Welcome ${userInfo.firstName}! Your account has been created and a confirmation email has been sent.`,
             });
 
             console.log("✅ Payment processed successfully");
@@ -1001,11 +1001,11 @@ const Payment = () => {
         title:
           isGoogleSignup || isFacebookSignup
             ? "Registration Error"
-            : "Errore di pagamento",
+            : "Payment error",
         description:
           isGoogleSignup || isFacebookSignup
             ? "There was an error completing your registration. Please try again."
-            : "Si è verificato un errore durante il pagamento. Riprova.",
+            : "An error occurred during payment. Please try again.",
       });
     } finally {
       setIsProcessing(false);
@@ -1019,9 +1019,9 @@ const Payment = () => {
         <div className="flex-grow flex items-center justify-center py-12 px-4 bg-gradient-to-b from-white to-purple-50">
           <Card className="max-w-md w-full text-center">
             <CardHeader>
-              <CardTitle>Piano Gratuito Attivato</CardTitle>
+              <CardTitle>Free Plan Activated</CardTitle>
               <CardDescription>
-                Il tuo piano gratuito {planName} è stato attivato con successo.
+                Your free plan {planName} has been activated successfully.
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -1029,7 +1029,7 @@ const Payment = () => {
                 <Loader2 className="h-8 w-8 animate-spin text-green-600" />
               </div>
               <p className="text-gray-600">
-                Stai per essere reindirizzato alla tua dashboard personale...
+                You are being redirected to your personal dashboard...
               </p>
             </CardContent>
             <CardFooter>
@@ -1037,7 +1037,7 @@ const Payment = () => {
                 onClick={() => navigate("/dashboard")}
                 className="w-full bg-green-600 hover:bg-green-700"
               >
-                Vai alla Dashboard
+                Go to Dashboard
               </Button>
             </CardFooter>
           </Card>
@@ -1053,7 +1053,7 @@ const Payment = () => {
       <div className="flex-grow py-12 px-4 bg-gradient-to-b from-white to-purple-50">
         <div className="max-w-3xl mx-auto">
           <h1 className="text-3xl font-bold text-center mb-8">
-            Completa il tuo acquisto
+            Complete your purchase
           </h1>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -1065,23 +1065,23 @@ const Payment = () => {
                   <CardTitle className="flex items-center gap-2">
                     <User size={20} />
                     {tempUserData.tempUserId
-                      ? "Informazioni Account (da registrazione)"
-                      : "Informazioni Account"}
+                      ? "Account Information (from registration)"
+                      : "Account Information"}
                   </CardTitle>
                   <CardDescription>
                     {tempUserData.tempUserId
-                      ? "Dati precompilati dalla tua registrazione precedente"
-                      : "Crea il tuo account per completare l'acquisto"}
+                      ? "Pre-filled data from your previous registration"
+                      : "Create your account to complete the purchase"}
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="firstName">Nome *</Label>
+                      <Label htmlFor="firstName">First Name *</Label>
                       <div className="relative">
                         <Input
                           id="firstName"
-                          placeholder="Mario"
+                          placeholder="John"
                           required
                           value={userDetails.firstName}
                           onChange={(e) =>
@@ -1102,11 +1102,11 @@ const Payment = () => {
                       </div>
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="lastName">Cognome *</Label>
+                      <Label htmlFor="lastName">Last Name *</Label>
                       <div className="relative">
                         <Input
                           id="lastName"
-                          placeholder="Rossi"
+                          placeholder="Smith"
                           required
                           value={userDetails.lastName}
                           onChange={(e) =>
@@ -1129,7 +1129,7 @@ const Payment = () => {
                       <Input
                         id="email"
                         type="email"
-                        placeholder="mario.rossi@email.com"
+                        placeholder="john.smith@email.com"
                         required
                         value={userDetails.email}
                         onChange={(e) =>
@@ -1146,12 +1146,12 @@ const Payment = () => {
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="password">Password (opzionale)</Label>
+                    <Label htmlFor="password">Password (optional)</Label>
                     <div className="relative">
                       <Input
                         id="password"
                         type="password"
-                        placeholder="Lascia vuoto per generare automaticamente"
+                        placeholder="Leave blank to auto-generate"
                         value={userDetails.password}
                         onChange={(e) =>
                           setUserDetails((prev) => ({
@@ -1166,8 +1166,8 @@ const Payment = () => {
                       />
                     </div>
                     <p className="text-sm text-gray-500">
-                      Se non inserisci una password, ne genereremo una
-                      automaticamente e te la invieremo via email.
+                      If you don't enter a password, we will generate one
+                      automatically and send it to you by email.
                     </p>
                   </div>
                 </CardContent>
@@ -1176,8 +1176,8 @@ const Payment = () => {
 
               <Card>
                 <CardHeader>
-                  <CardTitle>Metodo di pagamento</CardTitle>
-                  <CardDescription>Scegli come vuoi pagare</CardDescription>
+                  <CardTitle>Payment method</CardTitle>
+                  <CardDescription>Choose how you want to pay</CardDescription>
                 </CardHeader>
 
                 <CardContent>
@@ -1187,7 +1187,7 @@ const Payment = () => {
                     className="w-full"
                   >
                     <TabsList className="grid w-full grid-cols-2">
-                      <TabsTrigger value="card">Carta di credito</TabsTrigger>
+                      <TabsTrigger value="card">Credit card</TabsTrigger>
                       <TabsTrigger value="paypal">PayPal</TabsTrigger>
                     </TabsList>
 
@@ -1261,13 +1261,13 @@ const Payment = () => {
                               id: selectedPlanId,
                               name: planName,
                               price: selectedPlanPrice,
-                              type: "Mensile",
+                              type: "Monthly",
                             }}
                             onSuccess={() => {
                               toast({
-                                title: "Pagamento completato!",
+                                title: "Payment completed!",
                                 description:
-                                  "Il pagamento con carta è andato a buon fine.",
+                                  "The card payment was successful.",
                               });
                               setTimeout(() => {
                                 navigate("/dashboard");
@@ -1279,7 +1279,7 @@ const Payment = () => {
                         <div className="flex justify-center items-center py-8">
                           <Loader2 className="h-6 w-6 animate-spin" />
                           <span className="ml-2">
-                            Caricamento configurazione pagamenti...
+                            Loading payment configuration...
                           </span>
                         </div>
                       )}
@@ -1291,8 +1291,8 @@ const Payment = () => {
                           Pay<span className="text-blue-300">Pal</span>
                         </div>
                         <p className="text-center text-gray-600 mb-6">
-                          Sarai reindirizzato al sito PayPal per completare il
-                          pagamento in modo sicuro.
+                          You will be redirected to the PayPal site to complete the
+                          payment securely.
                         </p>
                         <Button
                           onClick={handlePayment}
@@ -1300,8 +1300,8 @@ const Payment = () => {
                           disabled={isProcessing}
                         >
                           {isProcessing
-                            ? "Elaborazione..."
-                            : `Continua con PayPal`}
+                            ? "Processing..."
+                            : `Continue with PayPal`}
                         </Button>
                       </div>
                     </TabsContent>
@@ -1310,8 +1310,8 @@ const Payment = () => {
 
                 <CardFooter>
                   <div className="w-full flex items-center justify-center text-sm text-gray-500">
-                    <Lock className="h-4 w-4 mr-1" /> I tuoi dati di pagamento
-                    sono protetti e criptati
+                    <Lock className="h-4 w-4 mr-1" /> Your payment data
+                    is protected and encrypted
                   </div>
                 </CardFooter>
               </Card>
@@ -1320,18 +1320,18 @@ const Payment = () => {
             <div className="col-span-1">
               <Card>
                 <CardHeader>
-                  <CardTitle>Riepilogo ordine</CardTitle>
+                  <CardTitle>Order summary</CardTitle>
                 </CardHeader>
 
                 <CardContent>
                   <div className="space-y-4">
                     <div className="flex justify-between">
-                      <span className="font-medium">Piano</span>
-                      <span>{planName || "Piano selezionato"}</span>
+                      <span className="font-medium">Plan</span>
+                      <span>{planName || "Selected plan"}</span>
                     </div>
 
                     <div className="flex justify-between">
-                      <span className="font-medium">Prezzo</span>
+                      <span className="font-medium">Price</span>
                       <span className="font-bold">
                         {paymentSettings
                           ? formatCurrency(
@@ -1346,11 +1346,11 @@ const Payment = () => {
                       <span className="font-medium">
                         IVA ({paymentSettings?.vat_percentage || 22}%)
                       </span>
-                      <span>Inclusa</span>
+                      <span>Included</span>
                     </div>
 
                     <div className="border-t pt-4 flex justify-between">
-                      <span className="font-bold">Totale</span>
+                      <span className="font-bold">Total</span>
                       <span className="font-bold">
                         {paymentSettings
                           ? formatCurrency(
@@ -1367,16 +1367,16 @@ const Payment = () => {
                   <ul className="text-sm text-gray-600 space-y-2">
                     <li className="flex items-start">
                       <Check className="h-4 w-4 mr-2 text-green-600 mt-0.5" />
-                      <span>Fattura digitale inviata via email</span>
+                      <span>Digital invoice sent by email</span>
                     </li>
                     <li className="flex items-start">
                       <Check className="h-4 w-4 mr-2 text-green-600 mt-0.5" />
-                      <span>Assistenza prioritaria</span>
+                      <span>Priority support</span>
                     </li>
                     <li className="flex items-start">
                       <Check className="h-4 w-4 mr-2 text-green-600 mt-0.5" />
                       <span>
-                        Garanzia soddisfatti o rimborsati di 14 giorni
+                        14-day money-back guarantee
                       </span>
                     </li>
                   </ul>

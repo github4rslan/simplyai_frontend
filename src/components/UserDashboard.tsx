@@ -117,16 +117,16 @@ const UserDashboard = () => {
     try {
       await signOut();
       toast({
-        title: "Logout effettuato",
-        description: "Hai effettuato il logout con successo",
+        title: "Logged out",
+        description: "You have been logged out successfully",
       });
       navigate("/login");
     } catch (error) {
-      console.error("Errore durante il logout:", error);
+      console.error("Error during logout:", error);
       toast({
         variant: "destructive",
-        title: "Errore",
-        description: "Si è verificato un errore durante il logout",
+        title: "Error",
+        description: "An error occurred during logout",
       });
     }
   };
@@ -190,7 +190,7 @@ const UserDashboard = () => {
             onClick={() => setActiveTab("questionnaires")}
           >
             <CheckSquare className="mr-2 h-4 w-4" />
-            Questionari
+            Questionnaires
           </Button>
         </Link>
         <Link to="/dashboard">
@@ -199,7 +199,7 @@ const UserDashboard = () => {
             className="w-full justify-start"
             onClick={() => setActiveTab("reports")}
           >
-            <FileText className="mr-2 h-4 w-4" />I miei report
+            <FileText className="mr-2 h-4 w-4" />My reports
           </Button>
         </Link>
         <Link to="/dashboard">
@@ -209,7 +209,7 @@ const UserDashboard = () => {
             onClick={() => setActiveTab("subscriptions")}
           >
             <FileDown className="mr-2 h-4 w-4" />
-            Abbonamenti
+            Subscriptions
           </Button>
         </Link>
         <Link to="/dashboard">
@@ -219,7 +219,7 @@ const UserDashboard = () => {
             onClick={() => setActiveTab("profile")}
           >
             <User className="mr-2 h-4 w-4" />
-            Profilo
+            Profile
           </Button>
         </Link>
       </div>
@@ -298,10 +298,10 @@ const UserDashboard = () => {
             className="w-full"
           >
             <TabsList className="mb-6">
-              <TabsTrigger value="questionnaires">Questionari</TabsTrigger>
-              <TabsTrigger value="reports">I miei report</TabsTrigger>
-              <TabsTrigger value="subscriptions">Abbonamenti</TabsTrigger>
-              <TabsTrigger value="profile">Profilo</TabsTrigger>
+              <TabsTrigger value="questionnaires">Questionnaires</TabsTrigger>
+              <TabsTrigger value="reports">My reports</TabsTrigger>
+              <TabsTrigger value="subscriptions">Subscriptions</TabsTrigger>
+              <TabsTrigger value="profile">Profile</TabsTrigger>
             </TabsList>
 
             {/* Contenuto Questionari */}

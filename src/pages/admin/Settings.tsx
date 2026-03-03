@@ -44,16 +44,16 @@ import { Loader2 } from "lucide-react";
 
 // Define schema for form validation
 const generalSettingsSchema = z.object({
-  siteName: z.string().min(2, { message: "Il nome del sito è obbligatorio" }),
+  siteName: z.string().min(2, { message: "Site name is required" }),
   siteDescription: z.string().optional(),
   contactEmail: z
     .string()
-    .email({ message: "Inserisci un indirizzo email valido" }),
+    .email({ message: "Please enter a valid email address" }),
   enableRegistration: z.boolean().default(true),
   requireEmailVerification: z.boolean().default(true),
   maxStoragePerUser: z
     .number()
-    .min(1, { message: "Specificare un valore maggiore di 0" }),
+    .min(1, { message: "Please specify a value greater than 0" }),
   primaryColor: z.string().default("#9b87f5"),
   secondaryColor: z.string().default("#7E69AB"),
   accentColor: z.string().default("#E5DEFF"),
@@ -90,7 +90,7 @@ const Settings = () => {
     resolver: zodResolver(generalSettingsSchema),
     defaultValues: {
       siteName: "SimplyAI",
-      siteDescription: "Piattaforma di analisi con AI",
+      siteDescription: "AI analysis platform",
       contactEmail: "info@simplyai.it",
       enableRegistration: true,
       requireEmailVerification: true,
@@ -191,8 +191,8 @@ const Settings = () => {
       } catch (error) {
         console.error("Error fetching app settings:", error);
         toast({
-          title: "⚠ Errore nel caricamento",
-          description: "Impossibile caricare le impostazioni",
+          title: "⚠ Loading error",
+          description: "Unable to load settings",
           variant: "destructive",
         });
       }
@@ -228,8 +228,8 @@ const Settings = () => {
             console.log("Logo updated, dispatched logoUpdated event");
 
             toast({
-              title: "Logo aggiornato",
-              description: "Il logo è stato aggiornato con successo",
+              title: "Logo updated",
+              description: "The logo has been updated successfully",
             });
           } else {
             throw new Error("Failed to save logo");
@@ -237,8 +237,8 @@ const Settings = () => {
         } catch (error) {
           console.error("Error saving logo:", error);
           toast({
-            title: "Errore",
-            description: "Errore durante l'aggiornamento del logo",
+            title: "Error",
+            description: "Error updating the logo",
             variant: "destructive",
           });
         }
@@ -268,8 +268,8 @@ const Settings = () => {
 
           if (result.success) {
             toast({
-              title: "Favicon aggiornato",
-              description: "Il favicon è stato aggiornato con successo",
+              title: "Favicon updated",
+              description: "The favicon has been updated successfully",
             });
 
             window.dispatchEvent(
@@ -283,8 +283,8 @@ const Settings = () => {
         } catch (error) {
           console.error("Error saving favicon:", error);
           toast({
-            title: "Errore",
-            description: "Errore durante l'aggiornamento del favicon",
+            title: "Error",
+            description: "Error updating the favicon",
             variant: "destructive",
           });
         }
@@ -304,8 +304,8 @@ const Settings = () => {
       }
 
       toast({
-        title: "✓ Impostazioni salvate",
-        description: "Le tue preferenze sono state aggiornate con successo",
+        title: "✓ Settings saved",
+        description: "Your preferences have been updated successfully",
       });
 
       // Dispatch font settings update event (debounced to prevent rapid firing)
@@ -328,11 +328,11 @@ const Settings = () => {
     } catch (error) {
       console.error("Error saving settings:", error);
       toast({
-        title: "⚠ Errore nel salvataggio",
+        title: "⚠ Save error",
         description:
           error instanceof Error
             ? error.message
-            : "Si è verificato un errore imprevisto. Riprova tra qualche istante",
+            : "An unexpected error occurred. Please try again in a moment",
         variant: "destructive",
       });
     } finally {
@@ -347,9 +347,9 @@ const Settings = () => {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold">Impostazioni</h1>
+        <h1 className="text-3xl font-bold">Settings</h1>
         <p className="text-muted-foreground mt-2">
-          Gestisci le impostazioni di sistema della piattaforma
+          Manage the platform system settings
         </p>
       </div>
 
@@ -362,17 +362,17 @@ const Settings = () => {
           className="space-y-4"
         >
           <TabsList className="grid w-full md:w-auto md:inline-grid grid-cols-1 md:grid-cols-4">
-            <TabsTrigger value="general">Generali</TabsTrigger>
-            <TabsTrigger value="appearance">Aspetto</TabsTrigger>
-            <TabsTrigger value="payments">Pagamenti</TabsTrigger>
-            <TabsTrigger value="notifications">Notifiche</TabsTrigger>
+            <TabsTrigger value="general">General</TabsTrigger>
+            <TabsTrigger value="appearance">Appearance</TabsTrigger>
+            <TabsTrigger value="payments">Payments</TabsTrigger>
+            <TabsTrigger value="notifications">Notifications</TabsTrigger>
           </TabsList>
           <TabsContent value="general">
             <Card>
               <CardHeader>
-                <CardTitle>Impostazioni Generali</CardTitle>
+                <CardTitle>General Settings</CardTitle>
                 <CardDescription>
-                  Configura le impostazioni di base della piattaforma
+                  Configure the basic settings of the platform
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -388,9 +388,9 @@ const Settings = () => {
                         name="siteName"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Nome del Sito</FormLabel>
+                            <FormLabel>Site Name</FormLabel>
                             <FormControl>
-                              <Input placeholder="Nome del sito" {...field} />
+                              <Input placeholder="Site name" {...field} />
                             </FormControl>
                           </FormItem>
                         )}
@@ -401,10 +401,10 @@ const Settings = () => {
                         name="siteUrl"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>URL del Sito</FormLabel>
+                            <FormLabel>Site URL</FormLabel>
                             <FormControl>
                               <Input
-                                placeholder="https://www.tuosito.it"
+                                placeholder="https://www.yoursite.com"
                                 {...field}
                               />
                             </FormControl>
@@ -418,10 +418,10 @@ const Settings = () => {
                       name="siteDescription"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Descrizione</FormLabel>
+                          <FormLabel>Description</FormLabel>
                           <FormControl>
                             <Textarea
-                              placeholder="Descrizione del sito"
+                              placeholder="Site description"
                               {...field}
                               className="min-h-[100px]"
                             />
@@ -435,11 +435,11 @@ const Settings = () => {
                       name="contactEmail"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Email di Contatto</FormLabel>
+                          <FormLabel>Contact Email</FormLabel>
                           <FormControl>
                             <Input
                               type="email"
-                              placeholder="contatto@esempio.it"
+                              placeholder="contact@example.com"
                               {...field}
                             />
                           </FormControl>
@@ -448,13 +448,13 @@ const Settings = () => {
                     />
 
                     <div>
-                      <FormLabel>Logo del Sito</FormLabel>
+                      <FormLabel>Site Logo</FormLabel>
                       <div className="mt-2">
                         {logoUrl && (
                           <div className="mb-4">
                             <img
                               src={logoUrl}
-                              alt="Logo del sito"
+                              alt="Site logo"
                               className="h-16 object-contain"
                             />
                           </div>
@@ -462,7 +462,7 @@ const Settings = () => {
                         <LocalImageUploader
                           onImageUpload={handleLogoUpload}
                           label="Logo"
-                          buttonText="Carica logo del sito"
+                          buttonText="Upload site logo"
                           uploadType="logo"
                         />
                       </div>
@@ -475,7 +475,7 @@ const Settings = () => {
                           <div className="mb-4">
                             <img
                               src={faviconUrl}
-                              alt="Favicon del sito"
+                              alt="Site favicon"
                               className="h-16 w-16 object-contain"
                             />
                           </div>
@@ -483,13 +483,12 @@ const Settings = () => {
                         <LocalImageUploader
                           onImageUpload={handleFaviconUpload}
                           label="Favicon"
-                          buttonText="Carica favicon (PNG/JPG consigliato)"
+                          buttonText="Upload favicon (PNG/JPG recommended)"
                           accept="image/png,image/jpeg,image/svg+xml"
                           uploadType="favicon"
                         />
                         <p className="text-xs text-muted-foreground mt-1">
-                          Nota: Utilizzare un'immagine quadrata per risultati
-                          migliori. PNG/JPG consigliato.
+                          Note: Use a square image for best results. PNG/JPG recommended.
                         </p>
                       </div>
                     </div>
@@ -503,9 +502,9 @@ const Settings = () => {
                         render={({ field }) => (
                           <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                             <div className="space-y-0.5">
-                              <FormLabel>Abilita Registrazione</FormLabel>
+                              <FormLabel>Enable Registration</FormLabel>
                               <FormDescription>
-                                Consenti agli utenti di registrarsi sul sito
+                                Allow users to register on the site
                               </FormDescription>
                             </div>
                             <FormControl>
@@ -524,10 +523,9 @@ const Settings = () => {
                         render={({ field }) => (
                           <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                             <div className="space-y-0.5">
-                              <FormLabel>Richiedi Verifica Email</FormLabel>
+                              <FormLabel>Require Email Verification</FormLabel>
                               <FormDescription>
-                                Richiedi agli utenti di verificare la loro email
-                                prima di accedere
+                                Require users to verify their email before logging in
                               </FormDescription>
                             </div>
                             <FormControl>
@@ -546,7 +544,7 @@ const Settings = () => {
                       name="maxStoragePerUser"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Storage Massimo per Utente (MB)</FormLabel>
+                          <FormLabel>Maximum Storage per User (MB)</FormLabel>
                           <FormControl>
                             <Input
                               type="number"
@@ -566,10 +564,10 @@ const Settings = () => {
                       {saving ? (
                         <>
                           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          Salvataggio...
+                          Saving...
                         </>
                       ) : (
-                        "Salva Impostazioni"
+                        "Save Settings"
                       )}
                     </Button>
                   </div>
@@ -580,9 +578,9 @@ const Settings = () => {
           <TabsContent value="appearance">
             <Card>
               <CardHeader>
-                <CardTitle>Aspetto e Design</CardTitle>
+                <CardTitle>Appearance and Design</CardTitle>
                 <CardDescription>
-                  Personalizza l'aspetto visivo dell'applicazione
+                  Customize the visual appearance of the application
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -592,14 +590,14 @@ const Settings = () => {
                   className="space-y-6"
                 >
                   <div className="space-y-6">
-                    <h3 className="text-lg font-medium">Colori</h3>
+                    <h3 className="text-lg font-medium">Colors</h3>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                       <FormField
                         control={form.control}
                         name="primaryColor"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Colore Primario</FormLabel>
+                            <FormLabel>Primary Color</FormLabel>
                             <FormControl>
                               <div className="flex items-center gap-2">
                                 <ColorPicker
@@ -635,7 +633,7 @@ const Settings = () => {
                         name="secondaryColor"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Colore Secondario</FormLabel>
+                            <FormLabel>Secondary Color</FormLabel>
                             <FormControl>
                               <div className="flex items-center gap-2">
                                 <ColorPicker
@@ -671,7 +669,7 @@ const Settings = () => {
                         name="accentColor"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Colore Accent</FormLabel>
+                            <FormLabel>Accent Color</FormLabel>
                             <FormControl>
                               <div className="flex items-center gap-2">
                                 <ColorPicker
@@ -704,14 +702,14 @@ const Settings = () => {
                       />
                     </div>
                     <Separator />
-                    <h3 className="text-lg font-medium">Tipografia</h3>
+                    <h3 className="text-lg font-medium">Typography</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <FormField
                         control={form.control}
                         name="fontFamily"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Famiglia Font</FormLabel>
+                            <FormLabel>Font Family</FormLabel>
                             <Select
                               value={field.value}
                               onValueChange={field.onChange}
@@ -719,7 +717,7 @@ const Settings = () => {
                             >
                               <FormControl>
                                 <SelectTrigger>
-                                  <SelectValue placeholder="Seleziona un font" />
+                                  <SelectValue placeholder="Select a font" />
                                 </SelectTrigger>
                               </FormControl>
                               <SelectContent>
@@ -733,7 +731,7 @@ const Settings = () => {
                               </SelectContent>
                             </Select>
                             <FormDescription>
-                              Il font principale utilizzato nell'interfaccia
+                              The main font used in the interface
                             </FormDescription>
                           </FormItem>
                         )}
@@ -743,7 +741,7 @@ const Settings = () => {
                         name="fontSize"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Dimensione Font</FormLabel>
+                            <FormLabel>Font Size</FormLabel>
                             <Select
                               value={field.value}
                               onValueChange={field.onChange}
@@ -751,13 +749,13 @@ const Settings = () => {
                             >
                               <FormControl>
                                 <SelectTrigger>
-                                  <SelectValue placeholder="Dimensione font" />
+                                  <SelectValue placeholder="Font size" />
                                 </SelectTrigger>
                               </FormControl>
                               <SelectContent>
-                                <SelectItem value="small">Piccolo</SelectItem>
-                                <SelectItem value="medium">Medio</SelectItem>
-                                <SelectItem value="large">Grande</SelectItem>
+                                <SelectItem value="small">Small</SelectItem>
+                                <SelectItem value="medium">Medium</SelectItem>
+                                <SelectItem value="large">Large</SelectItem>
                               </SelectContent>
                             </Select>
                           </FormItem>
@@ -765,13 +763,13 @@ const Settings = () => {
                       />
                     </div>
                     <Separator />
-                    <h3 className="text-lg font-medium">Stile UI</h3>
+                    <h3 className="text-lg font-medium">UI Style</h3>
                     <FormField
                       control={form.control}
                       name="buttonStyle"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Stile Pulsanti</FormLabel>
+                          <FormLabel>Button Style</FormLabel>
                           <Select
                             value={field.value}
                             onValueChange={field.onChange}
@@ -779,19 +777,19 @@ const Settings = () => {
                           >
                             <FormControl>
                               <SelectTrigger>
-                                <SelectValue placeholder="Seleziona uno stile" />
+                                <SelectValue placeholder="Select a style" />
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
                               <SelectItem value="rounded">
-                                Arrotondato
+                                Rounded
                               </SelectItem>
                               <SelectItem value="pill">Pill</SelectItem>
-                              <SelectItem value="square">Quadrato</SelectItem>
+                              <SelectItem value="square">Square</SelectItem>
                             </SelectContent>
                           </Select>
                           <FormDescription>
-                            La forma dei pulsanti nell'applicazione
+                            The shape of buttons in the application
                           </FormDescription>
                         </FormItem>
                       )}
@@ -849,9 +847,9 @@ const Settings = () => {
                           }, 100);
                         } catch (error) {
                           toast({
-                            title: "Errore",
+                            title: "Error",
                             description:
-                              "Errore durante il salvataggio tramite Test Button",
+                              "Error saving via Test Button",
                             variant: "destructive",
                           });
                         } finally {
@@ -862,10 +860,10 @@ const Settings = () => {
                       {saving ? (
                         <>
                           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          Salvataggio...
+                          Saving...
                         </>
                       ) : (
-                        "Salva Impostazioni"
+                        "Save Settings"
                       )}
                     </Button>
                   </div>
@@ -876,9 +874,9 @@ const Settings = () => {
           <TabsContent value="payments">
             <Card>
               <CardHeader>
-                <CardTitle>Impostazioni Pagamenti</CardTitle>
+                <CardTitle>Payment Settings</CardTitle>
                 <CardDescription>
-                  Configura le opzioni di pagamento e fatturazione
+                  Configure payment and billing options
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
@@ -888,9 +886,9 @@ const Settings = () => {
                   render={({ field }) => (
                     <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                       <div className="space-y-0.5">
-                        <FormLabel>Abilita Pagamenti</FormLabel>
+                        <FormLabel>Enable Payments</FormLabel>
                         <FormDescription>
-                          Attiva il sistema di pagamenti sul sito
+                          Activate the payment system on the site
                         </FormDescription>
                       </div>
                       <FormControl>
@@ -908,7 +906,7 @@ const Settings = () => {
                   name="currency"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Valuta</FormLabel>
+                      <FormLabel>Currency</FormLabel>
                       <Select
                         value={field.value}
                         onValueChange={field.onChange}
@@ -916,7 +914,7 @@ const Settings = () => {
                       >
                         <FormControl>
                           <SelectTrigger>
-                            <SelectValue placeholder="Seleziona valuta" />
+                            <SelectValue placeholder="Select currency" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
@@ -1308,11 +1306,10 @@ const Settings = () => {
                         </SelectContent>
                       </Select>
                       <FormDescription>
-                        La valuta utilizzata per i pagamenti Stripe
+                        The currency used for Stripe payments
                         <br />
                         <span style={{ color: "#b91c1c", fontSize: "0.95em" }}>
-                          Le valute contrassegnate con * non sono supportate da
-                          American Express.
+                          Currencies marked with * are not supported by American Express.
                         </span>
                         <br />
                       </FormDescription>
@@ -1325,7 +1322,7 @@ const Settings = () => {
                   name="vatPercentage"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Percentuale IVA</FormLabel>
+                      <FormLabel>VAT Percentage</FormLabel>
                       <FormControl>
                         <Input
                           type="number"
@@ -1339,8 +1336,7 @@ const Settings = () => {
                         />
                       </FormControl>
                       <FormDescription>
-                        Percentuale IVA da mostrare nelle fatture (esempio:
-                        22.00)
+                        VAT percentage to show on invoices (example: 22.00)
                       </FormDescription>
                     </FormItem>
                   )}
@@ -1358,7 +1354,7 @@ const Settings = () => {
                         <Input placeholder="pk_test_..." {...field} />
                       </FormControl>
                       <FormDescription>
-                        Chiave pubblica Stripe per il frontend (inizia con pk_)
+                        Stripe public key for the frontend (starts with pk_)
                       </FormDescription>
                     </FormItem>
                   )}
@@ -1378,8 +1374,7 @@ const Settings = () => {
                         />
                       </FormControl>
                       <FormDescription>
-                        Chiave segreta Stripe per il backend (inizia con sk_).
-                        Non condividere mai questa chiave.
+                        Stripe secret key for the backend (starts with sk_). Never share this key.
                       </FormDescription>
                     </FormItem>
                   )}
@@ -1394,7 +1389,7 @@ const Settings = () => {
                   {saving ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Salvando...
+                      Saving...
                     </>
                   ) : (
                     "Salva Impostazioni"
@@ -1407,9 +1402,9 @@ const Settings = () => {
           <TabsContent value="notifications">
             <Card>
                   <CardHeader>
-                    <CardTitle>Impostazioni Notifiche</CardTitle>
+                    <CardTitle>Notification Settings</CardTitle>
                     <CardDescription>
-                      Configura le notifiche email per utenti e amministratori
+                      Configure email notifications for users and administrators
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-6">
@@ -1421,10 +1416,10 @@ const Settings = () => {
                       <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                         <div className="space-y-0.5">
                           <FormLabel htmlFor="welcome-email">
-                            Email di Benvenuto
+                            Welcome Email
                           </FormLabel>
                           <FormDescription>
-                            Invia un'email di benvenuto ai nuovi utenti
+                            Send a welcome email to new users
                           </FormDescription>
                         </div>
                         <FormControl>
@@ -1444,11 +1439,10 @@ const Settings = () => {
                           <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                             <div className="space-y-0.5">
                               <FormLabel htmlFor="admin-notify">
-                                Notifiche Admin
+                                Admin Notifications
                               </FormLabel>
                               <FormDescription>
-                                Notifica gli amministratori quando si registra un
-                                nuovo utente
+                                Notify administrators when a new user registers
                               </FormDescription>
                             </div>
                             <FormControl>
@@ -1468,11 +1462,10 @@ const Settings = () => {
                           <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                         <div className="space-y-0.5">
                           <FormLabel htmlFor="completion-email">
-                            Email di Completamento
+                            Completion Email
                           </FormLabel>
                           <FormDescription>
-                            Invia un'email quando un questionario viene
-                            completato
+                            Send an email when a questionnaire is completed
                           </FormDescription>
                         </div>
                         <FormControl>
@@ -1492,10 +1485,10 @@ const Settings = () => {
                       <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                         <div className="space-y-0.5">
                           <FormLabel htmlFor="report-email">
-                            Email di Report
+                            Report Email
                           </FormLabel>
                           <FormDescription>
-                            Invia un'email quando un nuovo report è disponibile
+                            Send an email when a new report is available
                           </FormDescription>
                         </div>
                         <FormControl>
@@ -1522,15 +1515,15 @@ const Settings = () => {
                       const result = await saveAppSettings(values);
                       if (!result.success) throw result.error;
                       toast({
-                        title: "Impostazioni salvate",
+                        title: "Settings saved",
                         description:
-                          "Le impostazioni di notifica sono state aggiornate con successo.",
+                          "Notification settings have been updated successfully.",
                       });
                     } catch (error) {
                       toast({
-                        title: "Errore",
+                        title: "Error",
                         description:
-                          "Errore durante il salvataggio delle impostazioni di notifica",
+                          "Error saving notification settings",
                         variant: "destructive",
                       });
                     } finally {

@@ -28,7 +28,7 @@ import Footer from "@/components/Footer";
 import { Loader2 } from "lucide-react";
 
 const formSchema = z.object({
-  email: z.string().email({ message: "Inserisci un indirizzo email valido" }),
+  email: z.string().email({ message: "Please enter a valid email address" }),
 });
 
 const ForgotPassword = () => {
@@ -54,23 +54,23 @@ const ForgotPassword = () => {
       const data = await res.json();
       if (data.success) {
         toast({
-          title: "Email inviata",
+          title: "Email sent",
           description:
-            "Controlla la tua casella di posta per il link di reset.",
+            "Check your inbox for the password reset link.",
         });
         navigate("/login");
       } else {
         toast({
           variant: "destructive",
-          title: "Errore",
-          description: data.message || "Si è verificato un errore. Riprova.",
+          title: "Error",
+          description: data.message || "An error occurred. Please try again.",
         });
       }
     } catch (error) {
       toast({
         variant: "destructive",
-        title: "Errore",
-        description: error.message || "Si è verificato un errore. Riprova.",
+        title: "Error",
+        description: error.message || "An error occurred. Please try again.",
       });
     } finally {
       setIsLoading(false);
@@ -83,9 +83,9 @@ const ForgotPassword = () => {
       <div className="flex-grow flex items-center justify-center p-4 bg-gradient-to-b from-white to-purple-50">
         <Card className="w-full max-w-md">
           <CardHeader>
-            <CardTitle className="text-2xl">Recupera la password</CardTitle>
+            <CardTitle className="text-2xl">Recover your password</CardTitle>
             <CardDescription>
-              Inserisci la tua email per ricevere il link di reset
+              Enter your email to receive the reset link
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -103,7 +103,7 @@ const ForgotPassword = () => {
                       <FormControl>
                         <Input
                           type="email"
-                          placeholder="nome@esempio.it"
+                          placeholder="name@example.com"
                           {...field}
                         />
                       </FormControl>
@@ -119,10 +119,10 @@ const ForgotPassword = () => {
                   {isLoading ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Invio in corso...
+                      Sending...
                     </>
                   ) : (
-                    <>Invia link di reset</>
+                    <>Send reset link</>
                   )}
                 </Button>
               </form>
@@ -130,7 +130,7 @@ const ForgotPassword = () => {
           </CardContent>
           <CardFooter className="flex justify-center">
             <p className="text-sm text-gray-500">
-              Torna al{" "}
+              Back to{" "}
               <Link
                 to="/login"
                 className="text-purple-600 hover:text-purple-800"

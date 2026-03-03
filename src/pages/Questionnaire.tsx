@@ -75,8 +75,8 @@ const Questionnaire = () => {
         } catch (error) {
           console.error("Error fetching user plan:", error);
           toast({
-            title: "Avviso",
-            description: "Impossibile caricare le informazioni del piano",
+            title: "Warning",
+            description: "Could not load plan information",
             variant: "destructive",
           });
         }
@@ -90,16 +90,16 @@ const Questionnaire = () => {
     if (!id || !user?.id) {
       toast({
         variant: "destructive",
-        title: "Errore",
-        description: "Utente o questionario non valido",
+        title: "Error",
+        description: "Invalid user or questionnaire",
       });
       return;
     }
     if (!planId) {
       toast({
         variant: "destructive",
-        title: "Errore piano",
-        description: "Nessun piano attivo trovato per l'utente",
+        title: "Plan error",
+        description: "No active plan found for the user",
       });
       return;
     }
@@ -112,30 +112,30 @@ const Questionnaire = () => {
           questionnaireId: id,
           planId,
           userId: user.id,
-          title: "Report generato",
+          title: "Generated report",
         }),
       });
 
       if (!res.ok) {
         const text = await res.text();
-        throw new Error(text || "Errore di generazione report");
+        throw new Error(text || "Report generation error");
       }
       const data = await res.json();
       if (!data.success || !data.reportId) {
-        throw new Error(data.message || "Generazione report non riuscita");
+        throw new Error(data.message || "Report generation failed");
       }
 
       toast({
-        title: "Report generato",
-        description: "Apri il report per visualizzarlo",
+        title: "Report generated",
+        description: "Open the report to view it",
       });
       navigate(`/report/${data.reportId}`);
     } catch (error: any) {
       console.error("Errore generazione report:", error);
       toast({
         variant: "destructive",
-        title: "Errore report",
-        description: error?.message || "Impossibile generare il report",
+        title: "Report error",
+        description: error?.message || "Could not generate the report",
       });
     } finally {
       setIsGeneratingReport(false);
@@ -521,8 +521,8 @@ const Questionnaire = () => {
         setDescription(data.description || "");
       } catch (error) {
         toast({
-          title: "Errore",
-          description: "Impossibile caricare il questionario",
+          title: "Error",
+          description: "Could not load the questionnaire",
           variant: "destructive",
         });
       } finally {
@@ -556,9 +556,9 @@ const Questionnaire = () => {
       }
       console.log("Guide response:", text); // <-- log the raw response
       if (!res.ok)
-        throw new Error("La guida non è disponibile per questa domanda");
+        throw new Error("The guide is not available for this question");
       if (!result || !result.success || !result.data)
-        throw new Error("Risposta API non valida");
+        throw new Error("Invalid API response");
       setGuideModal({
         open: true,
         content: result.data.content,
@@ -571,7 +571,7 @@ const Questionnaire = () => {
         open: true,
         content: "",
         loading: false,
-        error: error.message || "Errore",
+        error: error.message || "Error",
         questionName,
       });
     }
@@ -582,8 +582,8 @@ const Questionnaire = () => {
   const handleConfirmSaveDraft = async () => {
     if (!user || !id) {
       toast({
-        title: "Errore",
-        description: "Informazioni utente o questionario mancanti",
+        title: "Error",
+        description: "Missing user or questionnaire information",
         variant: "destructive",
       });
       return;
@@ -603,7 +603,7 @@ const Questionnaire = () => {
           body: JSON.stringify({
             user_id: user.id,
             questionnaire_id: id,
-            questionnaire_title: title || "Questionario",
+            questionnaire_title: title || "Questionnaire",
             responses: currentResponses,
             status: "draft", // This is the key difference
             created_at: new Date().toISOString(),
@@ -619,8 +619,8 @@ const Questionnaire = () => {
 
       setShowSaveDraftModal(false);
       toast({
-        title: "Salvato in Bozza",
-        description: "Il questionario è stato salvato in bozza con successo",
+        title: "Saved as Draft",
+        description: "The questionnaire has been saved as a draft successfully",
       });
 
       // Optional: Navigate to dashboard after saving draft
@@ -631,8 +631,8 @@ const Questionnaire = () => {
       console.error("Error saving draft:", error);
       setShowSaveDraftModal(false);
       toast({
-        title: "Errore",
-        description: "Impossibile salvare il questionario in bozza",
+        title: "Error",
+        description: "Could not save the questionnaire as a draft",
         variant: "destructive",
       });
     }
@@ -659,10 +659,10 @@ const Questionnaire = () => {
           survey.data = result.draft.answers;
 
           toast({
-            title: "Bozza Caricata",
-            description: `Hai una bozza salvata il ${new Date(
+            title: "Draft loaded",
+            description: `You have a draft saved on ${new Date(
               result.draft.updated_at
-            ).toLocaleDateString("it-IT")}`,
+            ).toLocaleDateString("en-US")}`,
           });
 
           console.log("✅ Draft loaded successfully:", result.draft);
@@ -681,8 +681,8 @@ const Questionnaire = () => {
   const handleConfirmSubmit = async () => {
     if (!user || !id) {
       toast({
-        title: "Errore",
-        description: "Informazioni utente o questionario mancanti",
+        title: "Error",
+        description: "Missing user or questionnaire information",
         variant: "destructive",
       });
       return;
@@ -692,26 +692,29 @@ const Questionnaire = () => {
       const currentResponses = survey.data;
 
       // Call the unified API with status='completed' (default)
+      const token = localStorage.getItem("auth_token");
       const response = await fetch(
         `${API_BASE_URL}/save-questionnaire-completion`,
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
           },
           body: JSON.stringify({
             user_id: user.id,
             questionnaire_id: id,
-            questionnaire_title: title || "Questionario",
+            questionnaire_title: title || "Questionnaire",
             responses: currentResponses,
-            status: "completed", // Or omit this since it's the default
+            status: "completed",
             created_at: new Date().toISOString(),
           }),
         }
       );
 
       if (!response.ok) {
-        throw new Error("Failed to submit questionnaire");
+        const errData = await response.json().catch(() => ({}));
+        throw new Error(errData.message || "Failed to submit questionnaire");
       }
 
       const result = await response.json();
@@ -724,9 +727,8 @@ const Questionnaire = () => {
       console.error("Error submitting questionnaire:", error);
       setShowSubmitModal(false);
       toast({
-        title: "Errore",
-        description:
-          "Si è verificato un errore durante l'invio del questionario",
+        title: "Error",
+        description: error.message || "An error occurred while submitting the questionnaire",
         variant: "destructive",
       });
     }
@@ -735,8 +737,8 @@ const Questionnaire = () => {
   const handleSurveyComplete = async (sender: Model) => {
     if (!user || !id) {
       toast({
-        title: "Errore",
-        description: "Informazioni utente o questionario mancanti",
+        title: "Error",
+        description: "Missing user or questionnaire information",
         variant: "destructive",
       });
       return;
@@ -744,8 +746,8 @@ const Questionnaire = () => {
 
     if (!planId) {
       toast({
-        title: "Errore",
-        description: "Piano utente non disponibile",
+        title: "Error",
+        description: "User plan not available",
         variant: "destructive",
       });
       return;
@@ -777,16 +779,16 @@ const Questionnaire = () => {
         const success = await saveQuestionnaireCompletion({
           user_id: user.id,
           questionnaire_id: id,
-          questionnaire_title: title || "Questionario",
+          questionnaire_title: title || "Questionnaire",
           responses: sender.data,
           completed_at: new Date().toISOString(),
         });
 
         if (success) {
           toast({
-            title: "Questionario completato",
+            title: "Questionnaire completed",
             description:
-              "Il questionario è stato completato con successo. Il template per la generazione del report non è ancora configurato.",
+              "The questionnaire has been completed successfully. The report generation template is not yet configured.",
           });
         }
 
@@ -803,23 +805,25 @@ const Questionnaire = () => {
       const success = await saveQuestionnaireCompletion({
         user_id: user.id,
         questionnaire_id: id,
-        questionnaire_title: title || "Questionario",
+        questionnaire_title: title || "Questionnaire",
         responses: sender.data,
         completed_at: new Date().toISOString(),
       });
 
       if (success) {
         toast({
-          title: "Questionario inviato",
+          title: "Questionnaire submitted",
           description:
-            "Il questionario è stato inviato con successo! Generazione del report in corso...",
+            "The questionnaire has been submitted successfully! Generating report...",
         });
 
         // Call the AI generation endpoint (using ai-integration.js)
+        const aiToken = localStorage.getItem("auth_token");
         const aiResponse = await fetch(`${API_BASE_URL}/ai/generate`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
+            ...(aiToken ? { Authorization: `Bearer ${aiToken}` } : {}),
           },
           body: JSON.stringify({
             questionnaireId: id,
@@ -845,9 +849,9 @@ const Questionnaire = () => {
       // Check if this is a template check error (early in the process)
       if (error.message && error.message.includes("template")) {
         toast({
-          title: "Template non configurato",
+          title: "Template not configured",
           description:
-            "Il template per la generazione del report non è configurato. Verrai reindirizzato alla homepage.",
+            "The report generation template is not configured. You will be redirected to the homepage.",
           variant: "destructive",
         });
 
@@ -856,7 +860,7 @@ const Questionnaire = () => {
           await saveQuestionnaireCompletion({
             user_id: user.id,
             questionnaire_id: id,
-            questionnaire_title: title || "Questionario",
+            questionnaire_title: title || "Questionnaire",
             responses: sender.data,
             completed_at: new Date().toISOString(),
           });
@@ -870,9 +874,9 @@ const Questionnaire = () => {
       } else {
         // General error handling
         toast({
-          title: "Errore",
+          title: "Error",
           description:
-            "Si è verificato un errore durante l'invio del questionario",
+            "An error occurred while submitting the questionnaire",
           variant: "destructive",
         });
       }
@@ -1345,7 +1349,7 @@ const Questionnaire = () => {
   if (loading) {
     return (
       <div className="container mx-auto p-6">
-        <MainNavigation variant="questionnaire" title="Caricamento..." />
+        <MainNavigation variant="questionnaire" title="Loading..." />
         <div className="flex justify-center items-center h-[60vh]">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
         </div>
@@ -1356,11 +1360,11 @@ const Questionnaire = () => {
   if (!surveyJson) {
     return (
       <div className="container mx-auto p-6">
-        <MainNavigation variant="questionnaire" title="Errore" />
+        <MainNavigation variant="questionnaire" title="Error" />
         <div className="text-center py-12">
-          <h2 className="text-2xl font-bold mb-4">Questionario non trovato</h2>
+          <h2 className="text-2xl font-bold mb-4">Questionnaire not found</h2>
           <button className="btn" onClick={() => navigate("/dashboard")}>
-            Torna alla Dashboard
+            Back to Dashboard
           </button>
         </div>
       </div>
@@ -1474,31 +1478,31 @@ const Questionnaire = () => {
 
           <div className="md:col-span-1">
             <div className="questionnaire-sidebar">
-              <h3>Informazioni Domanda</h3>
+              <h3>Question Information</h3>
               <div className="guide-content">
                 <h4>Lessons</h4>
                 <p>{sidebarText}</p>
               </div>
 
               <div className="space-y-3 mt-6">
-                <h3 className="font-medium">Questionari Futuri</h3>
+                <h3 className="font-medium">Upcoming Questionnaires</h3>
                 <div className="p-3 border rounded-md">
-                  <p className="font-medium">Valutazione Bisogni Formativi</p>
+                  <p className="font-medium">Training Needs Assessment</p>
                   <p className="text-xs text-gray-500">
-                    Disponibile dal: 15/06/2025
+                    Available from: 06/15/2025
                   </p>
                 </div>
                 <div className="p-3 border rounded-md">
-                  <p className="font-medium">Indagine Soddisfazione Cliente</p>
+                  <p className="font-medium">Customer Satisfaction Survey</p>
                   <p className="text-xs text-gray-500">
-                    Disponibile dal: 30/09/2025
+                    Available from: 09/30/2025
                   </p>
                 </div>
               </div>
 
               {/* Show buttons only on final page */}
               <div className="mt-6">
-                <h3 className="font-medium mb-3">Azioni</h3>
+                <h3 className="font-medium mb-3">Actions</h3>
 
                 <div className="flex items-center gap-3">
                   {/* Salva in Bozza Button */}
@@ -1506,15 +1510,15 @@ const Questionnaire = () => {
                     onClick={handleSaveDraft}
                     className="flex-1 px-4 py-2 border-2 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm"
                   >
-                    Salva in Bozza
+                    Save as Draft
                   </button>
 
-                  {/* Invia Button */}
+                  {/* Submit Button */}
                   <button
                     onClick={handleSubmitQuestionnaire}
                     className="flex-1 px-4 py-3 bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-lg hover:from-purple-600 hover:to-purple-700 transition-colors font-medium shadow-md"
                   >
-                    Invia
+                    Submit
                   </button>
                 </div>
 
@@ -1524,7 +1528,7 @@ const Questionnaire = () => {
                     disabled={isGeneratingReport || !planId}
                     className="w-full mt-4 px-4 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors font-medium shadow-md disabled:opacity-60 disabled:cursor-not-allowed"
                   >
-                    {isGeneratingReport ? "Generazione in corso..." : "Genera report"}
+                    {isGeneratingReport ? "Generating..." : "Generate report"}
                   </button>
                 )}
               </div>
@@ -1544,12 +1548,12 @@ const Questionnaire = () => {
           <button
             className="absolute top-2 right-2 text-gray-400 hover:text-gray-700 text-2xl font-bold"
             onClick={() => setGuideModal({ ...guideModal, open: false })}
-            aria-label="Chiudi"
+            aria-label="Close"
           >
             &times;
           </button>
           {guideModal.loading ? (
-            <div className="text-center py-8">Caricamento...</div>
+            <div className="text-center py-8">Loading...</div>
           ) : guideModal.error ? (
             <div className="text-center text-red-500 py-8">
               {guideModal.error}
@@ -1577,15 +1581,15 @@ const Questionnaire = () => {
           <button
             className="absolute top-3 right-3 text-gray-400 hover:text-gray-700 text-2xl font-bold"
             onClick={() => setShowSaveDraftModal(false)}
-            aria-label="Chiudi"
+            aria-label="Close"
           >
             &times;
           </button>
 
-          <h2 className="text-xl font-bold mb-4">Salvataggio in Bozza</h2>
+          <h2 className="text-xl font-bold mb-4">Save as Draft</h2>
           <p className="text-gray-600 mb-6">
-            Salvando in Draft non perdite le domande già risposte, puoi
-            sospendere il questionario, riprenderlo e cambiare alcune risposte.
+            Saving as draft will preserve your already answered questions. You can
+            pause the questionnaire, resume it, and change some answers later.
           </p>
 
           <div className="flex gap-3 justify-end">
@@ -1593,19 +1597,19 @@ const Questionnaire = () => {
               onClick={() => setShowSaveDraftModal(false)}
               className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
             >
-              Annulla
+              Cancel
             </button>
             <button
               onClick={handleConfirmSaveDraft}
               className="px-6 py-2 bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-lg hover:from-purple-600 hover:to-purple-700 transition-colors"
             >
-              Conferma salvataggio in draft
+              Confirm save as draft
             </button>
           </div>
         </div>
       </ReactModal>
 
-      {/* Invia Questionario Modal */}
+      {/* Submit Questionnaire Modal */}
       <ReactModal
         isOpen={showSubmitModal}
         onRequestClose={() => setShowSubmitModal(false)}
@@ -1617,16 +1621,16 @@ const Questionnaire = () => {
           <button
             className="absolute top-3 right-3 text-gray-400 hover:text-gray-700 text-2xl font-bold"
             onClick={() => setShowSubmitModal(false)}
-            aria-label="Chiudi"
+            aria-label="Close"
           >
             &times;
           </button>
 
-          <h2 className="text-xl font-bold mb-4">Invio Questionario</h2>
+          <h2 className="text-xl font-bold mb-4">Submit Questionnaire</h2>
           <p className="text-gray-600 mb-6">
-            ATTENZIONE: Il pulsante Invia salva definitivamente il questionario
-            e attiva l'elaborazione del report definitivo. Quindi Conferma solo
-            se le tue risposte sono corrette perché non potrai rifarlo.
+            WARNING: The Submit button permanently saves the questionnaire
+            and triggers the final report generation. Only confirm
+            if your answers are correct, as you will not be able to redo it.
           </p>
 
           <div className="flex gap-3 justify-end">
@@ -1634,14 +1638,13 @@ const Questionnaire = () => {
               onClick={() => setShowSubmitModal(false)}
               className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
             >
-              Annulla
+              Cancel
             </button>
             <button
               onClick={handleConfirmSubmit}
               className="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium"
             >
-              Conferma definitivamente l'invio definitivo del questionario e
-              ricevi il report
+              Confirm final submission and receive the report
             </button>
           </div>
         </div>

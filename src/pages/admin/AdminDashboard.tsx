@@ -27,10 +27,10 @@ const RecentUserCard = ({ user }) => {
         <h4 className="font-medium">
           {user.first_name && user.last_name
             ? `${user.first_name} ${user.last_name}`
-            : user.email || 'Utente'}
+            : user.email || 'User'}
         </h4>
         <p className="text-sm text-gray-500">
-          Registrato: {formatDate(user.created_at)}
+          Registered: {formatDate(user.created_at)}
         </p>
         {user.email && (
           <p className="text-sm text-gray-400">{user.email}</p>
@@ -38,7 +38,7 @@ const RecentUserCard = ({ user }) => {
       </div>
       <Link to={`/admin/users?id=${user.id}`}>
         <Button variant="outline" size="sm">
-          Dettagli
+          Details
         </Button>
       </Link>
     </div>
@@ -101,8 +101,8 @@ const AdminDashboard = () => {
         console.error('❌ Error fetching dashboard data:', error);
         setError(true);
         toast({
-          title: 'Errore',
-          description: 'Impossibile caricare i dati della dashboard dal database.',
+          title: 'Error',
+          description: 'Unable to load dashboard data from the database.',
           variant: 'destructive',
         });
         
@@ -124,15 +124,15 @@ const AdminDashboard = () => {
   }, [toast]);
 
   if (loading) {
-    return <div className="flex justify-center p-10">Caricamento...</div>;
+    return <div className="flex justify-center p-10">Loading...</div>;
   }
 
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold">Dashboard Amministrazione</h1>
+        <h1 className="text-3xl font-bold">Administration Dashboard</h1>
         <p className="text-muted-foreground mt-2">
-          Benvenuto nel pannello di controllo SimplyAI
+          Welcome to the SimplyAI control panel
         </p>
       </div>
       
@@ -140,8 +140,8 @@ const AdminDashboard = () => {
         <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded-md flex items-start mb-6">
           <AlertCircle className="h-5 w-5 mr-2 mt-0.5" />
           <div>
-            <h3 className="font-medium">Errore di connessione al database</h3>
-            <p className="text-sm">Impossibile caricare i dati dalla dashboard. Verificare la connessione MySQL.</p>
+            <h3 className="font-medium">Database connection error</h3>
+            <p className="text-sm">Unable to load dashboard data. Please check the MySQL connection.</p>
           </div>
         </div>
       )}
@@ -150,13 +150,13 @@ const AdminDashboard = () => {
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-2xl">{stats.totalUsers}</CardTitle>
-            <CardDescription>Utenti Totali</CardDescription>
+            <CardDescription>Total Users</CardDescription>
           </CardHeader>
           <CardContent>
             <Link to="/admin/users">
               <Button variant="outline" className="w-full mt-2" size="sm">
                 <Users className="mr-2 h-4 w-4" />
-                Gestisci Utenti
+                Manage Users
               </Button>
             </Link>
           </CardContent>
@@ -165,13 +165,13 @@ const AdminDashboard = () => {
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-2xl">{stats.activeQuestionnaires}</CardTitle>
-            <CardDescription>Questionari Attivi</CardDescription>
+            <CardDescription>Active Questionnaires</CardDescription>
           </CardHeader>
           <CardContent>
             <Link to="/admin/form-builder">
               <Button variant="outline" className="w-full mt-2" size="sm">
                 <FileText className="mr-2 h-4 w-4" />
-                Gestisci Form
+                Manage Forms
               </Button>
             </Link>
           </CardContent>
@@ -180,7 +180,7 @@ const AdminDashboard = () => {
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-2xl">{stats.completedQuestionnaires}</CardTitle>
-            <CardDescription>Questionari Completati</CardDescription>
+            <CardDescription>Completed Questionnaires</CardDescription>
           </CardHeader>
           <CardContent>
             <Link to="/admin/form-builder">
@@ -195,13 +195,13 @@ const AdminDashboard = () => {
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-2xl">{stats.totalReports}</CardTitle>
-            <CardDescription>Report Generati</CardDescription>
+            <CardDescription>Generated Reports</CardDescription>
           </CardHeader>
           <CardContent>
             <Link to="/admin/reports">
               <Button variant="outline" className="w-full mt-2" size="sm">
                 <BarChart2 className="mr-2 h-4 w-4" />
-                Visualizza Report
+                View Reports
               </Button>
             </Link>
           </CardContent>
@@ -210,16 +210,16 @@ const AdminDashboard = () => {
       
       <Tabs defaultValue="users" className="space-y-4">
         <TabsList>
-          <TabsTrigger value="users">Ultimi Utenti</TabsTrigger>
-          <TabsTrigger value="questionnaires">Ultimi Questionari</TabsTrigger>
+          <TabsTrigger value="users">Latest Users</TabsTrigger>
+          <TabsTrigger value="questionnaires">Latest Questionnaires</TabsTrigger>
         </TabsList>
         
         <TabsContent value="users">
           <Card>
             <CardHeader>
-              <CardTitle>Ultimi Utenti Registrati</CardTitle>
+              <CardTitle>Latest Registered Users</CardTitle>
               <CardDescription>
-                Gli utenti più recenti registrati sulla piattaforma
+                The most recently registered users on the platform
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -230,12 +230,12 @@ const AdminDashboard = () => {
                   ))}
                   <div className="mt-4 text-center">
                     <Link to="/admin/users">
-                      <Button>Visualizza tutti gli utenti</Button>
+                      <Button>View all users</Button>
                     </Link>
                   </div>
                 </div>
               ) : (
-                <p>Nessun utente registrato.</p>
+                <p>No registered users.</p>
               )}
             </CardContent>
           </Card>
@@ -244,9 +244,9 @@ const AdminDashboard = () => {
         <TabsContent value="questionnaires">
           <Card>
             <CardHeader>
-              <CardTitle>Ultimi Questionari</CardTitle>
+              <CardTitle>Latest Questionnaires</CardTitle>
               <CardDescription>
-                I questionari più recenti compilati dagli utenti
+                The most recently completed questionnaires by users
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -256,7 +256,7 @@ const AdminDashboard = () => {
                     <div key={questionnaire.id} className="p-4 border rounded-lg">
                       <div className="flex justify-between items-center">
                         <h4 className="font-medium">
-                          Questionario #{questionnaire.id.toString().substring(0, 8)}
+                          Questionnaire #{String(questionnaire.id ?? "").substring(0, 8)}
                         </h4>
                         <span
                           className={`px-2 py-1 text-xs rounded-full ${
@@ -265,32 +265,32 @@ const AdminDashboard = () => {
                               : 'bg-amber-100 text-amber-800'
                           }`}
                         >
-                          {questionnaire.status === 'completed' ? 'Completato' : 'Bozza'}
+                          {questionnaire.status === 'completed' ? 'Completed' : 'Draft'}
                         </span>
                       </div>
                       <p className="text-sm text-gray-500 mt-1">
-                        {questionnaire.first_name && questionnaire.last_name 
-                          ? `${questionnaire.first_name} ${questionnaire.last_name}` 
-                          : questionnaire.email || `Utente ID: ${questionnaire.user_id.toString().substring(0, 8)}`}
+                        {questionnaire.first_name && questionnaire.last_name
+                          ? `${questionnaire.first_name} ${questionnaire.last_name}`
+                          : questionnaire.email || `User ID: ${String(questionnaire.user_id ?? "").substring(0, 8)}`}
                       </p>
                       <p className="text-sm text-gray-500">
-                        Data: {new Date(questionnaire.created_at).toLocaleDateString('it-IT')}
+                        Date: {new Date(questionnaire.created_at).toLocaleDateString('en-US')}
                       </p>
                       {questionnaire.updated_at && questionnaire.updated_at !== questionnaire.created_at && (
                         <p className="text-sm text-gray-400">
-                          Aggiornato: {new Date(questionnaire.updated_at).toLocaleDateString('it-IT')}
+                          Updated: {new Date(questionnaire.updated_at).toLocaleDateString('en-US')}
                         </p>
                       )}
                     </div>
                   ))}
                   <div className="mt-4 text-center">
                     <Link to="/admin/form-builder">
-                      <Button>Visualizza tutti i questionari</Button>
+                      <Button>View all questionnaires</Button>
                     </Link>
                   </div>
                 </div>
               ) : (
-                <p>Nessun questionario compilato.</p>
+                <p>No questionnaires submitted.</p>
               )}
             </CardContent>
           </Card>
@@ -300,34 +300,34 @@ const AdminDashboard = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Card>
           <CardHeader>
-            <CardTitle>Azioni Rapide</CardTitle>
+            <CardTitle>Quick Actions</CardTitle>
             <CardDescription>
-              Gestisci rapidamente le funzionalità principali
+              Quickly manage the main features
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-2">
             <Link to="/admin/users">
               <Button variant="outline" className="w-full justify-start" size="lg">
                 <Users className="mr-2 h-5 w-5" />
-                Gestione Utenti
+                User Management
               </Button>
             </Link>
             <Link to="/admin/page-editor">
               <Button variant="outline" className="w-full justify-start" size="lg">
                 <FileText className="mr-2 h-5 w-5" />
-                Editor Pagine
+                Page Editor
               </Button>
             </Link>
             <Link to="/admin/form-builder">
               <Button variant="outline" className="w-full justify-start" size="lg">
                 <LayoutGrid className="mr-2 h-5 w-5" />
-                Builder Form
+                Form Builder
               </Button>
             </Link>
             <Link to="/admin/settings">
               <Button variant="outline" className="w-full justify-start" size="lg">
                 <Settings className="mr-2 h-5 w-5" />
-                Impostazioni Sistema
+                System Settings
               </Button>
             </Link>
           </CardContent>
@@ -335,9 +335,9 @@ const AdminDashboard = () => {
         
         <Card>
           <CardHeader>
-            <CardTitle>Stato del Sistema</CardTitle>
+            <CardTitle>System Status</CardTitle>
             <CardDescription>
-              Statistiche e informazioni sul sistema
+              Statistics and system information
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -349,7 +349,7 @@ const AdminDashboard = () => {
               <div className="flex justify-between items-center pb-2 border-b">
                 <span className="font-medium">Database MySQL</span>
                 <span className={error ? "text-red-600" : "text-green-600"}>
-                  {error ? "Errore di connessione" : "Online"}
+                  {error ? "Connection error" : "Online"}
                 </span>
               </div>
               <div className="flex justify-between items-center pb-2 border-b">
@@ -357,11 +357,11 @@ const AdminDashboard = () => {
                 <span className="text-green-600">Online</span>
               </div>
               <div className="flex justify-between items-center pb-2 border-b">
-                <span className="font-medium">Questionari</span>
-                <span>{stats.activeQuestionnaires + stats.completedQuestionnaires} totali</span>
+                <span className="font-medium">Questionnaires</span>
+                <span>{stats.activeQuestionnaires + stats.completedQuestionnaires} total</span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="font-medium">Report generati</span>
+                <span className="font-medium">Generated reports</span>
                 <span>{stats.totalReports}</span>
               </div>
             </div>

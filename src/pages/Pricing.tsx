@@ -167,10 +167,10 @@ const Pricing = () => {
                 <>
                   <div className="text-center mb-16">
                     <h1 className="text-4xl font-bold mb-4">
-                      Scegli il piano più adatto a te
+                      Choose the plan that best suits you
                     </h1>
                     <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-                      Offriamo diverse soluzioni per soddisfare le tue esigenze
+                      We offer various solutions to meet your needs
                     </p>
                   </div>
 
@@ -186,7 +186,7 @@ const Pricing = () => {
 
                   <div className="mt-20 text-center">
                     <h2 className="text-2xl font-semibold mb-6">
-                      Domande frequenti sui prezzi
+                      Frequently asked questions about pricing
                     </h2>
                     {/* FAQ content */}
                   </div>

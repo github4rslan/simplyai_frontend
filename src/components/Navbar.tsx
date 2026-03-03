@@ -185,16 +185,16 @@ const Navbar = () => {
         </Link>
         <div className="hidden md:flex ml-10 space-x-8">
           <Link to="/about" className="text-gray-600 hover:text-gray-900">
-            Chi Siamo
+            About Us
           </Link>
           <Link to="/guide" className="text-gray-600 hover:text-gray-900">
-            Guida
+            Guide
           </Link>
           <Link to="/pricing" className="text-gray-600 hover:text-gray-900">
-            Prezzi
+            Pricing
           </Link>
           <Link to="/contact" className="text-gray-600 hover:text-gray-900">
-            Contatti
+            Contact
           </Link>
         </div>
       </div>
@@ -209,7 +209,7 @@ const Navbar = () => {
             </Link>
             <Button
               onClick={() => {
-                if (window.confirm("Sei sicuro di voler uscire?")) signOut();
+                if (window.confirm("Are you sure you want to log out?")) signOut();
               }}
               className="flex items-center gap-2"
             >
@@ -220,10 +220,10 @@ const Navbar = () => {
         ) : (
           <div className="flex space-x-2">
             <Link to="/login">
-              <Button>Accedi</Button>
+              <Button>Log In</Button>
             </Link>
             <Link to="/register">
-              <Button>Registrati</Button>
+              <Button>Register</Button>
             </Link>
           </div>
         )}

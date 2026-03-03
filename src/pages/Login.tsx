@@ -30,8 +30,8 @@ import Navbar from "@/components/Navbar";
 
 // Form schema for validation
 const formSchema = z.object({
-  email: z.string().email({ message: "Inserisci un indirizzo email valido" }),
-  password: z.string().min(1, { message: "La password è obbligatoria" }),
+  email: z.string().email({ message: "Please enter a valid email address" }),
+  password: z.string().min(1, { message: "Password is required" }),
 });
 
 const Login = () => {
@@ -62,8 +62,8 @@ const Login = () => {
       await login(values.email, values.password);
 
       toast({
-        title: "Accesso effettuato",
-        description: "Benvenuto nella piattaforma",
+        title: "Logged in",
+        description: "Welcome to the platform",
       });
 
       // Reindirizza alla dashboard
@@ -81,9 +81,9 @@ const Login = () => {
       } else {
         toast({
           variant: "destructive",
-          title: "Errore di accesso",
+          title: "Login error",
           description:
-            error.response?.data?.message || "Credenziali non valide. Riprova.",
+            error.response?.data?.message || "Invalid credentials. Please try again.",
         });
       }
     } finally {
@@ -104,8 +104,8 @@ const Login = () => {
     const savedToken = localStorage.getItem("auth_token");
     if (savedToken) {
       toast({
-        title: "Sei già connesso",
-        description: "Reindirizzamento alla dashboard...",
+        title: "Already logged in",
+        description: "Redirecting to dashboard...",
       });
       navigate("/dashboard");
     }
@@ -118,9 +118,9 @@ const Login = () => {
       <div className="flex-grow flex items-center justify-center p-4 bg-gradient-to-b from-white to-[var(--color-primary-100)]">
         <Card className="w-full max-w-md">
           <CardHeader>
-            <CardTitle className="text-2xl">Accedi al tuo account</CardTitle>
+            <CardTitle className="text-2xl">Sign in to your account</CardTitle>
             <CardDescription>
-              Inserisci le tue credenziali per accedere
+              Enter your credentials to log in
             </CardDescription>
           </CardHeader>
 
@@ -159,7 +159,7 @@ const Login = () => {
                     d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
                   />
                 </svg>
-                Continua con Google
+                Continue with Google
               </Button>
 
               <Button
@@ -174,7 +174,7 @@ const Login = () => {
                     d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"
                   />
                 </svg>
-                Continua con Facebook
+                Continue with Facebook
               </Button>
             </div>
 
@@ -184,7 +184,7 @@ const Login = () => {
               </div>
               <div className="relative flex justify-center text-xs uppercase">
                 <span className="bg-white px-2 text-muted-foreground">
-                  Oppure
+                  Or
                 </span>
               </div>
             </div>
@@ -203,7 +203,7 @@ const Login = () => {
                       <FormControl>
                         <Input
                           type="email"
-                          placeholder="nome@esempio.it"
+                          placeholder="name@example.com"
                           {...field}
                         />
                       </FormControl>
@@ -250,7 +250,7 @@ const Login = () => {
                     to="/forgot-password"
                     className="text-sm text-[var(--color-primary)] hover:text-[var(--color-primary-700)]"
                   >
-                    Password dimenticata?
+                    Forgot password?
                   </Link>
                 </div>
 
@@ -264,7 +264,7 @@ const Login = () => {
                   ) : (
                     <LogIn className="mr-2 h-4 w-4" />
                   )}
-                  {isLoading ? "Accesso in corso..." : "Accedi"}
+                  {isLoading ? "Logging in..." : "Log In"}
                 </Button>
               </form>
             </Form>
@@ -272,12 +272,12 @@ const Login = () => {
 
           <CardFooter className="flex justify-center">
             <p className="text-sm text-gray-500">
-              Non hai un account?{" "}
+              Don't have an account?{" "}
               <Link
                 to="/register"
                 className="text-[var(--color-primary)] hover:text-[var(--color-primary-700)]"
               >
-                Registrati
+                Register
               </Link>
             </p>
           </CardFooter>

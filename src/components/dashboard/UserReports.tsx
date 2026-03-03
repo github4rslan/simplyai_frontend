@@ -49,8 +49,8 @@ export const UserReports = () => {
         console.error("Errore nel caricamento dei report:", error);
         toast({
           variant: "destructive",
-          title: "Errore",
-          description: "Non è stato possibile caricare i report",
+          title: "Error",
+          description: "Could not load the reports",
         });
       } finally {
         setIsLoading(false);
@@ -68,7 +68,7 @@ export const UserReports = () => {
         const data = result?.data || [];
         const mapped = data.map((q: any) => ({
           id: q.id,
-          title: q.title || "Questionario",
+          title: q.title || "Questionnaire",
         }));
         setAvailableQuestionnaires(mapped);
         if (mapped.length > 0) {
@@ -102,21 +102,21 @@ export const UserReports = () => {
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement("a");
         a.href = url;
-        a.download = `${report.title.replace(/\s+/g, "_")}.pdf`;
+        a.download = `${(report.title || "report").replace(/\s+/g, "_")}.pdf`;
         document.body.appendChild(a);
         a.click();
         window.URL.revokeObjectURL(url);
         document.body.removeChild(a);
 
         toast({
-          title: "PDF scaricato",
-          description: `Il report "${report.title}" è stato scaricato con successo`,
+          title: "PDF downloaded",
+          description: `The report "${report.title}" has been downloaded successfully`,
         });
       } else {
         // PDF doesn't exist, regenerate it
         toast({
-          title: "Generazione PDF in corso...",
-          description: "Attendere prego",
+          title: "Generating PDF...",
+          description: "Please wait",
         });
 
         const response = await fetch(
@@ -144,7 +144,7 @@ export const UserReports = () => {
           const url = window.URL.createObjectURL(blob);
           const a = document.createElement("a");
           a.href = url;
-          a.download = `${report.title.replace(/\s+/g, "_")}.pdf`;
+          a.download = `${(report.title || "report").replace(/\s+/g, "_")}.pdf`;
           document.body.appendChild(a);
           a.click();
           window.URL.revokeObjectURL(url);
@@ -158,8 +158,8 @@ export const UserReports = () => {
           );
 
           toast({
-            title: "PDF generato e scaricato",
-            description: `Il report "${report.title}" è stato scaricato con successo`,
+            title: "PDF generated and downloaded",
+            description: `The report "${report.title}" has been downloaded successfully`,
           });
         }
       }
@@ -167,8 +167,8 @@ export const UserReports = () => {
       console.error("Errore esportazione PDF:", error);
       toast({
         variant: "destructive",
-        title: "Errore",
-        description: "Non è stato possibile esportare il PDF",
+        title: "Error",
+        description: "Could not export the PDF",
       });
     } finally {
       setExportingReportId(null);
@@ -179,8 +179,8 @@ export const UserReports = () => {
     if (!user?.id || !selectedQuestionnaireId) {
       toast({
         variant: "destructive",
-        title: "Errore",
-        description: "Seleziona un questionario",
+        title: "Error",
+        description: "Please select a questionnaire",
       });
       return;
     }
@@ -191,11 +191,11 @@ export const UserReports = () => {
       const subRes = await fetch(
         `${API_BASE_URL}/users/${user.id}/subscription`
       );
-      if (!subRes.ok) throw new Error("Impossibile recuperare il piano");
+      if (!subRes.ok) throw new Error("Could not retrieve plan");
       const subData = await subRes.json();
       const planId =
         subData?.planId || subData?.plan_id || subData?.data?.planId;
-      if (!planId) throw new Error("Nessun piano attivo trovato");
+      if (!planId) throw new Error("No active plan found");
 
       const genRes = await fetch(`${API_BASE_URL}/ai/generate`, {
         method: "POST",
@@ -204,29 +204,29 @@ export const UserReports = () => {
           questionnaireId: selectedQuestionnaireId,
           planId,
           userId: user.id,
-          title: "Report generato dal dashboard",
+          title: "Report generated from dashboard",
         }),
       });
       if (!genRes.ok) {
         const text = await genRes.text();
-        throw new Error(text || "Errore di generazione");
+        throw new Error(text || "Generation error");
       }
       const genData = await genRes.json();
       if (!genData.success || !genData.reportId) {
-        throw new Error(genData.message || "Generazione non riuscita");
+        throw new Error(genData.message || "Generation failed");
       }
 
       toast({
-        title: "Report richiesto",
-        description: "Apro il report generato",
+        title: "Report requested",
+        description: "Opening the generated report",
       });
       navigate(`/report/${genData.reportId}`);
     } catch (error: any) {
       console.error("Errore generazione report:", error);
       toast({
         variant: "destructive",
-        title: "Errore",
-        description: error?.message || "Impossibile generare il report",
+        title: "Error",
+        description: error?.message || "Could not generate the report",
       });
     } finally {
       setIsGenerating(false);
@@ -238,9 +238,9 @@ export const UserReports = () => {
       <CardHeader>
         <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
           <div>
-            <CardTitle>I miei report</CardTitle>
+            <CardTitle>My reports</CardTitle>
             <CardDescription>
-              Visualizza e gestisci i report generati dai tuoi questionari
+              View and manage the reports generated from your questionnaires
             </CardDescription>
           </div>
           <div className="flex flex-col sm:flex-row gap-2 sm:items-center">
@@ -251,7 +251,7 @@ export const UserReports = () => {
               disabled={availableQuestionnaires.length === 0}
             >
               {availableQuestionnaires.length === 0 ? (
-                <option value="">Nessun questionario disponibile</option>
+                <option value="">No questionnaires available</option>
               ) : (
                 availableQuestionnaires.map((q) => (
                   <option key={q.id} value={q.id}>
@@ -270,10 +270,10 @@ export const UserReports = () => {
             >
               {isGenerating ? (
                 <span className="flex items-center">
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" /> Generando...
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" /> Generating...
                 </span>
               ) : (
-                "Genera report"
+                "Generate report"
               )}
             </Button>
           </div>
@@ -296,14 +296,14 @@ export const UserReports = () => {
                     <h3 className="font-semibold text-lg">{report.title}</h3>
                     <div className="flex space-x-4 text-sm text-muted-foreground mt-1">
                       <span>
-                        Data:{" "}
+                        Date:{" "}
                         {new Date(report.created_at).toLocaleDateString(
-                          "it-IT"
+                          "en-US"
                         )}
                       </span>
                       {report.pdf_url && (
                         <span className="text-green-600">
-                          ✓ PDF disponibile
+                          ✓ PDF available
                         </span>
                       )}
                     </div>
@@ -319,12 +319,12 @@ export const UserReports = () => {
                       {exportingReportId === report.id ? (
                         <>
                           <Loader2 className="h-4 w-4 mr-1 animate-spin" />
-                          Elaborazione...
+                          Processing...
                         </>
                       ) : (
                         <>
                           <Download className="h-4 w-4 mr-1" />
-                          {report.pdf_url ? "Scarica PDF" : "Genera PDF"}
+                          {report.pdf_url ? "Download PDF" : "Generate PDF"}
                         </>
                       )}
                     </Button>
@@ -334,7 +334,7 @@ export const UserReports = () => {
                       className="flex items-center"
                     >
                       <FileText className="h-4 w-4 mr-1" />
-                      Visualizza
+                      View
                     </Button>
                   </div>
                 </CardContent>
@@ -344,9 +344,9 @@ export const UserReports = () => {
         ) : (
           <div className="text-center py-8">
             <FileText className="h-12 w-12 mx-auto text-gray-300 mb-2" />
-            <p className="mb-4">Non hai ancora generato report</p>
+            <p className="mb-4">You have not generated any reports yet</p>
             <p className="text-sm text-gray-500">
-              Compila un questionario per generare un report personalizzato
+              Complete a questionnaire to generate a personalized report
             </p>
           </div>
         )}

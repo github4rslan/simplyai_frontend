@@ -27,8 +27,8 @@ const Dashboard = () => {
     if (!user) {
       toast({
         variant: "destructive",
-        title: "Accesso richiesto",
-        description: "Effettua il login per accedere alla dashboard",
+        title: "Access required",
+        description: "Please log in to access the dashboard",
       });
       navigate("/login");
     }
@@ -41,7 +41,7 @@ const Dashboard = () => {
   return (
     <div className="container mx-auto py-8">
       <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold">Dashboard Utente</h1>
+        <h1 className="text-3xl font-bold">User Dashboard</h1>
         <Button
           variant="outline"
           onClick={signOut}
@@ -63,21 +63,21 @@ const Dashboard = () => {
             className="flex items-center gap-2"
           >
             <Bell className="h-4 w-4" />
-            Questionari
+            Questionnaires
           </TabsTrigger>
           <TabsTrigger value="reports" className="flex items-center gap-2">
-            <FileText className="h-4 w-4" />I miei report
+            <FileText className="h-4 w-4" />My reports
           </TabsTrigger>
           <TabsTrigger
             value="subscriptions"
             className="flex items-center gap-2"
           >
             <FileDown className="h-4 w-4" />
-            Abbonamenti
+            Subscriptions
           </TabsTrigger>
           <TabsTrigger value="profile" className="flex items-center gap-2">
             <User className="h-4 w-4" />
-            Profilo
+            Profile
           </TabsTrigger>
         </TabsList>
 

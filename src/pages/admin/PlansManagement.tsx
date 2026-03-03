@@ -100,16 +100,16 @@ const PlansManagement = () => {
       await deletePlan(planToDelete.id);
 
       toast({
-        title: "Piano eliminato",
-        description: "Il piano è stato eliminato con successo",
+        title: "Plan deleted",
+        description: "The plan has been deleted successfully",
       });
 
       fetchPlans();
     } catch (error) {
       console.error("Error deleting plan:", error);
       toast({
-        title: "Errore",
-        description: "Impossibile eliminare il piano",
+        title: "Error",
+        description: "Unable to delete the plan",
         variant: "destructive",
       });
     } finally {
@@ -122,18 +122,18 @@ const PlansManagement = () => {
       await updatePlanStatus(id, !isActive);
 
       toast({
-        title: isActive ? "Piano disattivato" : "Piano attivato",
-        description: `Il piano è stato ${
-          isActive ? "disattivato" : "attivato"
-        } con successo`,
+        title: isActive ? "Plan deactivated" : "Plan activated",
+        description: `The plan has been ${
+          isActive ? "deactivated" : "activated"
+        } successfully`,
       });
 
       fetchPlans();
     } catch (error) {
       console.error("Error toggling plan active state:", error);
       toast({
-        title: "Errore",
-        description: "Impossibile aggiornare lo stato del piano",
+        title: "Error",
+        description: "Unable to update the plan status",
         variant: "destructive",
       });
     }
@@ -270,21 +270,20 @@ const PlansManagement = () => {
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>
-              Sei sicuro di voler eliminare questo piano?
+              Are you sure you want to delete this plan?
             </AlertDialogTitle>
             <AlertDialogDescription>
-              Questa azione non può essere annullata. Ciò eliminerà
-              permanentemente il piano "{planToDelete?.name}" e rimuoverà i dati
-              associati.
+              This action cannot be undone. This will permanently delete the
+              plan "{planToDelete?.name}" and remove the associated data.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Annulla</AlertDialogCancel>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDeletePlan}
               className="bg-red-600 hover:bg-red-700"
             >
-              Elimina
+              Delete
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

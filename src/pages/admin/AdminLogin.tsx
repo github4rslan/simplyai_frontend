@@ -20,10 +20,10 @@ const DEFAULT_ADMIN_EMAIL = 'admin@simpolyai.com';
 const formSchema = z.object({
   email: z.string()
     .email({
-      message: "Inserisci un indirizzo email valido.",
+      message: "Please enter a valid email address.",
     }),
   password: z.string().min(6, {
-    message: "La password deve essere lunga almeno 6 caratteri.",
+    message: "Password must be at least 6 characters long.",
   }),
 });
 
@@ -81,16 +81,16 @@ const AdminLogin = () => {
       
       // Gestione personalizzata degli errori
       if (error.message?.includes('Invalid credentials') || error.message?.includes('Credenziali non valide')) {
-        setError('Credenziali non valide. Contattare l\'amministratore di sistema.');
+        setError('Invalid credentials. Please contact the system administrator.');
       } else if (error.message?.includes('User not found')) {
-        setError('Utente non trovato. Contattare l\'amministratore di sistema.');
+        setError('User not found. Please contact the system administrator.');
       } else {
-        setError(`Errore durante il login: ${error.message || 'Errore sconosciuto'}`);
+        setError(`Login error: ${error.message || 'Unknown error'}`);
       }
-      
+
       toast({
-        title: 'Errore di accesso',
-        description: 'Verifica le credenziali di amministratore',
+        title: 'Access error',
+        description: 'Please check your administrator credentials',
         variant: 'destructive',
       });
     } finally {
@@ -103,16 +103,15 @@ const AdminLogin = () => {
     if (user && !loading && hasAttemptedLogin) {
       if (user.role === 'administrator') {
         toast({
-          title: 'Login avvenuto con successo',
-          description: 'Benvenuto nel pannello di amministrazione',
+          title: 'Login successful',
+          description: 'Welcome to the administration panel',
         });
         navigate('/admin');
       } else {
-        // L'utente non è un admin, effettua logout
-        setError('Accesso negato. L\'utente non ha privilegi di amministratore.');
+        setError('Access denied. The user does not have administrator privileges.');
         toast({
-          title: 'Accesso negato',
-          description: 'Non hai i privilegi necessari per accedere al pannello di amministrazione',
+          title: 'Access denied',
+          description: 'You do not have the necessary privileges to access the administration panel',
           variant: 'destructive',
         });
         
@@ -127,9 +126,9 @@ const AdminLogin = () => {
     <div className="flex min-h-screen items-center justify-center bg-gray-100 p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1 text-center">
-          <CardTitle className="text-2xl font-bold">SimpolyAI Admin</CardTitle>
+          <CardTitle className="text-2xl font-bold">SimplyAI Admin</CardTitle>
           <CardDescription>
-            Accedi al pannello di amministrazione
+            Log in to the administration panel
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -149,9 +148,9 @@ const AdminLogin = () => {
                   <FormItem>
                     <FormLabel>Email</FormLabel>
                     <FormControl>
-                      <Input 
-                        placeholder="Email amministratore" 
-                        {...field} 
+                      <Input
+                        placeholder="Administrator email"
+                        {...field}
                       />
                     </FormControl>
                     <FormMessage />
@@ -169,7 +168,7 @@ const AdminLogin = () => {
                       <div className="relative">
                         <Input 
                           type={showPassword ? "text" : "password"}
-                          placeholder="Password amministratore" 
+                          placeholder="Administrator password"
                           {...field} 
                           className="pr-10"
                         />
@@ -194,14 +193,14 @@ const AdminLogin = () => {
               />
               
               <Button type="submit" className="w-full" disabled={loading}>
-                {loading ? 'Accesso in corso...' : 'Accedi'}
+                {loading ? 'Logging in...' : 'Log In'}
               </Button>
             </form>
           </Form>
         </CardContent>
         <CardFooter className="text-center text-sm text-gray-600">
           <p>
-            Utilizza le credenziali di amministratore fornite dal sistema.
+            Use the administrator credentials provided by the system.
           </p>
         </CardFooter>
       </Card>
