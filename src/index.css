@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap");
 
 @tailwind base;
 @tailwind components;
@@ -7,118 +7,67 @@
 @layer base {
   :root {
     --color-primary: #0ea5e9;
-    --color-secondary: #0f766e;
+    --color-secondary: #155e75;
     --color-accent: #0f172a;
     --color-primary-700: color-mix(in srgb, var(--color-primary) 80%, black);
     --color-primary-500: color-mix(in srgb, var(--color-primary) 60%, white);
-    --color-primary-50: color-mix(in srgb, var(--color-primary) 8%, white);
     --color-primary-100: color-mix(in srgb, var(--color-primary) 15%, white);
-    --color-indigo: color-mix(in srgb, var(--color-primary) 60%, blue);
 
-    --color-primary-300: color-mix(in srgb, var(--color-primary) 70%, white);
-    --color-secondary-700: color-mix(
-      in srgb,
-      var(--color-secondary) 80%,
-      black
-    );
-    --color-secondary-500: color-mix(
-      in srgb,
-      var(--color-secondary) 60%,
-      white
-    );
-    --color-secondary-200: color-mix(
-      in srgb,
-      var(--color-secondary) 30%,
-      white
-    );
-    --color-secondary-100: color-mix(
-      in srgb,
-      var(--color-secondary) 15%,
-      white
-    );
-    --color-secondary-50: color-mix(in srgb, var(--color-secondary) 8%, white);
-    --background: 200 33% 98%;
-    --foreground: 215 28% 12%;
-
+    --background: 194 60% 98%;
+    --foreground: 217 35% 13%;
     --card: 0 0% 100%;
-    --card-foreground: 215 28% 12%;
-
+    --card-foreground: 217 35% 13%;
     --popover: 0 0% 100%;
-    --popover-foreground: 215 28% 12%;
-
-    --primary: 195 85% 45%;
+    --popover-foreground: 217 35% 13%;
+    --primary: 197 89% 46%;
     --primary-foreground: 0 0% 100%;
-
-    --secondary: 188 38% 92%;
-    --secondary-foreground: 215 28% 12%;
-
-    --muted: 210 16% 92%;
-    --muted-foreground: 215 16% 42%;
-
-    --accent: 188 58% 94%;
-    --accent-foreground: 215 28% 12%;
-
-    --destructive: 0 84.2% 60.2%;
+    --secondary: 194 43% 92%;
+    --secondary-foreground: 217 35% 13%;
+    --muted: 210 22% 93%;
+    --muted-foreground: 215 17% 42%;
+    --accent: 191 80% 94%;
+    --accent-foreground: 217 35% 13%;
+    --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
-
-    --border: 210 22% 84%;
-    --input: 210 22% 84%;
-    --ring: 195 85% 45%;
-
+    --border: 206 22% 85%;
+    --input: 206 22% 85%;
+    --ring: 197 89% 46%;
     --radius: 1rem;
 
-    --sidebar-background: 200 33% 98%;
-    --sidebar-foreground: 215 16% 42%;
-    --sidebar-primary: 195 85% 45%;
+    --sidebar-background: 194 60% 98%;
+    --sidebar-foreground: 215 17% 42%;
+    --sidebar-primary: 197 89% 46%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 188 58% 94%;
-    --sidebar-accent-foreground: 215 28% 12%;
-    --sidebar-border: 210 22% 84%;
-    --sidebar-ring: 195 85% 45%;
+    --sidebar-accent: 191 80% 94%;
+    --sidebar-accent-foreground: 217 35% 13%;
+    --sidebar-border: 206 22% 85%;
+    --sidebar-ring: 197 89% 46%;
 
-    /* Dynamic font family variable - can be updated from settings */
-    --font-family: "Poppins", -apple-system, BlinkMacSystemFont, "Segoe UI",
-      sans-serif;
+    --font-family: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    --font-display: "Space Grotesk", "Plus Jakarta Sans", sans-serif;
     --base-font-size: 16px;
   }
 
   .dark {
-    --background: 260 15% 10%;
-    --foreground: 0 0% 95%;
-
-    --card: 260 15% 15%;
-    --card-foreground: 0 0% 95%;
-
-    --popover: 260 15% 15%;
-    --popover-foreground: 0 0% 95%;
-
-    --primary: 260 70% 70%;
-    --primary-foreground: 260 10% 10%;
-
-    --secondary: 260 15% 25%;
-    --secondary-foreground: 0 0% 95%;
-
-    --muted: 260 15% 25%;
-    --muted-foreground: 260 10% 70%;
-
-    --accent: 260 15% 25%;
-    --accent-foreground: 0 0% 95%;
-
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 95%;
-
-    --border: 260 15% 25%;
-    --input: 260 15% 25%;
-    --ring: 260 70% 70%;
-
-    --sidebar-background: 260 15% 10%;
-    --sidebar-foreground: 260 10% 70%;
-    --sidebar-primary: 260 70% 70%;
-    --sidebar-primary-foreground: 260 10% 10%;
-    --sidebar-accent: 260 15% 20%;
-    --sidebar-accent-foreground: 260 10% 70%;
-    --sidebar-border: 260 15% 25%;
-    --sidebar-ring: 260 70% 70%;
+    --background: 216 36% 9%;
+    --foreground: 0 0% 96%;
+    --card: 216 28% 12%;
+    --card-foreground: 0 0% 96%;
+    --popover: 216 28% 12%;
+    --popover-foreground: 0 0% 96%;
+    --primary: 197 89% 60%;
+    --primary-foreground: 216 36% 9%;
+    --secondary: 216 20% 20%;
+    --secondary-foreground: 0 0% 96%;
+    --muted: 216 20% 20%;
+    --muted-foreground: 215 15% 70%;
+    --accent: 216 20% 20%;
+    --accent-foreground: 0 0% 96%;
+    --destructive: 0 62% 30%;
+    --destructive-foreground: 0 0% 96%;
+    --border: 216 20% 22%;
+    --input: 216 20% 22%;
+    --ring: 197 89% 60%;
   }
 }
 
@@ -131,6 +80,9 @@
     @apply bg-background text-foreground;
     font-family: var(--font-family) !important;
     font-size: var(--base-font-size, 16px);
+    background-image: radial-gradient(circle at 8% -10%, rgba(14, 165, 233, 0.16), transparent 35%),
+      radial-gradient(circle at 92% -20%, rgba(6, 182, 212, 0.15), transparent 32%);
+    background-attachment: fixed;
   }
 
   h1,
@@ -139,19 +91,30 @@
   h4,
   h5,
   h6 {
-    font-family: var(--font-family) !important;
+    font-family: var(--font-display) !important;
+    letter-spacing: -0.02em;
     @apply font-semibold;
   }
 
+  a {
+    @apply transition-colors;
+  }
+
+  ::selection {
+    background: rgba(14, 165, 233, 0.2);
+    color: #0f172a;
+  }
+
   .btn-gradient {
-    @apply bg-gradient-to-r from-simoly-purple to-simoly-purple-dark text-white;
+    @apply text-white;
+    background: linear-gradient(135deg, #0284c7, #0e7490);
   }
 
   .card-hover {
-    @apply transition-all duration-300 hover:shadow-lg hover:-translate-y-1;
+    @apply transition-all duration-300 hover:-translate-y-1 hover:shadow-xl;
   }
 
   .tooltip-container {
-    @apply absolute right-0 top-0 bg-white p-4 rounded-lg shadow-lg max-w-xs z-10 animate-fade-in;
+    @apply absolute right-0 top-0 z-10 max-w-xs animate-fade-in rounded-lg bg-white p-4 shadow-lg;
   }
 }

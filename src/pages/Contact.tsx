@@ -6,6 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { Mail, MapPin, Phone } from "lucide-react";
 import { useSettings } from "@/contexts/SettingsContext";
+import Footer from "@/components/Footer";
 
 const Contact = () => {
   const { settings } = useSettings();
@@ -41,9 +42,9 @@ const Contact = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-cyan-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-cyan-50 flex flex-col">
       <Navbar />
-      <main className="pt-24 pb-16 px-4">
+      <main className="pt-24 pb-16 px-4 flex-1">
         <div className="mx-auto max-w-6xl">
           <div className="text-center mb-12">
             <h1 className="text-4xl md:text-5xl font-semibold tracking-tight text-slate-900">
@@ -193,6 +194,7 @@ const Contact = () => {
           </div>
         </div>
       </main>
+      <Footer />
     </div>
   );
 };

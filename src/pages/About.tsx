@@ -1,150 +1,48 @@
-import React, { useEffect } from "react";
-import { renderToStaticMarkup } from "react-dom/server";
+import React from "react";
+import { Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
-import { fetchPageData, savePageData } from "@/services/pagesService";
-
-// Define the Page type
-type Page = { id: string; title: string; content: string };
-
-// Static JSX content for the About page
-const data = (
-  <div className="flex-grow py-16 px-4 bg-[#7c6cc4]" id="aboutJSX">
-      <div className="max-w-7xl mx-auto">
-        <div className="text-center mb-16">
-          <h1 className="text-4xl font-bold mb-4">Chi Siamo</h1>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            Aiutiamo le aziende a crescere e migliorare attraverso
-            l'intelligenza artificiale.
-          </p>
-        </div>
-
-        <div className="max-w-4xl mx-auto">
-          <div className="bg-[#7c6cc4] p-8 rounded-xl shadow-sm mb-12">
-            <h2 className="text-2xl font-semibold mb-4">La nostra missione</h2>
-            <p className="text-gray-700 mb-6">
-              SimplyAI nasce con l'obiettivo di rendere l'intelligenza
-              artificiale accessibile a tutte le aziende, indipendentemente
-              dalla loro dimensione. Crediamo che ogni impresa meriti di avere
-              accesso a strumenti avanzati che possano aiutarla a crescere e a
-              prosperare.
-            </p>
-            <p className="text-gray-700">
-              La nostra piattaforma è stata progettata per essere semplice da
-              usare ma potente nei risultati, offrendo analisi approfondite e
-              consigli pratici che possono essere implementati immediatamente.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
-            <div className="bg-[#7c6cc4] p-6 rounded-xl shadow-sm">
-              <h3 className="font-medium text-lg mb-2">La nostra visione</h3>
-              <p className="text-gray-600">
-                Immaginiamo un futuro in cui ogni decisione aziendale è
-                supportata da dati e analisi intelligenti, permettendo alle
-                imprese di tutte le dimensioni di competere ad armi pari nel
-                mercato globale.
-              </p>
-            </div>
-            <div className="bg-[#7c6cc4] p-6 rounded-xl shadow-sm">
-              <h3 className="font-medium text-lg mb-2">I nostri valori</h3>
-              <p className="text-gray-600">
-                Innovazione, accessibilità e trasparenza sono i valori
-                fondamentali che guidano ogni aspetto del nostro lavoro, dalla
-                progettazione del prodotto al supporto clienti.
-              </p>
-            </div>
-          </div>
-
-          <div className="bg-[#7c6cc4] p-8 rounded-xl shadow-sm mb-12">
-            <h2 className="text-2xl font-semibold mb-6">Il nostro team</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {[
-                {
-                  name: "Marco Rossi",
-                  role: "CEO & Fondatore",
-                  bio: "Esperto in intelligenza artificiale con oltre 10 anni di esperienza nel settore.",
-                },
-                {
-                  name: "Laura Bianchi",
-                  role: "CTO",
-                  bio: "Specialista in machine learning e sviluppo di algoritmi predittivi.",
-                },
-                {
-                  name: "Giovanni Verdi",
-                  role: "Responsabile Clienti",
-                  bio: "Dedicato a garantire che ogni cliente ottenga il massimo valore dalla nostra piattaforma.",
-                },
-              ].map((person, i) => (
-                <div key={i} className="text-center">
-                  <div className="w-24 h-24 rounded-full bg-[var(--color-primary-100)] mx-auto mb-4 flex items-center justify-center">
-                    <span className="text-[var(--color-primary)] text-2xl font-bold">
-                      {person.name.charAt(0)}
-                    </span>
-                  </div>
-                  <h3 className="font-medium text-lg">{person.name}</h3>
-                  <p className="text-[var(--color-primary)] mb-2">
-                    {person.role}
-                  </p>
-                  <p className="text-gray-600">{person.bio}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="text-center">
-            <h2 className="text-2xl font-semibold mb-4">Unisciti a noi</h2>
-            <p className="text-lg text-gray-600 mb-6">
-              Scopri come la nostra piattaforma può aiutare la tua azienda a
-              raggiungere nuovi livelli di successo.
-            </p>
-            <a
-              href="/pricing"
-              className="inline-block bg-[var(--color-primary)] hover:bg-[var(--color-primary-700)] text-white font-medium px-8 py-3 rounded-full transition-colors"
-            >
-              Inizia ora
-            </a>
-          </div>
-        </div>
-      </div>
-    </div>
-);
-
-const fallbackContent = renderToStaticMarkup(data);
+import Footer from "@/components/Footer";
 
 const About = () => {
-  const [pageData, setPageData] = React.useState<Page>({
-    id: "about",
-    title: "Chi Siamo",
-    content: fallbackContent,
-  });
-
-  useEffect(() => {
-    const loadData = async () => {
-      try {
-        const data = await fetchPageData("about");
-        if (data?.content) {
-          setPageData(data);
-        }
-      } catch (error) {
-        console.error("Failed to load about page content", error);
-      }
-    };
-    loadData();
-  }, []);
-
-  // useEffect(() => {
-  //   const savePageDataDB = async () => {
-  //       const data = document.getElementById('aboutJSX');
-  //       console.log(data);
-  //       const response = await savePageData({id: "about", title: "Chi Siamo", content: data.innerHTML});
-  //     }
-  //       savePageDataDB();
-  // }, []);
-
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="flex min-h-screen flex-col">
       <Navbar />
-      <div dangerouslySetInnerHTML={{ __html: pageData.content }}></div>
+      <main className="mx-auto w-full max-w-7xl flex-1 px-4 py-12 sm:px-6 lg:px-8">
+        <section className="rounded-3xl border border-cyan-100 bg-white/95 p-8 shadow-sm md:p-12">
+          <p className="text-sm font-semibold uppercase tracking-wide text-cyan-700">About SimplyAI</p>
+          <h1 className="mt-2 max-w-3xl text-4xl font-semibold text-slate-900 md:text-5xl">
+            We turn complex business data into clear next actions.
+          </h1>
+          <p className="mt-4 max-w-2xl text-slate-600">
+            SimplyAI helps teams understand where they stand, what to improve, and how to execute with confidence using guided questionnaires and AI-generated reports.
+          </p>
+          <div className="mt-8 grid gap-4 md:grid-cols-3">
+            {[
+              { title: "Clarity", text: "Structured outputs your whole team can act on." },
+              { title: "Speed", text: "From input to report in minutes, not weeks." },
+              { title: "Progress", text: "Track improvements over time with repeatable workflows." },
+            ].map((item) => (
+              <article key={item.title} className="rounded-2xl border border-slate-200 bg-slate-50 p-5">
+                <h2 className="text-lg font-semibold text-slate-900">{item.title}</h2>
+                <p className="mt-2 text-sm text-slate-600">{item.text}</p>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <section className="mt-8 rounded-3xl border border-cyan-100 bg-cyan-50/70 p-8 md:p-10">
+          <h2 className="text-2xl font-semibold text-slate-900">Built for operators, not only analysts</h2>
+          <p className="mt-3 max-w-3xl text-slate-700">
+            Our product is designed so founders, managers, and teams can align on priorities quickly without a heavy BI setup.
+          </p>
+          <div className="mt-6">
+            <Link to="/pricing" className="inline-flex rounded-full bg-cyan-700 px-6 py-3 text-sm font-semibold text-white hover:bg-cyan-800">
+              See plans
+            </Link>
+          </div>
+        </section>
+      </main>
+      <Footer />
     </div>
   );
 };

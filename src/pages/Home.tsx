@@ -1,94 +1,64 @@
-import { useEffect, useState } from "react";
+import React from "react";
+import { Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { fetchPageData } from "@/services/pagesService";
-
-type Page = { id: string; title: string; content: string };
-
-const fallbackContent = `
-  <div class="min-h-screen flex flex-col">
-    <section class="flex-grow flex flex-col justify-center items-center text-center px-4 py-16 bg-gradient-to-br from-slate-900 via-slate-800 to-cyan-900">
-      <div class="max-w-4xl mx-auto">
-        <h1 class="text-4xl md:text-6xl font-bold mb-6 text-white leading-tight">
-          Optimize your business with AI-powered insights
-        </h1>
-        <p class="text-lg md:text-xl mb-8 text-slate-200 max-w-2xl mx-auto">
-          Complete a guided questionnaire and receive strategic recommendations tailored to your company.
-        </p>
-        <div class="flex flex-col sm:flex-row gap-4 justify-center">
-          <a href="/pricing" class="text-base md:text-lg px-7 py-4 rounded-full bg-cyan-600 hover:bg-cyan-700 text-white text-center font-medium transition-colors">
-            Get started
-          </a>
-          <a href="/guide" class="text-base md:text-lg px-7 py-4 rounded-full border border-slate-300 text-slate-100 text-center hover:bg-slate-700/30 transition-colors">
-            Learn more
-          </a>
-          <a href="/register?plan=80d9fe63-0484-4a3b-ac1a-758cce2f9433&type=free" class="text-base md:text-lg px-7 py-4 rounded-full bg-white text-slate-900 border border-slate-200 text-center hover:bg-slate-100 transition-colors">
-            Try free assessment
-          </a>
-        </div>
-      </div>
-    </section>
-
-    <section class="py-16 px-4 bg-white">
-      <div class="max-w-6xl mx-auto">
-        <h2 class="text-3xl font-bold text-center mb-12 text-slate-900">How it works</h2>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div class="bg-slate-50 p-6 rounded-xl shadow-sm border border-slate-200">
-            <div class="text-3xl mb-4">1</div>
-            <h3 class="text-xl font-semibold mb-2 text-slate-900">Complete the questionnaire</h3>
-            <p class="text-slate-600">Answer practical business questions in a few minutes.</p>
-          </div>
-          <div class="bg-slate-50 p-6 rounded-xl shadow-sm border border-slate-200">
-            <div class="text-3xl mb-4">2</div>
-            <h3 class="text-xl font-semibold mb-2 text-slate-900">AI analyzes your data</h3>
-            <p class="text-slate-600">Our engine maps strengths, risks, and growth opportunities.</p>
-          </div>
-          <div class="bg-slate-50 p-6 rounded-xl shadow-sm border border-slate-200">
-            <div class="text-3xl mb-4">3</div>
-            <h3 class="text-xl font-semibold mb-2 text-slate-900">Receive an action plan</h3>
-            <p class="text-slate-600">Get a clear report with prioritized next steps.</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="py-16 px-4 bg-cyan-50">
-      <div class="max-w-4xl mx-auto text-center">
-        <h2 class="text-3xl font-bold mb-4 text-slate-900">Ready to scale with confidence?</h2>
-        <p class="text-lg mb-8 text-slate-700">Choose the plan that matches your current stage and goals.</p>
-        <a href="/pricing" class="inline-block text-base md:text-lg px-8 py-4 rounded-full bg-cyan-700 hover:bg-cyan-800 text-white font-medium transition-colors">
-          View plans
-        </a>
-      </div>
-    </section>
-  </div>
-`;
 
 const Home = () => {
-  const [pageData, setPageData] = useState<Page>({
-    id: "home",
-    title: "Home",
-    content: fallbackContent,
-  });
-
-  useEffect(() => {
-    const loadData = async () => {
-      try {
-        const data = await fetchPageData("home");
-        if (data?.content) {
-          setPageData(data);
-        }
-      } catch (error) {
-        console.error("Failed to load home page content", error);
-      }
-    };
-    loadData();
-  }, []);
-
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="flex min-h-screen flex-col">
       <Navbar />
-      <div id="homeJSX" dangerouslySetInnerHTML={{ __html: pageData.content }} />
+
+      <main className="flex-1">
+        <section className="relative overflow-hidden px-4 pb-16 pt-14 sm:px-6 lg:px-8">
+          <div className="mx-auto grid w-full max-w-7xl items-center gap-10 lg:grid-cols-2">
+            <div>
+              <p className="text-sm font-semibold uppercase tracking-wide text-cyan-700">Business intelligence, simplified</p>
+              <h1 className="mt-3 text-4xl font-semibold leading-tight text-slate-900 sm:text-5xl lg:text-6xl">
+                Assess faster. Decide better. Scale confidently.
+              </h1>
+              <p className="mt-5 max-w-xl text-base text-slate-600 sm:text-lg">
+                Run structured assessments, generate AI-backed reports, and align your team on the next best actions.
+              </p>
+              <div className="mt-7 flex flex-wrap gap-3">
+                <Link to="/register" className="rounded-full bg-cyan-700 px-6 py-3 text-sm font-semibold text-white hover:bg-cyan-800">
+                  Start free
+                </Link>
+                <Link to="/pricing" className="rounded-full border border-cyan-200 bg-white px-6 py-3 text-sm font-semibold text-cyan-800 hover:bg-cyan-50">
+                  View plans
+                </Link>
+              </div>
+            </div>
+
+            <div className="rounded-3xl border border-cyan-100 bg-white p-6 shadow-xl">
+              <div className="rounded-2xl bg-slate-900 p-5 text-slate-100">
+                <p className="text-xs uppercase tracking-wide text-cyan-300">Preview</p>
+                <h2 className="mt-2 text-xl font-semibold">Assessment Snapshot</h2>
+                <ul className="mt-4 space-y-3 text-sm">
+                  <li className="rounded-lg bg-white/10 p-3">Operational maturity: <span className="font-semibold text-cyan-300">72/100</span></li>
+                  <li className="rounded-lg bg-white/10 p-3">Top priority: Process automation in customer onboarding</li>
+                  <li className="rounded-lg bg-white/10 p-3">Expected outcome: 28% cycle-time reduction</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="px-4 py-14 sm:px-6 lg:px-8">
+          <div className="mx-auto grid w-full max-w-7xl gap-4 md:grid-cols-3">
+            {[
+              { title: "Smart questionnaires", text: "Multi-step forms with logic and progression controls." },
+              { title: "Actionable reports", text: "AI-generated summaries with practical recommendations." },
+              { title: "Continuous tracking", text: "Repeat cycles to measure trend and execution impact." },
+            ].map((item) => (
+              <article key={item.title} className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                <h3 className="text-lg font-semibold text-slate-900">{item.title}</h3>
+                <p className="mt-2 text-sm text-slate-600">{item.text}</p>
+              </article>
+            ))}
+          </div>
+        </section>
+      </main>
+
       <Footer />
     </div>
   );

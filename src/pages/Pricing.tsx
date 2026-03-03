@@ -5,6 +5,7 @@ import PricingTable from "@/components/PricingTable";
 import { fetchAllPlans } from "@/services/plansService";
 import { fetchPageData } from "@/services/pagesService";
 import { Loader2 } from "lucide-react";
+import Footer from "@/components/Footer";
 
 const Pricing = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -196,6 +197,7 @@ const Pricing = () => {
           )}
         </div>
       </div>
+      <Footer />
     </div>
   );
 };
