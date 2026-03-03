@@ -1,9 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+import { Loader2, KeyRound, User } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { useAuth } from "@/hooks/useAuth";
+import { API_BASE_URL } from "@/config/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -21,7 +23,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Loader2, KeyRound } from "lucide-react";
 
 const profileSchema = z.object({
   firstName: z.string().min(2, "First name must be at least 2 characters"),
@@ -31,9 +32,7 @@ const profileSchema = z.object({
 
 const passwordSchema = z
   .object({
-    password: z
-      .string()
-      .min(6, "Password must be at least 6 characters"),
+    password: z.string().min(6, "Password must be at least 6 characters"),
     confirmPassword: z.string(),
   })
   .refine((data) => data.password === data.confirmPassword, {
@@ -43,11 +42,11 @@ const passwordSchema = z
 
 export const UserProfile = () => {
   const { toast } = useToast();
-  const { user } = useAuth(); // Make sure token is available from auth context
-  const token = localStorage.getItem("auth_token");
-  const [isLoading, setIsLoading] = useState(false);
-  const [isPasswordLoading, setIsPasswordLoading] = useState(false);
-  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+  const { token } = useAuth();
+  const authToken = token || localStorage.getItem("auth_token");
+  const [isLoadingProfile, setIsLoadingProfile] = useState(true);
+  const [isSavingProfile, setIsSavingProfile] = useState(false);
+  const [isSavingPassword, setIsSavingPassword] = useState(false);
 
   const form = useForm<z.infer<typeof profileSchema>>({
     resolver: zodResolver(profileSchema),
@@ -67,54 +66,63 @@ export const UserProfile = () => {
   });
 
   useEffect(() => {
-    const loadUserProfile = async () => {
-      if (!token) return;
+    const loadProfile = async () => {
+      if (!authToken) {
+        setIsLoadingProfile(false);
+        return;
+      }
 
       try {
-        setIsLoading(true);
-
         const response = await fetch(`${API_BASE_URL}/auth/me`, {
           method: "GET",
           headers: {
-            Authorization: `Bearer ${token}`,
+            Authorization: `Bearer ${authToken}`,
             "Content-Type": "application/json",
           },
         });
 
         if (!response.ok) {
-          throw new Error("Error loading profile");
+          throw new Error("Failed to load profile");
         }
 
         const data = await response.json();
-
         if (data.success && data.data) {
-          form.setValue("firstName", data.data.firstName || "");
-          form.setValue("lastName", data.data.lastName || "");
-          form.setValue("email", data.data.email || "");
+          form.reset({
+            firstName: data.data.firstName || "",
+            lastName: data.data.lastName || "",
+            email: data.data.email || "",
+          });
         }
       } catch (error) {
-        console.error("Errore nel caricamento del profilo:", error);
         toast({
           variant: "destructive",
-          title: "Error",
-          description: "Could not load profile data",
+          title: "Profile error",
+          description: "Could not load your profile details.",
         });
       } finally {
-        setIsLoading(false);
+        setIsLoadingProfile(false);
       }
     };
 
-    loadUserProfile();
-  }, [token, form, toast]);
+    loadProfile();
+  }, [authToken, form, toast]);
 
   const onSubmit = async (values: z.infer<typeof profileSchema>) => {
-    try {
-      setIsLoading(true);
+    if (!authToken) {
+      toast({
+        variant: "destructive",
+        title: "Not authenticated",
+        description: "Please log in again and retry.",
+      });
+      return;
+    }
 
+    try {
+      setIsSavingProfile(true);
       const response = await fetch(`${API_BASE_URL}/auth/me`, {
         method: "PATCH",
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${authToken}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
@@ -124,103 +132,92 @@ export const UserProfile = () => {
       });
 
       if (!response.ok) {
-        throw new Error("Error updating profile");
+        throw new Error("Failed to update profile");
       }
 
-      const data = await response.json();
-
-      if (data.success) {
-        toast({
-          title: "Profile updated",
-          description:
-            "Your profile information has been updated successfully",
-        });
-      }
+      toast({
+        title: "Profile updated",
+        description: "Your account information was saved.",
+      });
     } catch (error) {
-      console.error("Errore nell'aggiornamento del profilo:", error);
       toast({
         variant: "destructive",
-        title: "Error",
-        description: "Could not update the profile",
+        title: "Update failed",
+        description: "Could not update profile details.",
       });
     } finally {
-      setIsLoading(false);
+      setIsSavingProfile(false);
     }
   };
 
   const onPasswordSubmit = async (values: z.infer<typeof passwordSchema>) => {
-    try {
-      setIsPasswordLoading(true);
+    if (!authToken) {
+      toast({
+        variant: "destructive",
+        title: "Not authenticated",
+        description: "Please log in again and retry.",
+      });
+      return;
+    }
 
+    try {
+      setIsSavingPassword(true);
       const response = await fetch(`${API_BASE_URL}/auth/change-password`, {
         method: "PATCH",
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${authToken}`,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          newPassword: values.password,
-        }),
+        body: JSON.stringify({ newPassword: values.password }),
       });
 
       if (!response.ok) {
-        throw new Error("Error updating password");
+        throw new Error("Failed to update password");
       }
 
-      const data = await response.json();
-
-      if (data.success) {
-        toast({
-          title: "Password updated",
-          description: "Your password has been updated successfully",
-        });
-
-        passwordForm.reset();
-      }
+      toast({
+        title: "Password updated",
+        description: "Your password has been changed successfully.",
+      });
+      passwordForm.reset();
     } catch (error) {
-      console.error("Errore nell'aggiornamento della password:", error);
       toast({
         variant: "destructive",
-        title: "Error",
-        description: "Could not update the password",
+        title: "Password update failed",
+        description: "Could not update your password.",
       });
     } finally {
-      setIsPasswordLoading(false);
+      setIsSavingPassword(false);
     }
   };
 
   return (
     <div className="space-y-6">
-      <Card>
+      <Card className="border-cyan-100 bg-white/95 shadow-sm">
         <CardHeader>
-          <CardTitle>User Profile</CardTitle>
-          <CardDescription>
-            Manage your profile information
-          </CardDescription>
+          <CardTitle className="flex items-center gap-2 text-slate-900">
+            <User className="h-5 w-5 text-cyan-600" />
+            Profile settings
+          </CardTitle>
+          <CardDescription>Update your personal details.</CardDescription>
         </CardHeader>
         <CardContent>
-          {isLoading ? (
-            <div className="flex justify-center p-4">
-              <Loader2 className="h-8 w-8 animate-spin text-purple-600" />
+          {isLoadingProfile ? (
+            <div className="flex justify-center p-6">
+              <Loader2 className="h-8 w-8 animate-spin text-cyan-600" />
             </div>
           ) : (
             <Form {...form}>
-              <form
-                onSubmit={form.handleSubmit(onSubmit)}
-                className="space-y-4"
-              >
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                   <FormField
                     control={form.control}
                     name="firstName"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>First Name</FormLabel>
+                        <FormLabel>First name</FormLabel>
                         <FormControl>
-                          <Input
-                            placeholder="Enter your first name"
-                            {...field}
-                          />
+                          <Input placeholder="Enter your first name" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -231,12 +228,9 @@ export const UserProfile = () => {
                     name="lastName"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Last Name</FormLabel>
+                        <FormLabel>Last name</FormLabel>
                         <FormControl>
-                          <Input
-                            placeholder="Enter your last name"
-                            {...field}
-                          />
+                          <Input placeholder="Enter your last name" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -260,16 +254,16 @@ export const UserProfile = () => {
 
                 <Button
                   type="submit"
-                  disabled={isLoading}
-                  className="w-full mt-4"
+                  disabled={isSavingProfile || !authToken}
+                  className="w-full bg-cyan-600 text-white hover:bg-cyan-700"
                 >
-                  {isLoading ? (
+                  {isSavingProfile ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                       Saving...
                     </>
                   ) : (
-                    "Save Changes"
+                    "Save changes"
                   )}
                 </Button>
               </form>
@@ -278,13 +272,13 @@ export const UserProfile = () => {
         </CardContent>
       </Card>
 
-      <Card>
+      <Card className="border-cyan-100 bg-white/95 shadow-sm">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <KeyRound className="h-5 w-5" />
-            Change Password
+          <CardTitle className="flex items-center gap-2 text-slate-900">
+            <KeyRound className="h-5 w-5 text-cyan-600" />
+            Change password
           </CardTitle>
-          <CardDescription>Update your login password</CardDescription>
+          <CardDescription>Set a new login password.</CardDescription>
         </CardHeader>
         <CardContent>
           <Form {...passwordForm}>
@@ -297,13 +291,9 @@ export const UserProfile = () => {
                 name="password"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>New Password</FormLabel>
+                    <FormLabel>New password</FormLabel>
                     <FormControl>
-                      <Input
-                        type="password"
-                        placeholder="Enter new password"
-                        {...field}
-                      />
+                      <Input type="password" placeholder="Enter new password" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -315,7 +305,7 @@ export const UserProfile = () => {
                 name="confirmPassword"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Confirm Password</FormLabel>
+                    <FormLabel>Confirm password</FormLabel>
                     <FormControl>
                       <Input
                         type="password"
@@ -330,16 +320,16 @@ export const UserProfile = () => {
 
               <Button
                 type="submit"
-                disabled={isPasswordLoading}
-                className="w-full"
+                disabled={isSavingPassword || !authToken}
+                className="w-full bg-slate-900 text-white hover:bg-slate-800"
               >
-                {isPasswordLoading ? (
+                {isSavingPassword ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Updating Password...
+                    Updating...
                   </>
                 ) : (
-                  "Update Password"
+                  "Update password"
                 )}
               </Button>
             </form>

@@ -5,13 +5,11 @@ import { UserProfile } from "@/components/dashboard/UserProfile";
 
 const Profile = () => {
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex min-h-screen flex-col bg-gradient-to-b from-cyan-50 via-white to-slate-100">
       <Navbar />
-      <div className="flex-grow bg-gradient-to-b from-white to-purple-50 py-10">
-        <div className="max-w-5xl mx-auto px-4">
-          <UserProfile />
-        </div>
-      </div>
+      <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-10 sm:px-6 lg:px-8">
+        <UserProfile />
+      </main>
       <Footer />
     </div>
   );

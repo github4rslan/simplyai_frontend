@@ -110,7 +110,7 @@ const Pricing = () => {
     <div className="min-h-screen flex flex-col">
       <Navbar />
 
-      <div className="flex-grow py-16 px-4 bg-[#7c6cc4]">
+      <div className="flex-grow py-16 px-4 bg-gradient-to-br from-slate-50 via-white to-cyan-50">
         <div className="max-w-7xl mx-auto">
           {isLoading ? (
             <div className="flex justify-center items-center py-20">

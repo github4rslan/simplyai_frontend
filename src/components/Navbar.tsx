@@ -155,11 +155,11 @@ const Navbar = () => {
   }, []);
 
   return (
-    <nav className="w-full py-4 px-6 flex justify-between items-center border-b border-gray-100">
-      <div className="flex items-center">
+    <nav className="w-full py-3 px-4 md:px-6 flex justify-between items-center border-b border-slate-200 bg-white/90 backdrop-blur-md sticky top-0 z-50">
+      <div className="flex items-center min-w-0">
         <Link
           to="/"
-          className="text-2xl font-bold text-[var(--color-primary)] flex items-center"
+          className="text-2xl font-bold text-[var(--color-primary)] flex items-center min-w-0"
         >
           {logoUrl ? (
             <img
@@ -175,7 +175,7 @@ const Navbar = () => {
                 setLogoUrl(DEFAULT_LOGO);
                 setLogoReady(true);
               }}
-              className={`h-20 w-20 mr-3 rounded-lg object-contain site-logo transition-opacity duration-200 ${
+              className={`h-12 w-12 md:h-14 md:w-14 mr-3 rounded-lg object-contain site-logo transition-opacity duration-200 ${
                 logoReady ? "opacity-100" : "opacity-0"
               }`}
             />
@@ -183,47 +183,49 @@ const Navbar = () => {
 
           {/* <span>{siteName}</span> */}
         </Link>
-        <div className="hidden md:flex ml-10 space-x-8">
-          <Link to="/about" className="text-gray-600 hover:text-gray-900">
+        <div className="hidden md:flex ml-8 space-x-6">
+          <Link to="/about" className="text-slate-600 hover:text-slate-900 transition-colors">
             About Us
           </Link>
-          <Link to="/guide" className="text-gray-600 hover:text-gray-900">
+          <Link to="/guide" className="text-slate-600 hover:text-slate-900 transition-colors">
             Guide
           </Link>
-          <Link to="/pricing" className="text-gray-600 hover:text-gray-900">
+          <Link to="/pricing" className="text-slate-600 hover:text-slate-900 transition-colors">
             Pricing
           </Link>
-          <Link to="/contact" className="text-gray-600 hover:text-gray-900">
+          <Link to="/contact" className="text-slate-600 hover:text-slate-900 transition-colors">
             Contact
           </Link>
         </div>
       </div>
-      <div className="space-x-2">
+      <div className="space-x-2 shrink-0">
         {user ? (
-          <div className="flex space-x-2">
+          <div className="flex items-center space-x-2">
             <Link to="/dashboard">
-              <Button>Dashboard</Button>
+              <Button size="sm" className="bg-cyan-700 hover:bg-cyan-800 text-white">Dashboard</Button>
             </Link>
-            <Link to="/profile">
-              <Button>Account</Button>
+            <Link to="/profile" className="hidden sm:inline-flex">
+              <Button size="sm" variant="outline" className="border-slate-300">Account</Button>
             </Link>
             <Button
               onClick={() => {
                 if (window.confirm("Are you sure you want to log out?")) signOut();
               }}
-              className="flex items-center gap-2"
+              variant="outline"
+              size="sm"
+              className="flex items-center gap-2 border-slate-300"
             >
               <LogOut className="h-4 w-4" />
-              Logout
+              <span className="hidden sm:inline">Logout</span>
             </Button>
           </div>
         ) : (
-          <div className="flex space-x-2">
+          <div className="flex items-center space-x-2">
             <Link to="/login">
-              <Button>Log In</Button>
+              <Button size="sm" variant="outline" className="border-slate-300">Log In</Button>
             </Link>
             <Link to="/register">
-              <Button>Register</Button>
+              <Button size="sm" className="bg-cyan-700 hover:bg-cyan-800 text-white">Register</Button>
             </Link>
           </div>
         )}

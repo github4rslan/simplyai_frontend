@@ -1,15 +1,18 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import React from "react";
+import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
+import { UserProfile } from "@/components/dashboard/UserProfile";
 
 const SettingsPage = () => {
-  const navigate = useNavigate();
-
-  React.useEffect(() => {
-    // Redirect to admin settings page
-    navigate('/admin/settings');
-  }, [navigate]);
-
-  return <div>Reindirizzamento alle impostazioni...</div>;
+  return (
+    <div className="flex min-h-screen flex-col bg-gradient-to-b from-cyan-50 via-white to-slate-100">
+      <Navbar />
+      <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-10 sm:px-6 lg:px-8">
+        <UserProfile />
+      </main>
+      <Footer />
+    </div>
+  );
 };
 
 export default SettingsPage;

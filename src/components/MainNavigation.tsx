@@ -53,7 +53,7 @@ const MainNavigation: React.FC<MainNavigationProps> = ({
             <div className="flex items-center">
               <Link
                 to="/"
-                className="text-xl font-bold bg-gradient-to-r from-simoly-purple to-simoly-purple-dark bg-clip-text text-transparent"
+                className="text-xl font-bold bg-gradient-to-r from-cyan-700 to-teal-700 bg-clip-text text-transparent"
               >
                 SimplyAI
               </Link>
@@ -111,7 +111,7 @@ const MainNavigation: React.FC<MainNavigationProps> = ({
             <div className="flex items-center">
               <Link
                 to="/"
-                className="text-xl font-bold bg-gradient-to-r from-simoly-purple to-simoly-purple-dark bg-clip-text text-transparent"
+                className="text-xl font-bold bg-gradient-to-r from-cyan-700 to-teal-700 bg-clip-text text-transparent"
               >
                 SimplyAI
               </Link>
@@ -178,7 +178,7 @@ const MainNavigation: React.FC<MainNavigationProps> = ({
           <>
             <Link
               to="/"
-              className="text-xl font-bold bg-gradient-to-r from-simoly-purple to-simoly-purple-dark bg-clip-text text-transparent"
+              className="text-xl font-bold bg-gradient-to-r from-cyan-700 to-teal-700 bg-clip-text text-transparent"
             >
               SimplyAI
             </Link>
@@ -193,7 +193,7 @@ const MainNavigation: React.FC<MainNavigationProps> = ({
                       size="sm"
                       className={
                         isActive(item.path)
-                          ? "bg-simoly-purple hover:bg-simoly-purple-dark"
+                          ? "bg-cyan-700 hover:bg-cyan-800 text-white"
                           : ""
                       }
                     >
@@ -238,7 +238,7 @@ const MainNavigation: React.FC<MainNavigationProps> = ({
                   <Link to="/pricing">
                     <Button
                       size="sm"
-                      className="bg-simoly-purple hover:bg-simoly-purple-dark"
+                      className="bg-cyan-700 hover:bg-cyan-800 text-white"
                     >
                       Sign Up
                     </Button>
@@ -263,7 +263,7 @@ const MainNavigation: React.FC<MainNavigationProps> = ({
 
   return (
     <>
-      <nav className="w-full py-4 px-6 bg-white/80 backdrop-blur-md sticky top-0 z-50 shadow-sm">
+      <nav className="w-full py-4 px-6 bg-white/90 backdrop-blur-md sticky top-0 z-50 shadow-sm border-b border-slate-200">
         <div className="max-w-7xl mx-auto flex justify-between items-center">
           {renderNavigationContent()}
         </div>
@@ -279,7 +279,7 @@ const MainNavigation: React.FC<MainNavigationProps> = ({
                 key={item.id}
                 to={item.path}
                 className={`px-4 py-2 rounded-lg ${
-                  isActive(item.path) ? "bg-simoly-purple text-white" : ""
+                  isActive(item.path) ? "bg-cyan-700 text-white" : ""
                 }`}
                 onClick={() => setIsMenuOpen(false)}
               >
@@ -323,7 +323,7 @@ const MainNavigation: React.FC<MainNavigationProps> = ({
                 </Link>
                 <Link
                   to="/pricing"
-                  className="px-4 py-2 rounded-lg bg-simoly-purple text-white block text-center"
+                  className="px-4 py-2 rounded-lg bg-cyan-700 text-white block text-center"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   Sign Up

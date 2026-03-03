@@ -1,37 +1,40 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
-import { API_BASE_URL } from "@/config/api";
+  Menu,
+  User,
+  FileText,
+  LogOut,
+  CheckSquare,
+  CreditCard,
+  Loader2,
+} from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useToast } from "@/components/ui/use-toast";
 import { useAuth } from "@/hooks/useAuth";
+import { API_BASE_URL } from "@/config/api";
 import { UserProfile } from "./dashboard/UserProfile";
 import { UserReports } from "./dashboard/UserReports";
 import { UserQuestionnaires } from "./dashboard/UserQuestionnaires";
 import { UserSubscriptions } from "./dashboard/UserSubscriptions";
-import {
-  User,
-  FileText,
-  LogOut,
-  FileDown,
-  CheckSquare,
-  Menu,
-  Home,
-} from "lucide-react";
+
+type DashboardTab = "questionnaires" | "reports" | "subscriptions" | "profile";
+
+const NAV_ITEMS: Array<{ key: DashboardTab; label: string; icon: React.ComponentType<{ className?: string }> }> = [
+  { key: "questionnaires", label: "Questionnaires", icon: CheckSquare },
+  { key: "reports", label: "Reports", icon: FileText },
+  { key: "subscriptions", label: "Subscriptions", icon: CreditCard },
+  { key: "profile", label: "Profile", icon: User },
+];
 
 const UserDashboard = () => {
-  const { toast } = useToast();
   const navigate = useNavigate();
-  const { user, signOut } = useAuth();
-  const [activeTab, setActiveTab] = useState("questionnaires");
+  const { toast } = useToast();
+  const { user, token, loading, signOut } = useAuth();
+
+  const [activeTab, setActiveTab] = useState<DashboardTab>("questionnaires");
   const [isMobile, setIsMobile] = useState<boolean>(() => {
     if (typeof window === "undefined") {
       return false;
@@ -39,28 +42,25 @@ const UserDashboard = () => {
     return window.innerWidth < 768;
   });
   const [siteName, setSiteName] = useState("SimplyAI");
-  const DEFAULT_LOGO = "/logo.png";
-  const [logoUrl, setLogoUrl] = useState(DEFAULT_LOGO);
+  const [logoUrl, setLogoUrl] = useState("/logo.png");
 
   useEffect(() => {
-    // Verifica se l'utente è autenticato
-    // if (!user) {
-    //   toast({
-    //     variant: "destructive",
-    //     title: "Accesso richiesto",
-    //     description: "Effettua il login per accedere alla dashboard",
-    //   });
-    //   navigate("/login");
-    // }
-
-    // useEffect(() => {
-    const savedToken = localStorage.getItem("auth_token");
-    if (!savedToken) {
-      return navigate("/login");
+    if (!loading && !token) {
+      navigate("/login");
     }
-    // }, []);
+  }, [loading, token, navigate]);
 
-    // Carica le impostazioni dell'applicazione
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  useEffect(() => {
     const loadSettings = async () => {
       try {
         const response = await fetch(`${API_BASE_URL}/settings`);
@@ -69,162 +69,91 @@ const UserDashboard = () => {
         if (result.success && result.data) {
           setSiteName(result.data.site_name || "SimplyAI");
           if (result.data.logo) {
-            // Normalize logo URL - convert absolute URLs to relative if needed
-            let processedLogo = result.data.logo;
-            try {
-              const url = new URL(result.data.logo, window.location.origin);
-              if (url.origin !== window.location.origin && result.data.logo.startsWith('http')) {
-                processedLogo = url.pathname;
-              }
-            } catch {
-              // If URL parsing fails, use as-is
-              processedLogo = result.data.logo;
-            }
-            setLogoUrl(processedLogo);
-          } else {
-            // Use default logo if no logo in settings
-            setLogoUrl(DEFAULT_LOGO);
+            setLogoUrl(result.data.logo);
           }
-        } else {
-          // Use default logo if settings fetch fails
-          setLogoUrl(DEFAULT_LOGO);
         }
       } catch (error) {
-        console.error("Errore nel caricamento delle impostazioni:", error);
-        // Fallback to default logo on error
-        setLogoUrl(DEFAULT_LOGO);
+        setLogoUrl("/logo.png");
       }
     };
 
-    if (user) {
+    if (token) {
       loadSettings();
     }
-
-    if (typeof window === "undefined") {
-      return;
-    }
-
-    // Gestione responsive
-    const handleResize = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, [user, navigate, toast]);
+  }, [token]);
 
   const handleLogout = async () => {
     try {
       await signOut();
-      toast({
-        title: "Logged out",
-        description: "You have been logged out successfully",
-      });
+      toast({ title: "Logged out", description: "Your session has ended." });
       navigate("/login");
     } catch (error) {
-      console.error("Error during logout:", error);
       toast({
         variant: "destructive",
-        title: "Error",
-        description: "An error occurred during logout",
+        title: "Logout failed",
+        description: "Please try again.",
       });
     }
   };
 
-  const SidebarContent = () => (
-    <div className="flex flex-col h-full">
-      <div className="flex items-center justify-center p-4 border-b">
-        <Link
-          to="/"
-          className="flex items-center justify-center hover:opacity-90 transition-opacity"
-        >
+  if (loading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-gradient-to-b from-cyan-50 to-slate-100">
+        <Loader2 className="h-8 w-8 animate-spin text-cyan-600" />
+      </div>
+    );
+  }
+
+  if (!token) {
+    return null;
+  }
+
+  const Sidebar = () => (
+    <div className="flex h-full flex-col">
+      <div className="border-b border-cyan-100 p-5">
+        <Link to="/" className="flex items-center gap-3">
           <img
             src={logoUrl}
-            alt={siteName || "Logo"}
-            onError={(e) => {
-              console.error("Logo failed to load, using default:", logoUrl);
-              setLogoUrl(DEFAULT_LOGO);
-            }}
-            className="h-16 w-16 cursor-pointer rounded-lg object-contain hover:scale-105 transition-transform duration-200"
+            alt={siteName}
+            onError={() => setLogoUrl("/logo.png")}
+            className="h-10 w-10 rounded-xl border border-cyan-100 object-contain"
           />
+          <div>
+            <p className="text-sm text-slate-500">Workspace</p>
+            <p className="text-sm font-semibold text-slate-900">{siteName}</p>
+          </div>
         </Link>
       </div>
-      {/* <div className="flex flex-col space-y-1 p-2 mt-4">
-        <Link to="/">
-          <Button variant="ghost" className="w-full justify-start">
-            <Home className="mr-2 h-4 w-4" />
-            Home
-          </Button>
-        </Link>
-        <Link to="/about">
-          <Button variant="ghost" className="w-full justify-start">
-            <User className="mr-2 h-4 w-4" />
-            Chi Siamo
-          </Button>
-        </Link>
-        <Link to="/guide">
-          <Button variant="ghost" className="w-full justify-start">
-            <FileText className="mr-2 h-4 w-4" />
-            Guida
-          </Button>
-        </Link>
-        <Link to="/pricing">
-          <Button variant="ghost" className="w-full justify-start">
-            <FileDown className="mr-2 h-4 w-4" />
-            Prezzi
-          </Button>
-        </Link>
-        <Link to="/contact">
-          <Button variant="ghost" className="w-full justify-start">
-            <Menu className="mr-2 h-4 w-4" />
-            Contatti
-          </Button>
-        </Link>
-      </div> */}
-      <div className="border-t my-4"></div>
-      <div className="flex flex-col space-y-1 p-2">
-        <Link to="/dashboard">
-          <Button
-            variant={activeTab === "questionnaires" ? "default" : "ghost"}
-            className="w-full justify-start"
-            onClick={() => setActiveTab("questionnaires")}
-          >
-            <CheckSquare className="mr-2 h-4 w-4" />
-            Questionnaires
-          </Button>
-        </Link>
-        <Link to="/dashboard">
-          <Button
-            variant={activeTab === "reports" ? "default" : "ghost"}
-            className="w-full justify-start"
-            onClick={() => setActiveTab("reports")}
-          >
-            <FileText className="mr-2 h-4 w-4" />My reports
-          </Button>
-        </Link>
-        <Link to="/dashboard">
-          <Button
-            variant={activeTab === "subscriptions" ? "default" : "ghost"}
-            className="w-full justify-start"
-            onClick={() => setActiveTab("subscriptions")}
-          >
-            <FileDown className="mr-2 h-4 w-4" />
-            Subscriptions
-          </Button>
-        </Link>
-        <Link to="/dashboard">
-          <Button
-            variant={activeTab === "profile" ? "default" : "ghost"}
-            className="w-full justify-start"
-            onClick={() => setActiveTab("profile")}
-          >
-            <User className="mr-2 h-4 w-4" />
-            Profile
-          </Button>
-        </Link>
+
+      <div className="flex-1 space-y-1 p-3">
+        {NAV_ITEMS.map((item) => {
+          const Icon = item.icon;
+          const selected = activeTab === item.key;
+
+          return (
+            <Button
+              key={item.key}
+              variant="ghost"
+              onClick={() => setActiveTab(item.key)}
+              className={`w-full justify-start gap-2 ${
+                selected
+                  ? "bg-cyan-100 text-cyan-800 hover:bg-cyan-100"
+                  : "text-slate-600 hover:bg-slate-100"
+              }`}
+            >
+              <Icon className="h-4 w-4" />
+              {item.label}
+            </Button>
+          );
+        })}
       </div>
-      <div className="mt-auto p-4">
-        <Button variant="outline" onClick={handleLogout} className="w-full">
+
+      <div className="border-t border-cyan-100 p-3">
+        <Button
+          variant="outline"
+          onClick={handleLogout}
+          className="w-full border-cyan-200 text-cyan-700 hover:bg-cyan-50"
+        >
           <LogOut className="mr-2 h-4 w-4" />
           Logout
         </Button>
@@ -232,57 +161,36 @@ const UserDashboard = () => {
     </div>
   );
 
-  if (!user) {
-    return null; // Non renderizzare nulla se l'utente non è autenticato
-  }
-
   return (
-    <div className="flex h-screen">
-      {/* Sidebar per desktop */}
-      {!isMobile && (
-        <div className="w-64 border-r bg-white shadow-sm h-screen hidden md:block">
-          <SidebarContent />
-        </div>
-      )}
+    <div className="flex min-h-screen bg-gradient-to-b from-cyan-50 via-white to-slate-100">
+      {!isMobile && <aside className="hidden w-72 border-r border-cyan-100 bg-white/90 md:block"><Sidebar /></aside>}
 
-      <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Header mobile */}
-        <header className="bg-white border-b py-2 px-4 flex justify-between items-center">
-          <div className="flex items-center space-x-2">
-            {isMobile && (
-              <Sheet>
-                <SheetTrigger asChild>
-                  <Button variant="ghost" size="icon">
-                    <Menu className="h-5 w-5" />
-                  </Button>
-                </SheetTrigger>
-                <SheetContent side="left" className="p-0">
-                  <SidebarContent />
-                </SheetContent>
-              </Sheet>
-            )}
+      <main className="flex min-h-screen flex-1 flex-col">
+        <header className="sticky top-0 z-20 border-b border-cyan-100 bg-white/85 px-4 py-3 backdrop-blur md:px-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              {isMobile && (
+                <Sheet>
+                  <SheetTrigger asChild>
+                    <Button size="icon" variant="ghost">
+                      <Menu className="h-5 w-5" />
+                    </Button>
+                  </SheetTrigger>
+                  <SheetContent side="left" className="w-72 p-0">
+                    <Sidebar />
+                  </SheetContent>
+                </Sheet>
+              )}
+              <div>
+                <p className="text-xs uppercase tracking-wide text-cyan-700">Dashboard</p>
+                <h1 className="text-lg font-semibold text-slate-900">Welcome{user?.firstName ? `, ${user.firstName}` : ""}</h1>
+              </div>
+            </div>
 
-            {!isMobile && (
-              <Link to="/" className="flex items-center">
-                <img
-                  src={logoUrl}
-                  alt={siteName || "Logo"}
-                  onError={(e) => {
-                    console.error("Logo failed to load, using default:", logoUrl);
-                    setLogoUrl(DEFAULT_LOGO);
-                  }}
-                  className="h-10 w-10 cursor-pointer rounded-lg object-contain hover:scale-105 transition-transform duration-200"
-                />
-              </Link>
-            )}
-          </div>
-
-          <div className="flex items-center">
             <Button
               variant="outline"
-              size="sm"
               onClick={handleLogout}
-              className="flex items-center"
+              className="border-cyan-200 text-cyan-700 hover:bg-cyan-50"
             >
               <LogOut className="mr-2 h-4 w-4" />
               Logout
@@ -290,42 +198,35 @@ const UserDashboard = () => {
           </div>
         </header>
 
-        {/* Contenuto principale */}
-        <div className="flex-1 overflow-auto p-4 md:p-6">
-          <Tabs
-            value={activeTab}
-            onValueChange={setActiveTab}
-            className="w-full"
-          >
-            <TabsList className="mb-6">
-              <TabsTrigger value="questionnaires">Questionnaires</TabsTrigger>
-              <TabsTrigger value="reports">My reports</TabsTrigger>
-              <TabsTrigger value="subscriptions">Subscriptions</TabsTrigger>
-              <TabsTrigger value="profile">Profile</TabsTrigger>
+        <section className="flex-1 p-4 md:p-6">
+          <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as DashboardTab)} className="space-y-4">
+            <TabsList className="flex h-auto w-full flex-wrap justify-start gap-2 bg-transparent p-0">
+              {NAV_ITEMS.map((item) => (
+                <TabsTrigger
+                  key={item.key}
+                  value={item.key}
+                  className="rounded-full border border-cyan-200 bg-white px-4 py-2 text-slate-600 data-[state=active]:border-cyan-600 data-[state=active]:bg-cyan-600 data-[state=active]:text-white"
+                >
+                  {item.label}
+                </TabsTrigger>
+              ))}
             </TabsList>
 
-            {/* Contenuto Questionari */}
             <TabsContent value="questionnaires">
               <UserQuestionnaires />
             </TabsContent>
-
-            {/* Contenuto Report */}
             <TabsContent value="reports">
               <UserReports />
             </TabsContent>
-
-            {/* Contenuto Abbonamenti */}
             <TabsContent value="subscriptions">
               <UserSubscriptions />
             </TabsContent>
-
-            {/* Contenuto Profilo */}
             <TabsContent value="profile">
               <UserProfile />
             </TabsContent>
           </Tabs>
-        </div>
-      </div>
+        </section>
+      </main>
     </div>
   );
 };

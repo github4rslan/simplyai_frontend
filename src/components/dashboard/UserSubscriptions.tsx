@@ -1,21 +1,20 @@
-
-import React, { useState, useEffect } from 'react';
-import { useToast } from '@/components/ui/use-toast';
-import { useAuth } from '@/hooks/useAuth';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { 
-  Loader2, 
-  Calendar, 
-  CreditCard, 
-  Clock, 
-  RotateCcw, 
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import {
+  AlertTriangle,
   CheckSquare,
+  Clock,
+  CreditCard,
   FileText,
-  AlertTriangle
-} from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
-import { fetchUserSubscription } from '@/services/ApiService';
+  Loader2,
+  RotateCcw,
+} from "lucide-react";
+import { useToast } from "@/components/ui/use-toast";
+import { useAuth } from "@/hooks/useAuth";
+import { fetchUserSubscription } from "@/services/ApiService";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 
 interface Subscription {
   id: string;
@@ -23,338 +22,244 @@ interface Subscription {
   plan_type: string;
   started_at: string;
   expires_at: string;
-  status: 'active' | 'expired' | 'canceled';
+  status: "active" | "expired" | "canceled";
   is_free: boolean;
   features: string[];
   next_questionnaire_date?: string;
   questionnaires: {
     id: string;
     name: string;
-    status: 'completed' | 'pending' | 'available';
+    status: "completed" | "pending" | "available";
     available_at?: string;
     sequence?: number;
   }[];
 }
 
 export const UserSubscriptions = () => {
+  const navigate = useNavigate();
   const { toast } = useToast();
   const { user, token } = useAuth();
   const [isLoading, setIsLoading] = useState(true);
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
-  
+
   useEffect(() => {
-    console.log('UserSubscriptions useEffect triggered', { user, token });
     const loadSubscriptions = async () => {
-      console.log('loadSubscriptions called');
       if (!user || !token) {
-        console.log('User or token missing:', { user, token });
+        setIsLoading(false);
         return;
       }
 
       try {
         setIsLoading(true);
-        console.log('Fetching user subscription data...');
-
         const result = await fetchUserSubscription(token);
-        console.log('Subscription API result:', result);
 
         if (result.success && result.data) {
-          // Map API response to Subscription interface expected by UI
           const { plan, subscription_id, started_at, expires_at, is_active, questionnaires } = result.data;
-          // Only allow 'active', 'expired', or 'canceled' for status
-          let status: 'active' | 'expired' | 'canceled' = 'expired';
-          if (is_active) status = 'active';
-          // If you have a canceled state, add logic here
-          const safeData = {
+
+          const mapped: Subscription = {
             id: subscription_id,
-            plan_name: plan?.name || '',
-            plan_type: plan?.plan_type || '',
-            started_at: started_at,
-            expires_at: expires_at,
-            status,
+            plan_name: plan?.name || "",
+            plan_type: plan?.plan_type || "single",
+            started_at,
+            expires_at,
+            status: is_active ? "active" : "expired",
             is_free: !!plan?.is_free,
             features: Array.isArray(plan?.features) ? plan.features : [],
             questionnaires: Array.isArray(questionnaires)
-              ? questionnaires.map(q => ({
+              ? questionnaires.map((q: any) => ({
                   id: q.id,
                   name: q.name,
-                  status: q.status === 'completed' || q.status === 'pending' || q.status === 'available' ? q.status : 'available',
+                  status:
+                    q.status === "completed" || q.status === "pending" || q.status === "available"
+                      ? q.status
+                      : "available",
                   available_at: q.available_at,
                   sequence: q.sequence,
                 }))
               : [],
           };
-          setSubscriptions([safeData]);
-          console.log('Set subscriptions:', [safeData]);
+
+          setSubscriptions([mapped]);
         } else {
-          console.log('No subscription data found, API result:', result);
           setSubscriptions([]);
         }
-      } catch (error) {
-        console.error('Error loading subscription:', error);
-        if (error.response) {
-          error.response.text().then((text) => {
-            console.error('API error response text:', text);
-          });
-        }
-        // Check if it's a 404 (no subscription found) vs other errors
-        if (error.message && error.message.includes('Failed to fetch user subscription')) {
-          setSubscriptions([]);
-          toast({
-            variant: 'default',
-            title: 'Info',
-            description: 'You do not have an active subscription yet',
-          });
-        } else {
-          toast({
-            variant: 'destructive',
-            title: 'Error',
-            description: 'Could not load subscription data',
-          });
-        }
+      } catch (error: any) {
+        setSubscriptions([]);
+        const message = error?.message || "Could not load subscription data.";
+
+        toast({
+          variant: "destructive",
+          title: "Subscription error",
+          description: message,
+        });
       } finally {
         setIsLoading(false);
-        console.log('Loading state set to false');
       }
     };
 
     loadSubscriptions();
   }, [user, token, toast]);
-  
-  const handleManageSubscription = () => {
-    // In un'implementazione reale, qui reindirizzeremmo a una pagina di gestione abbonamenti
-    // o a un portale cliente di servizi come Stripe
-    toast({
-      title: 'Coming soon',
-      description: 'Subscription management will be available soon.',
-    });
-  };
-  
+
   const getStatusBadge = (status: string) => {
-    switch(status) {
-      case 'active':
-        return <Badge className="bg-green-100 text-green-800 hover:bg-green-200">Active</Badge>;
-      case 'expired':
-        return <Badge className="bg-red-100 text-red-800 hover:bg-red-200">Expired</Badge>;
-      case 'canceled':
-        return <Badge className="bg-gray-100 text-gray-800 hover:bg-gray-200">Canceled</Badge>;
-      case 'completed':
-        return <Badge className="bg-blue-100 text-blue-800 hover:bg-blue-200">Completed</Badge>;
-      case 'pending':
-        return <Badge className="bg-amber-100 text-amber-800 hover:bg-amber-200">Pending</Badge>;
-      case 'available':
-        return <Badge className="bg-green-100 text-green-800 hover:bg-green-200">Available</Badge>;
+    switch (status) {
+      case "active":
+        return <Badge className="bg-emerald-100 text-emerald-700 hover:bg-emerald-100">Active</Badge>;
+      case "expired":
+        return <Badge className="bg-red-100 text-red-700 hover:bg-red-100">Expired</Badge>;
+      case "canceled":
+        return <Badge className="bg-slate-200 text-slate-700 hover:bg-slate-200">Canceled</Badge>;
+      case "completed":
+        return <Badge className="bg-cyan-100 text-cyan-700 hover:bg-cyan-100">Completed</Badge>;
+      case "pending":
+        return <Badge className="bg-amber-100 text-amber-700 hover:bg-amber-100">Pending</Badge>;
       default:
-        return <Badge className="bg-gray-100 text-gray-800 hover:bg-gray-200">Unknown</Badge>;
+        return <Badge className="bg-slate-200 text-slate-700 hover:bg-slate-200">Unknown</Badge>;
     }
   };
-  
+
   const getPlanTypeIcon = (planType: string) => {
-    switch(planType) {
-      case 'single':
-        return <CheckSquare className="h-5 w-5 mr-2 text-gray-500" />;
-      case 'verification':
-        return <Clock className="h-5 w-5 mr-2 text-amber-500" />;
-      case 'periodic':
-        return <RotateCcw className="h-5 w-5 mr-2 text-blue-500" />;
-      case 'multiple':
-        return <FileText className="h-5 w-5 mr-2 text-green-500" />;
-      case 'progress':
-        return <CheckSquare className="h-5 w-5 mr-2 text-[var(--color-primary-500)]" />;
+    switch (planType) {
+      case "verification":
+        return <Clock className="h-5 w-5 text-amber-500" />;
+      case "periodic":
+        return <RotateCcw className="h-5 w-5 text-cyan-600" />;
+      case "multiple":
+        return <FileText className="h-5 w-5 text-emerald-600" />;
       default:
-        return <CheckSquare className="h-5 w-5 mr-2 text-gray-500" />;
+        return <CheckSquare className="h-5 w-5 text-slate-600" />;
     }
   };
-  
+
   const getPlanTypeName = (planType: string) => {
-    switch(planType) {
-      case 'single':
+    switch (planType) {
+      case "single":
         return "Single questionnaire";
-      case 'verification':
-        return "Verification after period";
-      case 'periodic':
+      case "verification":
+        return "Verification cycle";
+      case "periodic":
         return "Periodic questionnaires";
-      case 'multiple':
+      case "multiple":
         return "Multiple questionnaires";
-      case 'progress':
+      case "progress":
         return "Learning progression";
       default:
         return "Standard plan";
     }
   };
 
-  const renderQuestionnaires = (subscription: Subscription) => {
-    if (!subscription.questionnaires || subscription.questionnaires.length === 0) {
-      return (
-        <div className="text-center p-4 border border-dashed rounded-md">
-          <p className="text-gray-500">No questionnaires available</p>
-        </div>
-      );
-    }
-
+  if (isLoading) {
     return (
-      <div className="space-y-3">
-        <h3 className="text-sm font-medium mb-3">Your plan questionnaires:</h3>
-        {subscription.questionnaires.map((q) => (
-          <div key={q.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border">
-            <div className="flex items-center space-x-3 flex-1">
-              {q.status === 'completed' ? (
-                <CheckSquare className="h-5 w-5 text-green-500 flex-shrink-0" />
-              ) : q.status === 'available' ? (
-                <FileText className="h-5 w-5 text-blue-500 flex-shrink-0" />
-              ) : (
-                <Clock className="h-5 w-5 text-amber-500 flex-shrink-0" />
-              )}
-              <div className="flex-1 min-w-0">
-                <div className="font-medium text-sm mb-1 truncate">{q.name}</div>
-                <div className="flex items-center gap-2 text-xs flex-wrap">
-                  {getStatusBadge(q.status)}
-                  {q.status === 'pending' && q.available_at && (
-                    <span className="text-gray-500">
-                      Available from: {new Date(q.available_at).toLocaleDateString('en-US')}
-                    </span>
-                  )}
-                  {q.sequence && (
-                    <span className="text-gray-500">
-                      Sequence: {q.sequence}
-                    </span>
-                  )}
+      <Card className="border-cyan-100 bg-white/90 shadow-sm">
+        <CardContent className="py-10">
+          <div className="flex justify-center">
+            <Loader2 className="h-8 w-8 animate-spin text-cyan-600" />
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (!subscriptions.length) {
+    return (
+      <Card className="border-cyan-100 bg-white/90 shadow-sm">
+        <CardContent className="py-10 text-center">
+          <CreditCard className="mx-auto mb-3 h-12 w-12 text-slate-300" />
+          <p className="font-medium text-slate-700">No active subscriptions</p>
+          <Button onClick={() => navigate("/pricing")} className="mt-4 bg-cyan-600 text-white hover:bg-cyan-700">
+            View plans
+          </Button>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <Card className="border-cyan-100 bg-white/90 shadow-sm">
+      <CardHeader>
+        <CardTitle>Subscriptions</CardTitle>
+        <CardDescription>Review your active plan and included questionnaires.</CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        {subscriptions.map((subscription) => (
+          <div key={subscription.id} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+            <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+              <div>
+                <div className="flex items-center gap-2">
+                  {getPlanTypeIcon(subscription.plan_type)}
+                  <h3 className="text-lg font-semibold text-slate-900">{subscription.plan_name}</h3>
                 </div>
+                <p className="mt-1 text-sm text-slate-600">{getPlanTypeName(subscription.plan_type)}</p>
+              </div>
+              {getStatusBadge(subscription.status)}
+            </div>
+
+            {subscription.next_questionnaire_date ? (
+              <div className="mb-4 flex items-start gap-2 rounded-xl border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
+                <AlertTriangle className="mt-0.5 h-4 w-4 flex-shrink-0" />
+                Next scheduled questionnaire: {new Date(subscription.next_questionnaire_date).toLocaleDateString("en-US")}
+              </div>
+            ) : null}
+
+            <div className="mb-4 grid grid-cols-1 gap-3 md:grid-cols-2">
+              <div className="rounded-xl bg-slate-50 p-3">
+                <p className="text-xs uppercase tracking-wide text-slate-500">Start date</p>
+                <p className="mt-1 text-sm font-medium text-slate-800">{new Date(subscription.started_at).toLocaleDateString("en-US")}</p>
+              </div>
+              <div className="rounded-xl bg-slate-50 p-3">
+                <p className="text-xs uppercase tracking-wide text-slate-500">Expiry date</p>
+                <p className="mt-1 text-sm font-medium text-slate-800">{new Date(subscription.expires_at).toLocaleDateString("en-US")}</p>
               </div>
             </div>
-            
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              disabled={q.status === 'pending'}
-              onClick={() => window.location.href = `/questionnaire/${q.id}`}
-              className="ml-4 flex-shrink-0"
-            >
-              {q.status === 'completed' ? 'View' : q.status === 'available' ? 'Fill in' : 'Pending'}
-            </Button>
+
+            {subscription.features.length > 0 ? (
+              <div className="mb-4">
+                <p className="mb-2 text-sm font-medium text-slate-800">Plan features</p>
+                <ul className="grid grid-cols-1 gap-2 md:grid-cols-2">
+                  {subscription.features.map((feature, idx) => (
+                    <li key={idx} className="flex items-start gap-2 rounded-lg bg-cyan-50 p-2 text-sm text-slate-700">
+                      <CheckSquare className="mt-0.5 h-4 w-4 flex-shrink-0 text-cyan-600" />
+                      {feature}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
+
+            <div>
+              <p className="mb-2 text-sm font-medium text-slate-800">Included questionnaires</p>
+              {subscription.questionnaires.length === 0 ? (
+                <p className="rounded-xl border border-dashed border-slate-300 p-3 text-sm text-slate-500">
+                  No questionnaires assigned to this plan.
+                </p>
+              ) : (
+                <div className="space-y-2">
+                  {subscription.questionnaires.map((q) => (
+                    <div key={q.id} className="flex flex-col gap-2 rounded-xl border border-slate-200 p-3 sm:flex-row sm:items-center sm:justify-between">
+                      <div>
+                        <p className="font-medium text-slate-900">{q.name}</p>
+                        <div className="mt-1 flex items-center gap-2 text-xs text-slate-500">
+                          {getStatusBadge(q.status)}
+                          {q.available_at ? (
+                            <span>Available: {new Date(q.available_at).toLocaleDateString("en-US")}</span>
+                          ) : null}
+                        </div>
+                      </div>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        disabled={q.status === "pending"}
+                        onClick={() => navigate(`/questionnaire/${q.id}`)}
+                        className="border-cyan-200 text-cyan-700 hover:bg-cyan-50"
+                      >
+                        {q.status === "pending" ? "Pending" : q.status === "completed" ? "View" : "Open"}
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         ))}
-      </div>
-    );
-  };
-  
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle>My subscriptions</CardTitle>
-        <CardDescription>
-          Manage your subscriptions and active plans
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        {isLoading ? (
-          <div className="flex justify-center py-8">
-            <Loader2 className="h-8 w-8 animate-spin text-[var(--color-primary)]" />
-          </div>
-        ) : subscriptions.length > 0 ? (
-          <div className="space-y-4">
-            {subscriptions.map(subscription => (
-              <Card key={subscription.id} className={`border-2 ${subscription.status === 'active' ? 'border-green-200' : 'border-gray-200'}`}>
-                <CardContent className="p-6">
-                  <div className="flex flex-col md:flex-row md:justify-between md:items-start mb-6">
-                    <div className="flex-1">
-                      <div className="flex items-center mb-3">
-                        {getPlanTypeIcon(subscription.plan_type)}
-                        <h3 className="font-semibold text-lg">
-                          Plan {subscription.plan_name}
-                        </h3>
-                      </div>
-                      <div className="flex flex-wrap items-center gap-2 mb-2">
-                        <span className="text-sm py-1 px-3 rounded-full bg-[var(--color-primary-100)] text-[var(--color-primary-700)]">
-                          {getPlanTypeName(subscription.plan_type)}
-                        </span>
-                        {subscription.is_free && (
-                          <span className="bg-green-100 px-3 py-1 rounded-full text-sm text-green-800">
-                            Free
-                          </span>
-                        )}
-                      </div>
-                      <div className="mt-2">
-                        {getStatusBadge(subscription.status)}
-                      </div>
-                    </div>
-                  </div>
-                  
-                  {subscription.next_questionnaire_date && (
-                    <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-md flex items-center">
-                      <AlertTriangle className="h-5 w-5 text-amber-500 mr-2" />
-                      <div>
-                        <p className="text-sm font-medium">Next scheduled questionnaire</p>
-                        <p className="text-sm text-gray-600">
-                          {new Date(subscription.next_questionnaire_date).toLocaleDateString('en-US')}
-                        </p>
-                      </div>
-                    </div>
-                  )}
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                    <div className="flex items-center space-x-2">
-                      <Calendar className="h-4 w-4 text-gray-500 flex-shrink-0" />
-                      <div>
-                        <span className="text-sm font-medium">Start date:</span>
-                        <br />
-                        <span className="text-sm text-gray-600">
-                          {new Date(subscription.started_at).toLocaleDateString('en-US')}
-                        </span>
-                      </div>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <Calendar className="h-4 w-4 text-gray-500 flex-shrink-0" />
-                      <div>
-                        <span className="text-sm font-medium">Expiry date:</span>
-                        <br />
-                        <span className="text-sm text-gray-600">
-                          {new Date(subscription.expires_at).toLocaleDateString('en-US')}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="mb-6">
-                    <h3 className="text-sm font-medium mb-3">Plan features:</h3>
-                    <ul className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                      {(subscription.features || []).map((feature, idx) => (
-                        <li key={idx} className="flex items-start space-x-2">
-                          <CheckSquare className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
-                          <span className="text-sm leading-relaxed">{feature}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                  
-                  {renderQuestionnaires(subscription)}
-                  
-                  <div className="mt-6 pt-4 border-t">
-                    <Button 
-                      onClick={handleManageSubscription}
-                      variant="outline" 
-                      className="w-full flex items-center justify-center space-x-2"
-                    >
-                      <CreditCard className="h-4 w-4" />
-                      <span>Manage subscription</span>
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        ) : (
-          <div className="text-center py-8">
-            <CreditCard className="h-12 w-12 mx-auto text-gray-300 mb-2" />
-            <p className="mb-4">You have no active subscriptions</p>
-            <Button 
-              onClick={() => window.location.href = '/pricing'}
-              className="bg-[var(--color-primary)] hover:bg-[var(--color-primary-700)]"
-            >
-              View available plans
-            </Button>
-          </div>
-        )}
       </CardContent>
     </Card>
   );
